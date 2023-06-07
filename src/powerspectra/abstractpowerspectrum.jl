@@ -15,4 +15,4 @@ abstract type NoisePowerSpectrum1D <: AbstractNoisePowerSpectrum end
 Base.ndims(::NoisePowerSpectrum1D) = 1
 
 abstract type NoisePowerSpectrum2D <: AbstractNoisePowerSpectrum end
-Base.ndims(::NoisePowerSpectrum1D) = 2
+Base.ndims(::NoisePowerSpectrum2D) = 2
