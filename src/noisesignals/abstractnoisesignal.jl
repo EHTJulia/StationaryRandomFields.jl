@@ -22,21 +22,21 @@ various methods.
 """
 abstract type AbstractNoiseSignal end
 
-### 
+###
 ### Methods to give the size
 ###
 @inline function Base.size(data::AbstractNoiseSignal)::Tuple
     return data.dims
 end
 
-### 
+###
 ### Methods to give the size
 ###
-@inline function Base.sizeof(data::AbstractNoiseSignal)::Tuple
-    return prod(data.dims)
-end
+#@inline function Base.sizeof(data::AbstractNoiseSignal)::Tuple
+#    return prod(data.dims)
+#end
 
-### 
+###
 ### Methods to give the size
 ###
 @inline function Base.ndims(data::AbstractNoiseSignal)::Integer
