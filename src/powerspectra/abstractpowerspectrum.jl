@@ -38,6 +38,7 @@ end
 #
 @inline function map_powerspectrum_point(psmodel::AbstractNoisePowerSpectrum, singleν::Number)::Number
     return map_ampspectrum_point(psmodel, singleν)^2
+end 
 
 #
 # Method to compute given amplitude power law function of signal grid 
