@@ -16,8 +16,9 @@ various methods.
 # Mandatory methods
 - `size(data::AbstractNoiseSignal)`: returns the size of the signal
 - `ndims(data::AbstractNoiseSignal)`: returns the number of the dimension
-- `rfftsize(data::AbstractNoiseSignal)`: returns the size of the signal in the Fourier plain (for rfft)
-- `rfftfreq(data::AbstractNoiseSignal)`: returns the freuqency grid along each dimension in the Fourier plain (for rfft)
+- `xgrid(data::NoiseSignal1D)`: returns the position grid in the image plane
+- `rfftsize(data::AbstractNoiseSignal)`: returns the size of the signal in the Fourier plane (for rfft)
+- `rfftfreq(data::AbstractNoiseSignal)`: returns the freuqency grid along each dimension in the Fourier plane (for rfft)
 - `generate_gaussian_noise(data::AbstractNoiseSignal)`: returns Gaussian noises in Fourier domain with the size of `rfftsize(data)`
 """
 abstract type AbstractNoiseSignal end
@@ -42,6 +43,13 @@ end
 @inline function Base.ndims(data::AbstractNoiseSignal)::Integer
     return length(data.dims)
 end
+
+#
+# Generate x-axis grid in position space for graphing data 
+#
+@inline function xgrid(data::NoiseSignal1D)
+    return [i*data.pixelsizes for i in 0:(data.dims-1)]
+end 
 
 ###
 ### Size of noises in Fourier domain
