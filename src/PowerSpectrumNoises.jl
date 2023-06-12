@@ -13,5 +13,6 @@ include("./noisesignals/noisesignal2d.jl")
 
 # Power Spectrum Models
 include("./powerspectra/abstractpowerspectrum.jl")
+include("./powerspectra/singlepowerlaw1d.jl")
 
 end
