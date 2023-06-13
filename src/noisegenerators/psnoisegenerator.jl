@@ -1,3 +1,6 @@
+export PowerSpectrumNoiseGenerator
+export generate_signal_noise
+
 """
     PowerSpectrumNoiseGenerator
 
