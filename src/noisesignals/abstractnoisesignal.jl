@@ -16,7 +16,7 @@ various methods.
 # Mandatory methods
 - `size(data::AbstractNoiseSignal)`: returns the size of the signal
 - `ndims(data::AbstractNoiseSignal)`: returns the number of the dimension
-- `xgrid(data::NoiseSignal1D)`: returns the position grid in the image plane
+- `signalgrid(data::AbstractNoiseSignal)`: returns position grid in the image plane
 - `rfftsize(data::AbstractNoiseSignal)`: returns the size of the signal in the Fourier plane (for rfft)
 - `rfftfreq(data::AbstractNoiseSignal)`: returns the freuqency grid along each dimension in the Fourier plane (for rfft)
 - `generate_gaussian_noise(data::AbstractNoiseSignal)`: returns Gaussian noises in Fourier domain with the size of `rfftsize(data)`
@@ -45,10 +45,11 @@ end
 end
 
 #
-# Generate x-axis grid in position space for graphing data 
+# Generate x-axis grid for 1D, x and y-axis grid for 2D to graph data in the position plane
 #
-@inline function xgrid(data::AbstractNoiseSignal)
-    return [i*data.pixelsizes for i in 0:(data.dims-1)]
+@inline function signalgrid(data::AbstractNoiseSignal)::Tuple
+    return Tuple((
+    [j*data.pixelsizes[i] for j in 0:(data.dims[i]-1)]) for i in 1:ndims(data))
 end 
 
 ###
