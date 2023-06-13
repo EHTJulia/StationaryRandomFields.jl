@@ -38,6 +38,10 @@ Base.ndims(::NoisePowerSpectrum2D) = 2
     return psmodel.amp * singleν^(psmodel.index/2) 
 end
 
+"""
+    mapampspectrum
+"""
+
 #
 # Compute amplitude spectrum of frequency grid
 #
@@ -45,16 +49,16 @@ end
     return (gridofν -> psmodel.amp .* gridofν .^ psmodel.index/2).(gridofν)
 end
 
+@inline function map_ampspectrum(psmodel::AbstractNoisePowerSpectrum, gridofν::Tuple)
+    return (gridofν -> psmodel.amp .* gridofν .^ psmodel.index/2).(gridofν)
+end
+
 #
 # Compute amplitude spectrum of frequency grid corresponding to signal data
 #
-@inline function map_ampspectrum(psmodel::AbstractNoisePowerSpectrum, signaldata::NoiseSignal1D)
+@inline function map_ampspectrum(psmodel::AbstractNoisePowerSpectrum, signaldata::AbstractNoiseSignal)
     return map_ampspectrum(psmodel,rfftfreq(signaldata))
 end
-
-"""
-    define for NoiseSignal2D
-"""
 
 #
 # Compute power law spectrum of single point frequency 
@@ -71,6 +75,11 @@ end
     return (ampspec -> ampspec .^ 2).(ampspec)
 end
 
+@inline function map_powerspectrum(psmodel::AbstractNoisePowerSpectrum, gridofν::Tuple) 
+    ampspec = map_ampspectrum(psmodel, gridofν)
+    return (ampspec -> ampspec .^ 2).(ampspec)
+end
+
 #
 # Compute power spectrum of frequency grid corresponding to signal data
 #
@@ -78,6 +87,4 @@ end
     return map_powerspectrum(psmodel,rfftfreq(signaldata))
 end
 
-"""
-    define for noise signal 2D
-"""
+
