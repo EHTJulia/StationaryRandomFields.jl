@@ -47,7 +47,7 @@ end
 #
 # Generate x-axis grid in position space for graphing data 
 #
-@inline function xgrid(data::NoiseSignal1D)
+@inline function xgrid(data::AbstractNoiseSignal)
     return [i*data.pixelsizes for i in 0:(data.dims-1)]
 end 
 
