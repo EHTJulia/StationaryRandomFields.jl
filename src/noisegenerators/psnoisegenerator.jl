@@ -15,7 +15,5 @@ This is an abstract data type for power spectrum noise generators.
 abstract type PowerSpectrumNoiseGenerator end
 
 @inline function generate_signal_noise(psgen::PowerSpectrumNoiseGenerator)
-    ampspec = map_ampspectrum(psgen.psmodel, psgen.noisesignal)
-    ampspec[1] = 0
-    return psgen.ifftplan * (ampspec * generate_gaussian_noise(psgen.noisesignal))
+    return psgen.ifftplan * (map_ampspectrum(psgen.psmodel, psgen.noisesignal) * generate_gaussian_noise(psgen.noisesignal))
 end
