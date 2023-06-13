@@ -31,18 +31,24 @@ end
 # Compute amplitude spectrum of frequency grid
 #
 @inline function map_ampspectrum(psmodel::NoisePowerSpectrum1D, gridofν::AbstractArray...)
-    return (gridofν -> psmodel.amp .* gridofν .^ (-psmodel.index/2)).(gridofν)
+    ampspec = (gridofν -> psmodel.amp .* gridofν .^ (-psmodel.index/2)).(gridofν)
+    ampspec[1][1] = 0
+    return ampspec
 end
 
 @inline function map_ampspectrum(psmodel::NoisePowerSpectrum1D, gridofν::Tuple)
-    return (gridofν -> psmodel.amp .* gridofν .^ (-psmodel.index/2)).(gridofν)
+    ampspec = (gridofν -> psmodel.amp .* gridofν .^ (-psmodel.index/2)).(gridofν)
+    ampspec[1][1] = 0
+    return ampspec
 end
 
 #
 # Compute amplitude spectrum of frequency grid corresponding to signal data
 #
 @inline function map_ampspectrum(psmodel::NoisePowerSpectrum1D, signaldata::AbstractNoiseSignal)
-    return map_ampspectrum(psmodel,rfftfreq(signaldata))
+    ampspec = map_ampspectrum(psmodel,rfftfreq(signaldata))
+    ampspec[1][1]=0
+    return ampspec
 end
 
 #
