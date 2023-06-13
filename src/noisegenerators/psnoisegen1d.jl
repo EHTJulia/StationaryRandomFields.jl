@@ -1,3 +1,4 @@
+export PSNoiseGenerator1D
 """
     PSNoiseGenerator1D <: PowerSpectrumNoiseGenerator
 
@@ -10,3 +11,4 @@ struct PSNoiseGenerator1D <: PowerSpectrumNoiseGenerator
     rfftplan 
     irfftplan
 end
+

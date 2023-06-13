@@ -1,6 +1,7 @@
 export AbstractNoiseSignal
 export generate_gaussian_noise
 export rfftsize
+export signalgrid
 
 """
     AbstractNoiseSignal
