@@ -1,6 +1,8 @@
 export PSNoiseGenerator1D
 export generate_signal_noise
 export get_power_spectrum
+export rfftfreq
+export get_fourier_noise
 
 """
     PSNoiseGenerator1D <: PowerSpectrumNoiseGenerator
