@@ -1,7 +1,6 @@
 export PSNoiseGenerator1D
 export generate_signal_noise
 export get_power_spectrum
-export rfftfreq
 export get_fourier_noise
 
 """
@@ -27,7 +26,7 @@ end
 #
 # Compute frequencies in the Fourier Domain
 #
-@inline function rfftfreq(psgen::PSNoiseGenerator1D)
+@inline function AbstractFFTs.rfftfreq(psgen::PSNoiseGenerator1D)
     return rfftfreq(psgen.noisesignal)
 end
 
