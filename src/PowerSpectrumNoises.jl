@@ -14,6 +14,7 @@ include("./noisesignals/noisesignal2d.jl")
 # Pusing ower Spectrum Models
 include("./powerspectra/abstractpowerspectrum.jl")
 include("./powerspectra/singlepowerlaw1d.jl")
+include("./powerspectra/singlepowerlaw2d.jl")
 
 # Noise Generators 
 include("noisegenerators/psnoisegenerator.jl")
