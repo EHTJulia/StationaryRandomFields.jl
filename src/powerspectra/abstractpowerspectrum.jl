@@ -66,7 +66,7 @@ end
     if length(gridofν) == 1
         ampspec = (gridofν -> psmodel.amp .* gridofν .^ (-psmodel.index/2)).(gridofν)
     elseif length(gridofν) == 2
-        ampspec = map_ampspectrum(psmodel, freq_norm(gridofν)[1])
+        ampspec = map_ampspectrum(psmodel, freq_norm(gridofν))
     end
     ampspec[1][1] = 0
     return ampspec
@@ -85,7 +85,7 @@ end
 # Compute amplitude spectrum of frequency grid corresponding to 2D signal data
 #
 @inline function map_ampspectrum(psmodel::AbstractNoisePowerSpectrum, signaldata::NoiseSignal2D)
-    ampspec = map_ampspectrum(freq_norm(signaldata))
+    ampspec = map_ampspectrum(psmodel, freq_norm(signaldata))
     ampspec[1][1] = 0
     return ampspec
 
