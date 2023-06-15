@@ -31,7 +31,7 @@ end
 # Compute amplitude spectrum of 2D frequency grid
 #
 @inline function map_ampspectrum(psmodel::NoisePowerSpectrum2D, normgrid::AbstractArray...)
-    ampspec = (gridofν -> psmodel.amp .* gridofν .^ (-psmodel.index/2)).(gridofν)
+    ampspec = (normgrid -> psmodel.amp .* normgrid .^ (-psmodel.index/2)).(normgrid)
     ampspec[1][1] = 0
     return ampspec
 end
