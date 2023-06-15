@@ -59,20 +59,35 @@ end
     return ampspec
 end
 
+#
+# Compute amplitude spectrum of frequency grid provided by rfftfreq
+#
 @inline function map_ampspectrum(psmodel::AbstractNoisePowerSpectrum, gridofν::Tuple)
-    ampspec = (gridofν -> psmodel.amp .* gridofν .^ (-psmodel.index/2)).(gridofν)
+    if length(gridofν) == 1
+        ampspec = (gridofν -> psmodel.amp .* gridofν .^ (-psmodel.index/2)).(gridofν)
+    elseif length(gridofν) == 2
+        ampspec = map_ampspectrum(psmodel, freq_norm(gridofν)[1])
+    end
     ampspec[1][1] = 0
     return ampspec
 end
 
 #
-# Compute amplitude spectrum of frequency grid corresponding to signal data
+# Compute amplitude spectrum of frequency grid corresponding to 1D signal data
 #
-@inline function map_ampspectrum(psmodel::AbstractNoisePowerSpectrum, signaldata::AbstractNoiseSignal)
+@inline function map_ampspectrum(psmodel::AbstractNoisePowerSpectrum, signaldata::NoiseSignal1D)
     ampspec = map_ampspectrum(psmodel,rfftfreq(signaldata))
     ampspec[1][1]=0
     return ampspec
 end
+
+#
+# Compute amplitude spectrum of frequency grid corresponding to 2D signal data
+#
+@inline function map_ampspectrum(psmodel::AbstractNoisePowerSpectrum, signaldata::NoiseSignal2D)
+    ampspec = mapampspectrum(freq_norm(signaldata))
+    ampspec[1][1] = 0
+    return ampspec
 
 #
 # Compute power law spectrum of single 1D point frequency 
@@ -108,6 +123,6 @@ end
 #
 # Compute power spectrum of frequency grid corresponding to signal data
 #
-@inline function map_powerspectrum(psmodel::AbstractNoisePowerSpectrum, signaldata::NoiseSignal1D)
-    return map_powerspectrum(psmodel,rfftfreq(signaldata))
+@inline function map_powerspectrum(psmodel::AbstractNoisePowerSpectrum, signaldata::AbstractNoiseSignal)
+    return map_powerspectrum(psmodel,signaldata)
 end
