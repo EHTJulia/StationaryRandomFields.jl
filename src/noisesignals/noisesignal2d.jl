@@ -6,6 +6,8 @@ export freq_norm
 
 This is a data type for two dimensional noise signals.
 
+# Mandatory methods
+- `freq_norm`: 2D matrix of norms of each frequency point in fourier space
 
 """
 struct NoiseSignal2D <: AbstractNoiseSignal
