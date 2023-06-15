@@ -85,7 +85,7 @@ end
 # Compute amplitude spectrum of frequency grid corresponding to 2D signal data
 #
 @inline function map_ampspectrum(psmodel::AbstractNoisePowerSpectrum, signaldata::NoiseSignal2D)
-    ampspec = mapampspectrum(freq_norm(signaldata))
+    ampspec = map_ampspectrum(freq_norm(signaldata))
     ampspec[1][1] = 0
     return ampspec
 
