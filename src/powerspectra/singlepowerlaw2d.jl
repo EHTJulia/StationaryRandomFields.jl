@@ -5,7 +5,7 @@ export map_powerspectrum
 export map_powerspectrum_point
 
 """
-    SinglePowerLaw2D <: NoisePowerSpectrum1D
+    SinglePowerLaw2D <: NoisePowerSpectrum2D
 
 This is a data type for a 2 dimensional power law function of the form P(ν)=amp*|ν|^(index)
 """
@@ -30,7 +30,8 @@ end
 # Compute amplitude spectrum of 2D frequency grid
 #
 @inline function map_ampspectrum(psmodel::NoisePowerSpectrum2D, gridofν::AbstractArray...)
-    ampspec = (gridofν -> psmodel.amp .* gridofν .^ (-psmodel.index/2)).(gridofν)
+    normgrid = freq_norm(gridofν)[1]
+    ampspec = (normgrid -> psmodel.amp .* normgrid .^ (-psmodel.index/2)).(normgrid)
     ampspec[1][1] = 0
     return ampspec
 end
