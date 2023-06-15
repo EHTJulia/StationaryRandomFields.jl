@@ -65,22 +65,9 @@ end
 #
 # Compute amplitude spectrum of frequency grid 
 #
-@inline function map_powerspectrum(psmodel::NoisePowerSpectrum1D, gridofν::AbstractArray...) 
-    ampspec = map_ampspectrum(psmodel, gridofν)
+@inline function map_powerspectrum(psmodel::NoisePowerSpectrum1D, data) 
+    ampspec = map_ampspectrum(psmodel, data)
     return (ampspec -> ampspec .^ 2).(ampspec)
 end
-
-@inline function map_powerspectrum(psmodel::NoisePowerSpectrum1D, gridofν::Tuple) 
-    ampspec = map_ampspectrum(psmodel, gridofν)
-    return (ampspec -> ampspec .^ 2).(ampspec)
-end
-
-#
-# Compute power spectrum of frequency grid corresponding to signal data
-#
-@inline function map_powerspectrum(psmodel::NoisePowerSpectrum1D, signaldata::NoiseSignal1D)
-    return map_powerspectrum(psmodel,rfftfreq(signaldata))
-end
-
 
 
