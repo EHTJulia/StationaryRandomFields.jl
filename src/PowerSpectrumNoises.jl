@@ -19,4 +19,5 @@ include("./powerspectra/singlepowerlaw2d.jl")
 # Noise Generators 
 include("noisegenerators/psnoisegenerator.jl")
 include("noisegenerators/psnoisegen1d.jl")
+include("noisegenerators/psnoisegen2d.jl")
 end
