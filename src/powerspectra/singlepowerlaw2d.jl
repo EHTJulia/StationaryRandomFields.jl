@@ -1,5 +1,8 @@
 export SinglePowerLaw2D
-
+export map_ampspectrum
+export map_ampspectrum_point
+export map_powerspectrum
+export map_powerspectrum_point
 
 """
     SinglePowerLaw2D <: NoisePowerSpectrum2D
@@ -28,7 +31,7 @@ end
 #
 
 @inline function map_ampspectrum(psmodel::NoisePowerSpectrum2D, gridofν::Tuple)
-    ampspec = ampspec = map_ampspectrum(psmodel, freq_norm(gridofν)[1])
+    ampspec = ampspec = map_ampspectrum(psmodel, freq_norm(gridofν))
     ampspec[1][1] = 0
     return ampspec
 end
