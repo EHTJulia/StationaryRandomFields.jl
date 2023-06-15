@@ -19,7 +19,7 @@ end
 #
 # Method to compute given amplitude power law function of single point frequency
 #
-@inline function map_ampspectrum_point(psmodel::NoisePowerSpectrum1D, singleν::Number)::Number #is number data type correct here
+@inline function map_ampspectrum_point(psmodel::NoisePowerSpectrum1D, singleν::Number)::Number 
     return psmodel.amp * singleν^(-psmodel.index/2) 
 end
 
