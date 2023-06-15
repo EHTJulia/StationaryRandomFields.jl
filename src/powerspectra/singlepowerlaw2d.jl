@@ -15,6 +15,7 @@ struct SinglePowerLaw2D <: NoisePowerSpectrum2D
     index::Float64
 end
 
+
 #
 # Method to compute given amplitude power law function of single 2D point frequency
 #
@@ -29,21 +30,22 @@ end
 #
 # Compute amplitude spectrum of 2D frequency grid
 #
-
-@inline function map_ampspectrum(psmodel::NoisePowerSpectrum2D, gridofν::Tuple)
-    ampspec = ampspec = map_ampspectrum(psmodel, freq_norm(gridofν))
+@inline function map_ampspectrum(psmodel::NoisePowerSpectrum2D, normgrid::AbstractArray...)
+    ampspec = (gridofν -> psmodel.amp .* gridofν .^ (-psmodel.index/2)).(gridofν)
     ampspec[1][1] = 0
     return ampspec
+
+@inline function map_ampspectrum(psmodel::NoisePowerSpectrum2D, gridofν::Tuple)
+    return map_ampspectrum(psmodel, freq_norm(gridofν))
 end
 
 #
 # Compute amplitude spectrum of frequency grid corresponding to 2D signal data
 #
 @inline function map_ampspectrum(psmodel::NoisePowerSpectrum2D, signaldata::NoiseSignal2D)
-    ampspec = map_ampspectrum(psmodel, freq_norm(signaldata))
-    ampspec[1][1]=0
-    return ampspec
+    return map_ampspectrum(psmodel, freq_norm(signaldata))
 end
+
 
 #
 # Compute power law spectrum of single 2D point frequency 
