@@ -34,6 +34,7 @@ end
     ampspec = (gridofν -> psmodel.amp .* gridofν .^ (-psmodel.index/2)).(gridofν)
     ampspec[1][1] = 0
     return ampspec
+end
 
 @inline function map_ampspectrum(psmodel::NoisePowerSpectrum2D, gridofν::Tuple)
     return map_ampspectrum(psmodel, freq_norm(gridofν))
