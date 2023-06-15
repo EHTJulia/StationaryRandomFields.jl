@@ -44,6 +44,7 @@ end
 #
 @inline function map_ampspectrum_point(psmodel::AbstractNoisePowerSpectrum, singleν::Tuple)::Number
     return psmodel.amp * (singleν[1]^2. + singleν[2]^2.)^(-psmodel.index/2)
+end
 
 """
     mapampspectrum
