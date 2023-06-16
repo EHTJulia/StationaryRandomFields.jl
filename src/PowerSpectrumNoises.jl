@@ -8,14 +8,11 @@ using Statistics
 
 # Noise Signal Models
 include("./noisesignals/abstractnoisesignal.jl")
-include("./noisesignals/noisesignal1d.jl")
-include("./noisesignals/noisesignal2d.jl")
+include("./noisesignals/noisesignal.jl")
 
 # Power Spectrum Models
 include("./powerspectra/abstractpowerspectrum.jl")
-include("./powerspectra/singlepowerlaw1d.jl")
-include("./powerspectra/singlepowerlaw2d.jl")
-
+include("./powerspectra/singlepowerlaw.jl")
 # Noise Generators 
 include("noisegenerators/psnoisegenerator.jl")
 include("noisegenerators/psnoisegen1d.jl")

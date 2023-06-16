@@ -23,14 +23,6 @@ This is an abstract data type for noise power spectra.
 
 """
 abstract type AbstractNoisePowerSpectrum end
-Base.ndims(::AbstractNoisePowerSpectrum) = 1
-
-abstract type NoisePowerSpectrum1D <: AbstractNoisePowerSpectrum end
-Base.ndims(::NoisePowerSpectrum1D) = 1
-
-abstract type NoisePowerSpectrum2D <: AbstractNoisePowerSpectrum end
-Base.ndims(::NoisePowerSpectrum2D) = 2
-
 
 #
 # Method to compute given amplitude power law function of single 2D point frequency
