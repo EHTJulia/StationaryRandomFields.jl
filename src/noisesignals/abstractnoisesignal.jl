@@ -88,6 +88,22 @@ end
     ) for i in 1:ndims(data))
 end
 
+#
+# Compute grid of norms of each frequency point in the fourier plane (currently only works for 1D and 2D)
+# 
+@inline function freq_norm(data::AbstractNoiseSignal)::Array
+    return freq_norm(rfftfreq(data))
+end
+
+@inline function freq_norm(gridofν::Tuple)::Array
+    if length(gridofν)==1
+        return gridofν
+    else
+        return [u^2. + v^2. for u in gridofν[1], v in gridofν[2]]
+    end
+end
+
+
 ###
 ### Generate a Complex Gaussian Noise
 ###
