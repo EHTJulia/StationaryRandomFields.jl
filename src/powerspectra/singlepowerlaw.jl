@@ -1,7 +1,7 @@
 export SinglePowerLaw
 
 """
-    SinglePowerLaw1D <: AbstractNoisePowerSpectrum
+    SinglePowerLaw <: AbstractNoisePowerSpectrum
 
 This is a data type for an N dimensional power law function of the form P(ν)=amp*ν^(index)
 """

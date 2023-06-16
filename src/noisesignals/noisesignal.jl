@@ -1,7 +1,7 @@
-export NoiseSignal1D
+export NoiseSignal
 
 """
-    NoiseSignal1D <: AbstractNoiseSignal
+    NoiseSignal <: AbstractNoiseSignal
 
 This is a data type for N dimensional noise signals.
 """
