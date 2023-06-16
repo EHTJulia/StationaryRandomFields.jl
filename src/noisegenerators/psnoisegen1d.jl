@@ -8,7 +8,7 @@ This is a data type for a 1 dimensional power spectrum noise generator
 """
 
 struct PSNoiseGenerator1D <: PowerSpectrumNoiseGenerator
-    psmodel::NoisePowerSpectrum
+    psmodel::AbstractNoisePowerSpectrum
     noisesignal::NoiseSignal
     rfftplan 
     irfftplan
