@@ -46,14 +46,6 @@ end
     return length(data.dims)
 end
 
-#
-# Generate x-axis grid for 1D, x and y-axis grid for 2D to graph data in the position plane
-#
-@inline function signalgrid(data::AbstractNoiseSignal)::Tuple
-    return Tuple((
-    [j*data.pixelsizes[i] for j in 0:(data.dims[i]-1)]) for i in 1:ndims(data))
-end 
-
 ###
 ### Size of noises in Fourier domain
 ###
@@ -82,9 +74,9 @@ end
 @inline function AbstractFFTs.rfftfreq(data::AbstractNoiseSignal)::Tuple
     return Tuple((
         if i == 1
-            rfftfreq(data.dims[i], data.pixelsizes[i])
+            rfftfreq(data.dims[i], 1)
         else
-            fftfreq(data.dims[i], data.pixelsizes[i])
+            fftfreq(data.dims[i], 1)
         end
     ) for i in 1:ndims(data))
 end
