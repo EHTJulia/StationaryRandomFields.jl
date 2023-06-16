@@ -91,8 +91,10 @@ end
 @inline function freq_norm(gridofν::Tuple)::Array
     if length(gridofν)==1
         return gridofν[1]
-    else
+    elseif length(gridofν)==2
         return [u^2. + v^2. for u in gridofν[1], v in gridofν[2]]
+    elseif length(gridofν)==3
+        return [u^2. + v^2. + w^2. for u in gridofν[1], v in gridofν[2], w in gridofν[3]]
     end
 end
 
