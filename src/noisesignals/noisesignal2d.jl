@@ -16,13 +16,17 @@ struct NoiseSignal2D <: AbstractNoiseSignal
 end
 
 #
-# Compute 2D grid of norms of each frequency point in the fourier plane
+# Compute grid of norms of each frequency point in the fourier plane (currently only works for 1D and 2D)
 # 
 @inline function freq_norm(data::NoiseSignal2D)::Array
-    return [u^2. + v^2. for u in rfftfreq(data)[1], v in rfftfreq(data)[2]]
+    return freq_norm(rfftfreq(data))
 end
 
 @inline function freq_norm(gridofν::Tuple)::Array
-    return [u^2. + v^2. for u in gridofν[1], v in gridofν[2]]
+    if length(gridofν)==1
+        return gridofν
+    else
+        return [u^2. + v^2. for u in gridofν[1], v in gridofν[2]]
+    end
 end
 
