@@ -35,9 +35,9 @@ end
 ###
 ### Methods to give the size
 ###
-#@inline function Base.sizeof(data::AbstractNoiseSignal)::Tuple
-#    return prod(data.dims)
-#end
+@inline function Base.sizeof(data::AbstractNoiseSignal)::Integer
+    return prod(data.dims)
+end
 
 ###
 ### Methods to give the size

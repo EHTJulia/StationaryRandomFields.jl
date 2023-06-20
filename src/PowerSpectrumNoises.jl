@@ -9,6 +9,7 @@ using Statistics
 # Noise Signal Models
 include("./noisesignals/abstractnoisesignal.jl")
 include("./noisesignals/noisesignal.jl")
+include("noisesignals/abstractcns.jl")
 include("noisesignals/continuousnoisesignal.jl")
 # Power Spectrum Models
 include("./powerspectra/abstractpowerspectrum.jl")
