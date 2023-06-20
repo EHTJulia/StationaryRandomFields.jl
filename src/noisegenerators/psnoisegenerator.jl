@@ -23,11 +23,15 @@ This is an abstract data type for power spectrum noise generators.
 
 abstract type PowerSpectrumNoiseGenerator end
 
+@inline function AbstractFFTs.plan_irfft(PowerSpectrumNoiseGenerator)
+    return AbstractFFTs.plan_irfft(generate_gaussian_noise(NoiseSignal))
+end
+
 #
 # Convert fourier domain gaussian noise to signal noise with power law and inverse rfft 
 #
 @inline function generate_signal_noise(psgen::PowerSpectrumNoiseGenerator)::AbstractArray
-    return psgen.irfftplan * (map_ampspectrum(psgen.psmodel, psgen.noisesignal)[1] .* generate_gaussian_noise(psgen.noisesignal))
+    return plan_irfft(psgen) * (map_ampspectrum(psgen.psmodel, psgen.noisesignal)[1] .* generate_gaussian_noise(psgen.noisesignal))
 end
 
 #
