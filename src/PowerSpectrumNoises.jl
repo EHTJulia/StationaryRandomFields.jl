@@ -2,6 +2,7 @@ module PowerSpectrumNoises
 
 # Import Modules
 using Base
+using DocStringExtensions
 using FFTW
 using Random
 using Statistics
@@ -13,11 +14,10 @@ include("./noisesignals/noisesignal2d.jl")
 
 # Power Spectrum Models
 include("./powerspectra/abstractpowerspectrum.jl")
-include("./powerspectra/singlepowerlaw1d.jl")
-include("./powerspectra/singlepowerlaw2d.jl")
+include("./powerspectra/modifiers.jl")
 
-# Noise Generators 
-include("noisegenerators/psnoisegenerator.jl")
-include("noisegenerators/psnoisegen1d.jl")
-include("noisegenerators/psnoisegen2d.jl")
+# Noise Generators
+#include("noisegenerators/psnoisegenerator.jl")
+#include("noisegenerators/psnoisegen1d.jl")
+#include("noisegenerators/psnoisegen2d.jl")
 end
