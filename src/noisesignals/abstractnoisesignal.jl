@@ -13,12 +13,11 @@ various methods.
 
 # Mandatory fields
 - `dims::Tuple`: dimension of data
-- `pixelsizes::Tuple`: pixel size along with each dimension
 
 # Mandatory methods
 - `size(data::AbstractNoiseSignal)`: returns the size of the signal
+- `sizeof(data::AbstractContinuousNoiseSignal)`: returns product of signal dimensions
 - `ndims(data::AbstractNoiseSignal)`: returns the number of the dimension
-- `signalgrid(data::AbstractNoiseSignal)`: returns position grid in the image plane
 - `rfftsize(data::AbstractNoiseSignal)`: returns the size of the signal in the Fourier plane (for rfft)
 - `rfftfreq(data::AbstractNoiseSignal)`: returns the frequency grid along each dimension in the Fourier plane (for rfft)
 - `generate_gaussian_noise(data::AbstractNoiseSignal)`: returns Gaussian noises in Fourier domain with the size of `rfftsize(data)`
