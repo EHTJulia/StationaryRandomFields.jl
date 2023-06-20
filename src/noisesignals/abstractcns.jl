@@ -11,3 +11,52 @@ The type of data (default Float64) may also be specified.
 
 abstract type AbstractContinuousNoiseSignal end
 
+###
+### Methods to give the size
+###
+@inline function Base.size(data::AbstractContinuousNoiseSignal)::Tuple
+    return data.dims
+end
+
+###
+### Methods to give the size
+###
+@inline function Base.sizeof(data::AbstractContinuousNoiseSignal)::Integer
+    return prod(data.dims)
+end
+
+###
+### Methods to give the size
+###
+@inline function Base.ndims(data::AbstractContinuousNoiseSignal)::Integer
+    return length(data.dims)
+end
+
+###
+### Size of noises in Fourier domain
+###
+@inline function rfftsize(data::AbstractContinuousNoiseSignal)::Tuple
+    return rfftsize(data.dims...)
+end
+
+###
+### Compute frequencies in the Fourier Domain
+###
+@inline function AbstractFFTs.rfftfreq(data::AbstractContinuousNoiseSignal)::Tuple
+    return rfftfreq(data.noisesignal)
+end
+
+#
+# Compute grid of norms of each frequency point in the fourier plane (currently only works for 1D and 2D)
+# 
+@inline function freq_norm(data::AbstractContinuousNoiseSignal)::Array
+    return freq_norm(data.noisesignal)
+end
+
+###
+### Generate a Complex Gaussian Noise
+###
+
+@inline function generate_gaussian_noise(data::AbstractContinuousNoiseSignal)
+    return generate_gaussian_noise(data.noisesignal)
+end 
