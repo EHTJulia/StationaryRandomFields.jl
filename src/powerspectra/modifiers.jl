@@ -142,11 +142,11 @@ function modify(m::AbstractPowerSpectrumModel, transforms...)
     return ModifiedPowerSpectrumModel(m, transforms)
 end
 
-@inline function fourier_point(m::ModifiedPowerSpectrumModel, ν...)
+@inline function power_point(m::ModifiedPowerSpectrumModel, ν...)
     mbase = m.model
     transform = m.transform
-    scale, ν = modify_fourier(mbase, transform, unitscale(Complex{eltype(u)}, typeof(mbase)), ν...)
-    scale * fourier_point(mbase, ν...)
+    scale, ν = modify_fourier(mbase, transform, unitscale(eltype(ν), typeof(mbase)), ν...)
+    scale * power_point(mbase, ν...)
 end
 
 function modify_fourier(model, transform::Tuple, scale, ν::AbstractVector...)
@@ -237,12 +237,12 @@ end
     $(SIGNATURES)
 
 Stretches the model `m` according to the formula
-    Iₛ(x,y) = 1/(αβ) I(x/α, y/β),
+    Vₛ(u) = V(u1/α1, u2/α2, ...),
 where were renormalize the intensity to preserve the models flux.
 """
-stretched(model, α...) = ModifiedPowerSpectrumModel{N}(model, Stretch(α...))
+stretched(model::AbstractPowerSpectrumModel, α...) = ModifiedPowerSpectrumModel(model, Stretch(α...))
 
-@inline transform_ν(m, transform::Stretch, ν...) = ν .* transform.α
+@inline transform_ν(m, transform::Stretch, ν...) = ν ./ transform.α
 @inline scale_fourier(::M, ::Stretch{T}, ν...) where {M,T} = unitscale(T, M)
 
 

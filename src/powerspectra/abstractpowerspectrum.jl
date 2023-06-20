@@ -1,5 +1,6 @@
 export AbstractPowerSpectrumModel
-
+export amplitude_point
+export power_point
 """
     AbstractPowerSpectrumModel{N}
 
@@ -8,14 +9,16 @@ subtybe from this model. Additionally you need to implement the following
 methods to satify the interface:
 
 **Mandatory Methods**
-- [`isprimitive`](@ref): defines whether a model is standalone or is defined in terms of other models.
-   is the model is primitive then this should return `IsPrimitive()` otherwise it returns
-   `NotPrimitive()`
 - [`fourieranalytic`](@ref): defines whether the model fourier coefficients  can be computed analytically. If yes
    then this should return `IsAnalytic()` and the user *must* to define `visibility_point`.
-   If not analytic then `visanalytic` should return `NotAnalytic()`.
-- [`fourier_point`](@ref): Defines how to compute model fourier coefficients pointwise. Note this is
-    must be defined if `visanalytic(::Type{YourModel})==IsAnalytic()`.
+   If not analytic then `fourieranalytic` should return `NotAnalytic()`.
+- [`power_point`](@ref): Defines how to compute model power of fourier coefficients pointwise. Note this is
+    must be defined if `fourieranalytic(::Type{YourModel})==IsAnalytic()`.
+
+**Optional Methods**
+- [`amplitude_point`](@ref): Defines how to compute model amplitudes of fourier coefficients pointwise. Note this is
+    must be defined if `fourieranalytic(::Type{YourModel})==IsAnalytic()`.
+    It should be defined as √(power_point(model, ν...)).
 """
 abstract type AbstractPowerSpectrumModel{N} end
 
@@ -74,10 +77,21 @@ Base.@constprop :aggressive Base.:*(::NotAnalytic, ::IsAnalytic) = NotAnalytic()
 Base.@constprop :aggressive Base.:*(::NotAnalytic, ::NotAnalytic) = NotAnalytic()
 
 """
-    fourier_point(model::AbstractPowerSpectrumModel, p)
+    power_point(model::AbstractPowerSpectrumModel, ν...)
 
-Function that computes the pointwise fourier component.
-This must be implemented in the model interface
+Function that computes the pointwise amplitude of fourier component
+at a set of frequencies `ν`. This must be implemented in the model interface
 if `fourieranalytic(::Type{MyModel}) == IsAnalytic()`
 """
-function fourier_point end
+function power_point end
+
+"""
+    amplitude_point(model::AbstractPowerSpectrumModel, ν...)
+
+Function that computes the pointwise amplitude of fourier component
+at a set of frequencies `ν`. This must be implemented in the model interface
+if `fourieranalytic(::Type{MyModel}) == IsAnalytic()`.
+
+In default, it should be defined as √(power_point(model, ν...)).
+"""
+amplitude_point(model::AbstractPowerSpectrumModel, ν...) = √(power_point(model, ν...))
