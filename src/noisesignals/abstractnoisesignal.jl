@@ -2,6 +2,7 @@ export AbstractNoiseSignal
 export generate_gaussian_noise
 export rfftsize
 export signalgrid
+export freq_norm
 
 """
     AbstractNoiseSignal
@@ -12,12 +13,11 @@ various methods.
 
 # Mandatory fields
 - `dims::Tuple`: dimension of data
-- `pixelsizes::Tuple`: pixel size along with each dimension
 
 # Mandatory methods
 - `size(data::AbstractNoiseSignal)`: returns the size of the signal
+- `sizeof(data::AbstractContinuousNoiseSignal)`: returns product of signal dimensions
 - `ndims(data::AbstractNoiseSignal)`: returns the number of the dimension
-- `signalgrid(data::AbstractNoiseSignal)`: returns position grid in the image plane
 - `rfftsize(data::AbstractNoiseSignal)`: returns the size of the signal in the Fourier plane (for rfft)
 - `rfftfreq(data::AbstractNoiseSignal)`: returns the frequency grid along each dimension in the Fourier plane (for rfft)
 - `generate_gaussian_noise(data::AbstractNoiseSignal)`: returns Gaussian noises in Fourier domain with the size of `rfftsize(data)`
@@ -34,9 +34,9 @@ end
 ###
 ### Methods to give the size
 ###
-#@inline function Base.sizeof(data::AbstractNoiseSignal)::Tuple
-#    return prod(data.dims)
-#end
+@inline function Base.sizeof(data::AbstractNoiseSignal)::Integer
+    return prod(data.dims)
+end
 
 ###
 ### Methods to give the size
@@ -44,14 +44,6 @@ end
 @inline function Base.ndims(data::AbstractNoiseSignal)::Integer
     return length(data.dims)
 end
-
-#
-# Generate x-axis grid for 1D, x and y-axis grid for 2D to graph data in the position plane
-#
-@inline function signalgrid(data::AbstractNoiseSignal)::Tuple
-    return Tuple((
-    [j*data.pixelsizes[i] for j in 0:(data.dims[i]-1)]) for i in 1:ndims(data))
-end 
 
 ###
 ### Size of noises in Fourier domain
@@ -81,12 +73,30 @@ end
 @inline function AbstractFFTs.rfftfreq(data::AbstractNoiseSignal)::Tuple
     return Tuple((
         if i == 1
-            rfftfreq(data.dims[i], data.pixelsizes[i])
+            rfftfreq(data.dims[i], 1)
         else
-            fftfreq(data.dims[i], data.pixelsizes[i])
+            fftfreq(data.dims[i], 1)
         end
     ) for i in 1:ndims(data))
 end
+
+#
+# Compute grid of norms of each frequency point in the fourier plane (currently only works for 1D and 2D)
+# 
+@inline function freq_norm(data::AbstractNoiseSignal)::Array
+    return freq_norm(rfftfreq(data))
+end
+
+@inline function freq_norm(gridofν::Tuple)::Array
+    if length(gridofν)==1
+        return gridofν[1]
+    elseif length(gridofν)==2
+        return [u^2. + v^2. for u in gridofν[1], v in gridofν[2]]
+    elseif length(gridofν)==3
+        return [u^2. + v^2. + w^2. for u in gridofν[1], v in gridofν[2], w in gridofν[3]]
+    end
+end
+
 
 ###
 ### Generate a Complex Gaussian Noise
