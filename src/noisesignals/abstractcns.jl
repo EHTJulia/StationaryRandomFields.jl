@@ -60,17 +60,10 @@ end
     return rfftfreq(data.noisesignal)
 end
 
-#
-# Compute grid of norms of each frequency point in the fourier plane (currently only works for 1D and 2D)
-# 
-@inline function freq_norm(data::AbstractContinuousNoiseSignal)::Array
-    return freq_norm(data.noisesignal)
-end
 
 ###
 ### Generate a Complex Gaussian Noise
 ###
-
 @inline function generate_gaussian_noise(data::AbstractContinuousNoiseSignal)
     return generate_gaussian_noise(data.noisesignal)
 end 
