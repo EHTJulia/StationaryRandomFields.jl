@@ -1,6 +1,8 @@
 export AbstractPowerSpectrumModel
 export amplitude_point
 export power_point
+export amplitude_map
+export power_map
 """
     AbstractPowerSpectrumModel{N}
 
@@ -95,3 +97,8 @@ if `fourieranalytic(::Type{MyModel}) == IsAnalytic()`.
 In default, it should be defined as √(power_point(model, ν...)).
 """
 amplitude_point(model::AbstractPowerSpectrumModel, ν...) = √(power_point(model, ν...))
+
+
+function power_map end
+
+amplitude_map(model::AbstractPowerSpectrumModel, data) = .√(power_map(model, data))
