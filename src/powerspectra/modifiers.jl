@@ -243,7 +243,7 @@ where were renormalize the intensity to preserve the models flux.
 stretched(model::AbstractPowerSpectrumModel, α...) = ModifiedPowerSpectrumModel(model, Stretch(α...))
 
 @inline transform_ν(m, transform::Stretch, ν...) = ν ./ transform.α
-@inline scale_fourier(::M, ::Stretch{T}, ν...) where {M,T} = unitscale(T, M)
+@inline scale_fourier(::M, ::Stretch{T}, ν...) where {M,T} = unitscale(T)
 
 
 """
@@ -292,4 +292,4 @@ posangle(model::Rotate) = atan(model.s, model.c)
     end
 end
 
-@inline scale_fourier(::Rotate{T}, ν...) where {T} = one(T)
+@inline scale_fourier(::M, ::Rotate{T}, ν...) where {T} = unitscale(T)
