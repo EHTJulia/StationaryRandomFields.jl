@@ -287,7 +287,8 @@ posangle(model::Rotate) = atan(model.s, model.c)
         return ν
     else
         s, c = transform.s, transform.c
-        return (c * u - s * v, +s * u + c * v, ν[3:end])
+        u, v = ν[1:2]
+        return (c * u - s * v, +s * u + c * v, ν[3:end]...)
     end
 end
 
