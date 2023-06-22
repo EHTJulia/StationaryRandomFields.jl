@@ -17,14 +17,11 @@ end
 power_point(model::SinglePowerLaw, ν...) = √(sum(abs2, ν))^model.index
 
 function power_map(model::AbstractPowerSpectrumModel, gridofν::Tuple) 
-    if length(gridofν) == 1
-        pow = [power_point(model, u) for u in gridofν[1]]
-    elseif length(gridofν) == 2
-        pow = [power_point(model,u,v) for u in gridofν[1], v in gridofν[2]]
-    elseif length(gridofν) == 3
-        pow = [power_point(model, u, v, w) for u in gridofν[1], v in gridofν[2], w in gridofν[3]]
+    prod = collect(Iterators.product(gridofν...))
+    pow = zeros(size(prod)...)
+    for i in eachindex(prod)[2:end]
+        pow[i] = power_point(model,prod[i]...)
     end
-    pow[1] = 0
     return pow
 end
 
