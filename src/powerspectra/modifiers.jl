@@ -292,4 +292,4 @@ posangle(model::Rotate) = atan(model.s, model.c)
     end
 end
 
-@inline scale_fourier(::M, ::Rotate{T}, ν...) where {T} = unitscale(T)
+@inline scale_fourier(::M, ::Rotate{T}, ν...) where {M,T} = unitscale(T)
