@@ -1,9 +1,9 @@
 export NoiseSignal
 
 """
-    NoiseSignal <: AbstractNoiseSignal
+    $(TYPEDEF)
 
-This is a data type for N dimensional noise signals.
+This is a data type for noise signals of any dimension.
 """
 struct NoiseSignal <: AbstractNoiseSignal
     dims::Tuple

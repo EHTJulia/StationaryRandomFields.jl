@@ -7,7 +7,7 @@ export power_map
     AbstractPowerSpectrumModel{N}
 
 The abstract model type for a PowerSpectrum at `N` dimension. To instantiate your own model type you should
-subtybe from this model. Additionally you need to implement the following
+subtype from this model. Additionally you need to implement the following
 methods to satify the interface:
 
 **Mandatory Methods**
@@ -98,7 +98,24 @@ In default, it should be defined as √(power_point(model, ν...)).
 """
 amplitude_point(model::AbstractPowerSpectrumModel, ν...) = √(power_point(model, ν...))
 
+"""
+    power_point(model::AbstractPowerSpectrumModel, data)
 
+Function that maps the power law function of a signal data frequency grid. 
+The intended input "data" is the frequency grid output by FFTW.rfftfreq. 
+Alternatively a SignalNoise or ContinuousSignalNoise object can be input, 
+and the corresponding frequency grid will be computed and mapped.
+"""
 function power_map end
 
+"""
+    amplitude_map(model::AbstractPowerSpectrumModel, data)
+
+Function that maps the amplitude function of a signal data frequency grid. 
+The intended input "data" is the frequency grid output by FFTW.rfftfreq. 
+Alternatively a SignalNoise or ContinuousSignalNoise object can be input,
+and the corresponding frequency grid will be computed and mapped.
+
+In default, it should be defined as .√(power_point(model, data)).
+"""
 amplitude_map(model::AbstractPowerSpectrumModel, data) = .√(power_map(model, data))
