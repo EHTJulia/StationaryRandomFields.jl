@@ -1,9 +1,15 @@
 export SinglePowerLaw
-
 """
-    SinglePowerLaw <: AbstractPowerSpectrumModel
+    $(TYPEDEF)
 
-This is a data type for an N dimensional power law function of the form P(ν)=ν^(index)
+Type for single power law with input dimension {N} and profile
+```math
+    P(\nu) = | \nu | ^{\beta} \end{cases}
+```
+where β is the input index and ν is frequency. Can be renormalized, stretched, and rotated via ModelModifier.
+
+# Fields
+$(FIELDS)
 """
 struct SinglePowerLaw{N,T} <: AbstractPowerSpectrumModel{N}
     index::T
