@@ -19,7 +19,7 @@ To implement a model transform you need to specify the following methods:
 - [`scale_fourier`](@ref)
 - [`scale_image`](@ref)
 - [`radialextent`](@ref)
-See thee docstrings of those methods for guidance on implementation details.
+See the docstrings of those methods for guidance on implementation details.
 
 Additionally these methods assume the modifiers are of the form
 
@@ -249,7 +249,7 @@ stretched(model::AbstractPowerSpectrumModel, α...) = ModifiedPowerSpectrumModel
 """
     Rotate(ξ)
 
-Type for the rotated model. This is more fine grained constrol of
+Type for the rotated model. This is more fine grained control of
 rotated model.
 
 # Example

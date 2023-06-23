@@ -1,9 +1,13 @@
 export PSNoiseGenerator
 
 """
-    PSNoiseGenerator1D <: PowerSpectrumNoiseGenerator
+    $(TYPEDEF)
 
-This is a data type for a 1 dimensional power spectrum noise generator
+Data type which takes a power spectrum model (psmodel) and continuous noise signal (noisesignal) 
+and generates correlated signal noise.
+
+# Fields
+$(FIELDS)
 """
 
 struct PSNoiseGenerator{P<:AbstractPowerSpectrumModel, N<:ContinuousNoiseSignal} <: PowerSpectrumNoiseGenerator

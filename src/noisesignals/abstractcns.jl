@@ -1,26 +1,13 @@
 export AbstractContinuousNoiseSignal
 
 """
-AbstractContinuousNoiseSignal
+    AbstractContinuousNoiseSignal
 
 This is an abstract data type for N dimensional continuous signal data on which signal noise will be generated. 
-The data type contains an AbstractNoiseSignal and defines its corresponding dimensions, RFFT plan, and inverse RFFT plan. 
-The type of data (default Float64) may also be specified.
+The data type extends the AbstractNoiseSignal data type for use in PowerSpectrumNoiseGenerator methods.
 
-# Mandatory fields
-- `noisesignal::AbstractNoiseSignal`: previously defined noise signal object
-- `dims::Tuple`: dimensions of noisesignal
-- `plan`: rfft plan corresponding to noisesignal
-- `invplan`: irfft plan corresponding to noisesignal 
-
-# Mandatory methods
-- `size(data::AbstractContinuousNoiseSignal)`: returns the size of the signal
-- `sizeof(data::AbstractContinuousNoiseSignal)`: returns product of signal dimensions
-- `ndims(data::AbstractContinuousNoiseSignal)`: returns the number of the dimension
-- `rfftsize(data::AbstractContinuousNoiseSignal)`: returns the size of the signal in the Fourier plane (for rfft)
-- `rfftfreq(data::AbstractContinuousNoiseSignal)`: returns the frequency grid along each dimension in the Fourier plane (for rfft)
-- `generate_gaussian_noise(data::AbstractContinuousNoiseSignal)`: returns Gaussian noises in Fourier domain with the size of `rfftsize(data)`
-
+**Mandatory fields**
+- `noisesignal::AbstractNoiseSignal`: noise signal object
 """
 
 abstract type AbstractContinuousNoiseSignal end

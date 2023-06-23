@@ -11,16 +11,16 @@ This is an abstract data type for signal data on which powerspectrum noises will
 The data type contains information to define the dimensions and sizes of data, and provides
 various methods.
 
-# Mandatory fields
+**Mandatory fields**
 - `dims::Tuple`: dimension of data
 
-# Mandatory methods
-- `size(data::AbstractNoiseSignal)`: returns the size of the signal
-- `sizeof(data::AbstractContinuousNoiseSignal)`: returns product of signal dimensions
-- `ndims(data::AbstractNoiseSignal)`: returns the number of the dimension
-- `rfftsize(data::AbstractNoiseSignal)`: returns the size of the signal in the Fourier plane (for rfft)
-- `rfftfreq(data::AbstractNoiseSignal)`: returns the frequency grid along each dimension in the Fourier plane (for rfft)
-- `generate_gaussian_noise(data::AbstractNoiseSignal)`: returns Gaussian noises in Fourier domain with the size of `rfftsize(data)`
+**Mandatory methods**
+- [`size`](@ref): returns the size of the signal
+- [`sizeof`](@ref): returns product of signal dimensions
+- [`ndims`](@ref): returns the number of the dimension
+- [`rfftsize`](@ref): returns the size of the signal in the Fourier plane (for rfft)
+- [`rfftfreq`](@ref): returns the frequency grid along each dimension in the Fourier plane (for rfft)
+- [`generate_gaussian_noise`](@ref): returns Gaussian noises in Fourier domain with the size of `rfftsize(data)`
 """
 abstract type AbstractNoiseSignal end
 
