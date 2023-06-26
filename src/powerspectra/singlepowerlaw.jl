@@ -23,9 +23,9 @@ end
 power_point(model::SinglePowerLaw, ν...) = √(sum(abs2, ν))^model.index
 
 function power_map(model::AbstractPowerSpectrumModel, gridofν::Tuple) 
-    prod = collect(Iterators.product(gridofν...))
+    prod = Iterators.product(gridofν...)
     pow = zeros(size(prod)...)
-    for i in eachindex(prod)[2:end]
+    for i in eachindex(collect(prod))[2:end]
         pow[i] = power_point(model,prod[i]...)
     end
     return pow

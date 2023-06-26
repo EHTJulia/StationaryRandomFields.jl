@@ -3,7 +3,7 @@ export ContinuousNoiseSignal
 """
     $(TYPEDEF)
 
-This is a data type for continuous noise signals. The data type contains an 
+Data type for continuous noise signals. The data type contains an 
 AbstractNoiseSignal and defines its corresponding dimensions, RFFT plan, and inverse RFFT plan. 
 The type of data (default T=Float64) may also be specified. 
 
