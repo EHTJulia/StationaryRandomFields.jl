@@ -48,9 +48,6 @@ Retrieve power spectrum from given signal noise.
 
 end
 
-#
-# Compute frequencies in the Fourier Domain
-#
 @inline function AbstractFFTs.rfftfreq(psgen::PowerSpectrumNoiseGenerator)
     return rfftfreq(psgen.noisesignal)
 end
