@@ -99,14 +99,24 @@ In default, it should be defined as √(power_point(model, ν...)).
 amplitude_point(model::AbstractPowerSpectrumModel, ν...) = √(power_point(model, ν...))
 
 """
-    power_point(model::AbstractPowerSpectrumModel, data)
+    power_map(model, gridofν) 
+
 
 Function that maps the power law function of a signal data frequency grid. 
 The intended input "data" is the frequency grid output by FFTW.rfftfreq. 
 Alternatively a SignalNoise or ContinuousSignalNoise object can be input, 
 and the corresponding frequency grid will be computed and mapped.
 """
-function power_map end
+function power_map(model::AbstractPowerSpectrumModel, gridofν::Tuple) 
+    prod = collect(Iterators.product(gridofν...))
+    pow = zeros(size(prod)...)
+    for i in eachindex(prod)[2:end]
+        pow[i] = power_point(model,prod[i]...)
+    end
+    return pow
+end
+
+power_map(model::AbstractPowerSpectrumModel, noisesignal::Union{AbstractNoiseSignal, AbstractContinuousNoiseSignal}) = power_map(model, rfftfreq(noisesignal))
 
 """
     amplitude_map(model::AbstractPowerSpectrumModel, data)

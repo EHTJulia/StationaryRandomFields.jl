@@ -22,13 +22,3 @@ end
 
 power_point(model::SinglePowerLaw, ν...) = √(sum(abs2, ν))^model.index
 
-function power_map(model::AbstractPowerSpectrumModel, gridofν::Tuple) 
-    prod = Iterators.product(gridofν...)
-    pow = zeros(size(prod)...)
-    for i in eachindex(collect(prod))[2:end]
-        pow[i] = power_point(model,prod[i]...)
-    end
-    return pow
-end
-
-power_map(model::AbstractPowerSpectrumModel, noisesignal::Union{AbstractNoiseSignal, AbstractContinuousNoiseSignal}) = power_map(model, rfftfreq(noisesignal))
