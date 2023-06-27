@@ -1,4 +1,4 @@
-export BrokenPowerLaw
+export SaturatedPowerLaw
 """
     $(TYPEDEF)
 
@@ -18,11 +18,11 @@ Can be renormalized, stretched, and rotated via ModelModifier.
 # Fields
 $(FIELDS)
 """
-struct BrokenPowerLaw{N,T} <: AbstractPowerSpectrumModel{N}
+struct SaturatedPowerLaw{N,T} <: AbstractPowerSpectrumModel{N}
     index::T
     inscale::Number
     outscale::Number
-    function BrokenPowerLaw{N}(index::T, inscale::Number, outscale::Number) where {N, T}
+    function SaturatedPowerLaw{N}(index::T, inscale::Number, outscale::Number) where {N, T}
         if outscale <= inscale
             throw(ArgumentError("Value of 'outscale' must be greater than 'inscale.'"))
         end
@@ -30,7 +30,7 @@ struct BrokenPowerLaw{N,T} <: AbstractPowerSpectrumModel{N}
     end
 end
 
-function power_point(model::BrokenPowerLaw, ν...)
+function power_point(model::SaturatedPowerLaw, ν...)
     if √sum(abs2, ν) <= model.inscale
         return model.inscale^model.index
     elseif √sum(abs2, ν) >= model.outscale

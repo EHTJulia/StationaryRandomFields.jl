@@ -5,6 +5,6 @@ export NoiseSignal
 
 This is a data type for noise signals of any dimension.
 """
-struct NoiseSignal <: AbstractNoiseSignal
-    dims::Tuple
+struct NoiseSignal{T <: Tuple} <: AbstractNoiseSignal
+    dims::T
 end
