@@ -5,6 +5,6 @@
 [![Build Status](https://github.com/EHTJulia/StationaryRandomFields.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/EHTJulia/StationaryRandomFields.jl/actions/workflows/CI.yml?query=branch%3Amain)
 [![Coverage](https://codecov.io/gh/EHTJulia/StationaryRandomFields.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/EHTJulia/StationaryRandomFields.jl)
 
-This Julia package provides toolkits to generate noise signals that have a specific powerspectrum. The package defines abstract types and methods for multidimensional signals and specific data types for one and two dimensional signals. The package also provides types and methods for power spectra and basic implementation of power law spectra.
+This Julia package provides toolkits to generate noise signals that have a specific powerspectrum. The package defines abstract types and methods for multidimensional signals and specific data types for signals. The package also provides types and methods for power spectra and basic implementation of power law spectra.
 
 
