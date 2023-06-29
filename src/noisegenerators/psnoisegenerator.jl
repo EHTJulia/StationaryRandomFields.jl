@@ -9,9 +9,9 @@ export get_fourier_noise
 This is an abstract data type for power spectrum noise generators.
 
 **Mandatory methods**
-- [`generate_signal_noise`](@ref): transforms fourier noise to signal noise in position plane for given power spectrum model
-- [`get_fourier_noise`](@ref): computes fourier noise for given signal domain noise
-- [`get_power_spectrum`](@ref): returns power spectrum model retrieved from given signal domain noise
+- [`generate_signal_noise`](@ref): Transforms fourier noise to signal noise in position plane for given power spectrum model
+- [`get_fourier_noise`](@ref): Computes fourier noise for given signal domain noise
+- [`get_power_spectrum`](@ref): Returns power spectrum model retrieved from given signal domain noise
 """
 
 abstract type PowerSpectrumNoiseGenerator end
