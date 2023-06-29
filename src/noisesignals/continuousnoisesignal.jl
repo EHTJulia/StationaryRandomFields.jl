@@ -1,7 +1,7 @@
 export ContinuousNoiseSignal
 
 """
-    ContinuousNoiseSignal(noisesignal::N, T=Float64)    
+    $(TYPEDEF)
 
 Data type for continuous noise signals. Input an AbstractNoiseSignal and the corresponding dimensions, 
 RFFT plan, and inverse RFFT plan will automatically be defined.
