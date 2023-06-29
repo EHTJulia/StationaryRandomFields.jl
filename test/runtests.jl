@@ -1,6 +1,6 @@
-using PowerSpectrumNoises
+using StationaryRandomFields
 using Test
 
-@testset "PowerSpectrumNoises.jl" begin
+@testset "StationaryRandomFields.jl" begin
     # Write your tests here.
 end

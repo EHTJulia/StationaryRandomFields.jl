@@ -60,6 +60,6 @@ jobs:
       - run: |
           julia --project=docs -e '
             using Documenter: DocMeta, doctest
-            using PowerSpectrumNoises
-            DocMeta.setdocmeta!(PowerSpectrumNoises, :DocTestSetup, :(using PowerSpectrumNoises); recursive=true)
-            doctest(PowerSpectrumNoises)'
+            using StationaryRandomFields
+            DocMeta.setdocmeta!(StationaryRandomFields, :DocTestSetup, :(using StationaryRandomFields); recursive=true)
+            doctest(StationaryRandomFields)'

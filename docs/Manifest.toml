@@ -68,7 +68,7 @@ git-tree-sha1 = "a5aef8d4a6e8d81f171b2bd4be5265b01384c74c"
 uuid = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
 version = "2.5.10"
 
-[[deps.PowerSpectrumNoises]]
+[[deps.StationaryRandomFields]]
 path = ".."
 uuid = "6ab34832-f7e5-40a4-9cd7-47ea82b5c144"
 version = "1.0.0-DEV"

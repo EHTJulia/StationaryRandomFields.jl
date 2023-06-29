@@ -1,16 +1,16 @@
-using PowerSpectrumNoises
+using StationaryRandomFields
 using Documenter
 
-DocMeta.setdocmeta!(PowerSpectrumNoises, :DocTestSetup, :(using PowerSpectrumNoises); recursive=true)
+DocMeta.setdocmeta!(StationaryRandomFields, :DocTestSetup, :(using StationaryRandomFields); recursive=true)
 
 makedocs(;
-    modules=[PowerSpectrumNoises],
+    modules=[StationaryRandomFields],
     authors="Anna Tartaglia, Kazunori Akiyama",
-    repo="https://github.com/EHTJulia/PowerSpectrumNoises.jl/blob/{commit}{path}#{line}",
-    sitename="PowerSpectrumNoises.jl",
+    repo="https://github.com/EHTJulia/StationaryRandomFields.jl/blob/{commit}{path}#{line}",
+    sitename="StationaryRandomFields.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://EHTJulia.github.io/PowerSpectrumNoises.jl",
+        canonical="https://EHTJulia.github.io/StationaryRandomFields.jl",
         edit_link="main",
         assets=String[],
     ),
@@ -20,6 +20,6 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/EHTJulia/PowerSpectrumNoises.jl",
+    repo="github.com/EHTJulia/StationaryRandomFields.jl",
     devbranch="main",
 )
