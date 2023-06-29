@@ -1,20 +1,13 @@
 export SaturatedPowerLaw
-"""
+@doc raw"""
     $(TYPEDEF)
 
-Type for power law with input dimension {N} and profile
-```math
-    P(\nu) = | \nu | ^{\beta} \end{cases}.
-```
-when inscale < |ν| < outscale. β refers to the input index. 
-
+Type for power law with input dimension {N} and profile: ``P(\nu) = |\nu| ^{\beta} \end{cases}``
+when inscale < |ν| < outscale. 
 When |ν| > outscale: P(ν) = 0. 
-When |ν| < inscale:
+When |ν| < inscale: ``P(\\nu) = (inscale) ^{\\beta} \\end{cases}.``
 
-```math
-    P(\nu) = (inscale) ^{\beta} \end{cases}.
-```
-Can be renormalized, stretched, and rotated via ModelModifier.
+β refers to the input index. Can be renormalized, stretched, and rotated via ModelModifier.
 
 # Fields
 $(FIELDS)

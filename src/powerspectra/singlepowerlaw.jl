@@ -1,11 +1,8 @@
 export SinglePowerLaw
-"""
+@doc raw"""
     $(TYPEDEF)
 
-Type for single power law with input dimension {N} and profile
-```math
-    P(\nu) = | \nu | ^{\beta} \end{cases}
-```
+Type for single power law with input dimension {N} and profile ``P(\nu) = |\nu| ^{\beta} \end{cases}``
 where β is the input index and ν is frequency. Can be renormalized, stretched, and rotated via ModelModifier.
 
 # Fields
