@@ -4,14 +4,15 @@ export SaturatedPowerLaw
 
 Type for power law with input dimension {N} and profile
 ```math
-    P(\nu) = | \nu | ^{\beta} \end{cases}
+    P(\nu) = | \nu | ^{\beta} \end{cases}.
 ```
 when inscale < |ν| < outscale. β refers to the input index. 
 
-When |ν| > outscale: P(ν) = 0, and when |ν| < inscale:
+When |ν| > outscale: P(ν) = 0. 
+When |ν| < inscale:
 
 ```math
-    P(\nu) = (inscale) ^{\beta} \end{cases}
+    P(\nu) = (inscale) ^{\beta} \end{cases}.
 ```
 Can be renormalized, stretched, and rotated via ModelModifier.
 
@@ -30,13 +31,16 @@ struct SaturatedPowerLaw{N,T} <: AbstractPowerSpectrumModel{N}
     end
 end
 
+@inline fourieranalytic(::SinglePowerLaw) = IsAnalytic()
+
 function power_point(model::SaturatedPowerLaw, ν...)
-    if √sum(abs2, ν) <= model.inscale
+    norm = √sum(abs2, ν)
+    if norm <= model.inscale
         return model.inscale^model.index
-    elseif √sum(abs2, ν) >= model.outscale
+    elseif norm >= model.outscale
         return 0.
     else
-        return √(sum(abs2, ν))^model.index
+        return norm^model.index
     end
 end
 

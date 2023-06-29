@@ -1,14 +1,14 @@
 ```@meta
-CurrentModule = PowerSpectrumNoises
+CurrentModule = StationaryRandomFields
 ```
 
-# PowerSpectrumNoises
+# StationaryRandomFields
 
-Documentation for [PowerSpectrumNoises](https://github.com/EHTJulia/PowerSpectrumNoises.jl).
+Documentation for [StationaryRandomFields](https://github.com/EHTJulia/StationaryRandomFields.jl).
 
 ```@index
 ```
 
 ```@autodocs
-Modules = [PowerSpectrumNoises]
+Modules = [StationaryRandomFields]
 ```

@@ -1,4 +1,4 @@
-name = "PowerSpectrumNoises"
+name = "StationaryRandomFields"
 uuid = "6ab34832-f7e5-40a4-9cd7-47ea82b5c144"
 authors = ["Anna Tartaglia", "Kazunori Akiyama"]
 version = "1.0.0-DEV"

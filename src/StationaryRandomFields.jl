@@ -1,4 +1,4 @@
-module PowerSpectrumNoises
+module StationaryRandomFields
 
 # Import Modules
 using Base
