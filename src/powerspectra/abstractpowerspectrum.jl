@@ -11,16 +11,18 @@ subtype from this model. Additionally you need to implement the following
 methods to satify the interface:
 
 **Mandatory Methods**
-- [`fourieranalytic`](@ref): defines whether the model fourier coefficients  can be computed analytically. If yes
+- [`fourieranalytic`](@ref): Defines whether the model fourier coefficients  can be computed analytically. If yes
    then this should return `IsAnalytic()` and the user *must* to define `visibility_point`.
    If not analytic then `fourieranalytic` should return `NotAnalytic()`.
-- [`power_point`](@ref): Defines how to compute model power of fourier coefficients pointwise. Note this is
+- [`power_point`](@ref): Defines how to compute model power of fourier coefficients pointwise. Note this 
     must be defined if `fourieranalytic(::Type{YourModel})==IsAnalytic()`.
+- [`power_map`](@ref): Maps the fourier power spectrum for a set of frequencies. 
 
 **Optional Methods**
-- [`amplitude_point`](@ref): Defines how to compute model amplitudes of fourier coefficients pointwise. Note this is
+- [`amplitude_point`](@ref): Defines how to compute model amplitudes of fourier coefficients pointwise. Note this
     must be defined if `fourieranalytic(::Type{YourModel})==IsAnalytic()`.
     It should be defined as √(power_point(model, ν...)).
+- [`amplitude_map`](@ref): Maps the fourier amplitude spectrum for a grid of frequencies.
 """
 abstract type AbstractPowerSpectrumModel{N} end
 
