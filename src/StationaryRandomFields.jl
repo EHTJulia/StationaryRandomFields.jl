@@ -3,6 +3,7 @@ module StationaryRandomFields
 # Import Modules
 using Base
 using DocStringExtensions
+using Documenter
 using FFTW
 using Random
 using Statistics
