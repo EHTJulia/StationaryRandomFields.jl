@@ -17,5 +17,8 @@ end
 
 @inline fourieranalytic(::SinglePowerLaw) = IsAnalytic()
 
-power_point(model::SinglePowerLaw, ν...) = √(sum(abs2, ν))^model.index
+function power_point(model::SinglePowerLaw, ν...)
+    @assert length(ν) == ndims(model)
 
+    return √(sum(abs2, ν))^model.index
+end
