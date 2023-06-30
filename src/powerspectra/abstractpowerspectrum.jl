@@ -14,9 +14,9 @@ methods to satify the interface:
 - [`fourieranalytic`](@ref): Defines whether the model fourier coefficients  can be computed analytically. If yes
    then this should return `IsAnalytic()` and the user *must* to define `visibility_point`.
    If not analytic then `fourieranalytic` should return `NotAnalytic()`.
-- [`power_point`](@ref): Defines how to compute model power of fourier coefficients pointwise. Note this 
+- [`power_point`](@ref): Defines how to compute model power of fourier coefficients pointwise. Note this
     must be defined if `fourieranalytic(::Type{YourModel})==IsAnalytic()`.
-- [`power_map`](@ref): Maps the fourier power spectrum for a set of frequencies. 
+- [`power_map`](@ref): Maps the fourier power spectrum for a set of frequencies.
 
 **Optional Methods**
 - [`amplitude_point`](@ref): Defines how to compute model amplitudes of fourier coefficients pointwise. Note this
@@ -101,30 +101,32 @@ In default, it should be defined as √(power_point(model, ν...)).
 amplitude_point(model::AbstractPowerSpectrumModel, ν...) = √(power_point(model, ν...))
 
 """
-    power_map(model, gridofν) 
+    power_map(model, gridofν)
 
 
-Function that maps the power law function of a signal data frequency grid. 
-The intended input "data" is the frequency grid output by FFTW.rfftfreq. 
-Alternatively a SignalNoise or ContinuousSignalNoise object can be input, 
+Function that maps the power law function of a signal data frequency grid.
+The intended input "data" is the frequency grid output by FFTW.rfftfreq.
+Alternatively a SignalNoise or ContinuousSignalNoise object can be input,
 and the corresponding frequency grid will be computed and mapped.
 """
-function power_map(model::AbstractPowerSpectrumModel, gridofν::Tuple) 
+function power_map(model::AbstractPowerSpectrumModel, gridofν::Tuple)
+    @assert length(ν) == ndims(model)
+
     prod = collect(Iterators.product(gridofν...))
     pow = zeros(size(prod)...)
     for i in eachindex(prod)[2:end]
-        pow[i] = power_point(model,prod[i]...)
+        pow[i] = power_point(model, prod[i]...)
     end
     return pow
 end
 
-power_map(model::AbstractPowerSpectrumModel, noisesignal::Union{AbstractNoiseSignal, AbstractContinuousNoiseSignal}) = power_map(model, rfftfreq(noisesignal))
+power_map(model::AbstractPowerSpectrumModel, noisesignal::Union{AbstractNoiseSignal,AbstractContinuousNoiseSignal}) = power_map(model, rfftfreq(noisesignal))
 
 """
     amplitude_map(model::AbstractPowerSpectrumModel, data)
 
-Function that maps the amplitude function of a signal data frequency grid. 
-The intended input "data" is the frequency grid output by FFTW.rfftfreq. 
+Function that maps the amplitude function of a signal data frequency grid.
+The intended input "data" is the frequency grid output by FFTW.rfftfreq.
 Alternatively a SignalNoise or ContinuousSignalNoise object can be input,
 and the corresponding frequency grid will be computed and mapped.
 
