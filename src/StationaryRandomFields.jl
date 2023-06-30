@@ -17,9 +17,9 @@ include("./noisesignals/continuousnoisesignal.jl")
 include("./powerspectra/abstractpowerspectrum.jl")
 include("./powerspectra/modifiers.jl")
 include("./powerspectra/singlepowerlaw.jl")
-include("powerspectra/saturatedpowerlaw.jl")
+include("./powerspectra/saturatedpowerlaw.jl")
 
 # Noise Generators
-include("noisegenerators/psnoisegenerator.jl")
-include("noisegenerators/psnoisegen.jl")
+include("./noisegenerators/psnoisegenerator.jl")
+include("./noisegenerators/psnoisegen.jl")
 end
