@@ -24,7 +24,7 @@ struct SaturatedPowerLaw{N,T} <: AbstractPowerSpectrumModel{N}
     end
 end
 
-@inline fourieranalytic(::SinglePowerLaw) = IsAnalytic()
+@inline fourieranalytic(::SaturatedPowerLaw) = IsAnalytic()
 
 function power_point(model::SaturatedPowerLaw, ν...)
     @assert length(ν) == ndims(model)
