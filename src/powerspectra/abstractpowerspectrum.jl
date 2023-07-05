@@ -110,7 +110,7 @@ Alternatively a SignalNoise or ContinuousSignalNoise object can be input,
 and the corresponding frequency grid will be computed and mapped.
 """
 function power_map(model::AbstractPowerSpectrumModel, gridofν::Tuple)
-    @assert length(ν) == ndims(model)
+    @assert length(gridofν) == ndims(model)
 
     prod = collect(Iterators.product(gridofν...))
     pow = zeros(size(prod)...)
