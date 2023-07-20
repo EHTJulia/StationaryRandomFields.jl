@@ -18,6 +18,7 @@ include("./powerspectra/abstractpowerspectrum.jl")
 include("./powerspectra/modifiers.jl")
 include("./powerspectra/singlepowerlaw.jl")
 include("./powerspectra/saturatedpowerlaw.jl")
+include("./powerspectra/phasepowerlaw.jl")
 
 # Noise Generators
 include("./noisegenerators/psnoisegenerator.jl")
