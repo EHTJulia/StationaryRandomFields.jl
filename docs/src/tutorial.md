@@ -30,11 +30,11 @@ renormed_ps = 1000 * ps
 rotated_ps = rotated(renormed_ps, π/6) # π/6 is the rotation factor
 stretched_ps = stretched(rotated_ps, 100, 100) # 100 is the stretch factor of both axes
 ```
-The noise generator requires a `ContinuousNoiseSignal` as input, which can be created from the original `NoiseSignal`
+The noise generator requires a [`ContinuousNoiseSignal`](@ref) as input, which can be created from the original [`NoiseSignal`](@ref)
 ```@example 1
 cns = ContinuousNoiseSignal(signal)
 ```
-We can now create our power spectrum noise generator, composed of the designated power spectrum and continuous noise signal. Note that the power spectrum and noise signal must be of the same dimension. The output `signoise` gives correlated power-law noise in the signal domain, with dimensions of the original `NoiseSignal` object.
+We can now create our power spectrum noise generator, composed of the designated power spectrum and continuous noise signal. Note that the power spectrum and noise signal must be of the same dimension. The output `signoise` gives correlated power-law noise in the signal domain, with dimensions of the original [`NoiseSignal`](@ref) object.
 ```@example 1
 noisegen = PSNoiseGenerator(stretched_ps, cns)
 # generate signal noise
