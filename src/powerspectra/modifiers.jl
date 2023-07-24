@@ -143,7 +143,7 @@ function modify(m::AbstractPowerSpectrumModel, transforms...)
 end
 
 @inline function power_point(m::ModifiedPowerSpectrumModel, ν...)
-    @assert length(ν) == ndims(model)
+    @assert length(ν) == ndims(m)
     mbase = m.model
     transform = m.transform
     scale, ν = modify_fourier(mbase, transform, unitscale(eltype(ν), typeof(mbase)), ν...)
