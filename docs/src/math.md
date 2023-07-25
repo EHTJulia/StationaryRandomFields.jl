@@ -14,6 +14,7 @@ $$
 
 The above equation is given in one dimension; for data of N dimension, an N-dimensional backward discrete Fourier transform applies.
 
+
 ## Power Laws
 
 StationaryRandomFields.jl implements additional power law functions to be substituted as $P(f)$ in the above equations. `SaturatedPowerLaw` takes the standard form of $P(f)=|{f}|^{\beta}$ only within the interval $f_0 \leq |{f}| \leq f_1 $, where $f_0$ and $f_1$ are input inner and outer scales, respectively. The spectrum becomes $C |{f_0}|^{\beta}$ for all $|{f}|\leq f_0$, and $0$ for $|{f}|\geq f_1$.
@@ -27,4 +28,4 @@ in which $\phi$ is the angular polar coordinate of $\vec{f}$. The constant $\bar
 The amplitude-mapping function for `PhaseScreenPowerLaw` takes an optional parameter for time in hours, `t_hr`. The function shifts in Fourier space to simulate a phase screen moving according to the screen's velocity by scaling amplitude $A(f)$ with the term:
 $$\text{exp}({\frac{2π i}{N} (s v_x \tau + t v_y \tau)})$$
 
-in which s and t represent the cartesian coordinates of frequency $\vec{f}$ in Fourier space and $\tau$ is the given time. $v_x$ and $v_y$ are the x and y components of the phase screen velocity in physical space, optionally defined in the construction of the `PhaseScreenPowerLaw` object as parameters `Vx_km_per_s` and `Vy_km_per_s`.
+in which $s$ and $t$ represent the cartesian coordinates of frequency $\vec{f}$ in Fourier space and $\tau$ is the given time. $v_x$ and $v_y$ are the x and y components of the phase screen velocity in physical space, optionally defined in the construction of the `PhaseScreenPowerLaw` object as parameters `Vx_km_per_s` and `Vy_km_per_s`.
