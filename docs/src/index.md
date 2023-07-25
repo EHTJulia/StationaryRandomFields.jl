@@ -9,9 +9,9 @@ This package simulates realistic correlated noise for signal data of any given d
 The module currently
 - Provides abstract data types and methods to define noise signals, construct and modify power-law scaling functions, and generate signal noise
 - Implements multiple power spectrum types:
-    - Basic spectra of form $P = \nu^{\alpha}$
-    - Cut-off spectra with inner and outer scales
-    - ISM Phase-Screen power spectra for Event Horizon Telescope use
+    - Basic spectra of form $P = \nu^{\alpha}$ ([`SinglePowerLaw`](@ref))
+    - Cut-off spectra with inner and outer scales ([`SaturatedPowerLaw`](@ref))
+    - ISM Phase-Screen power spectra for Event Horizon Telescope use ([`PhaseScreenPowerLaw`](@ref))
 - Provides methods to reverse the process and retrieve underlying power spectra from input signal noise
 
 ## Installation
