@@ -1,3 +1,7 @@
+```@meta
+CurrentModule = StationaryRandomFields
+```
+
 # Tutorial
 This example code segment uses StationaryRandomFields.jl to generate correlated noise for a signal of given dimensions.
 
