@@ -35,7 +35,7 @@ $$ P(\vec{f})=0. $$
 
 $$ P(\vec{f} ) = \bar{Q} \cdot (|\vec{f}| r_{\text{in}})^{-(\alpha + 2)} \cdot e^{-(|\vec{f}| r_{\text{in}})^2} \cdot P_{\phi}(\phi)$$
 
-in which $\phi$ is the angular polar coordinate of $\vec{f}$. The constant $\bar{Q}$, inner scale $r_{in}$, index $\alpha$, and function $P_{\phi}(\phi)$ are taken as input parameters. This type is intended for usage in tandem with the (under-development) package `ScatteringOptics.jl`.
+in which $\phi$ is the angular polar coordinate of $\vec{f}$. The constant $\bar{Q}$, inner scale $r_{\text{in}}$, index $\alpha$, and function $P_{\phi}(\phi)$ are taken as input parameters. This type is intended for usage in tandem with the (under-development) package `ScatteringOptics.jl`.
 
 The amplitude-mapping function for [`PhaseScreenPowerLaw`](@ref) takes an optional parameter for time in hours, `t_hr`. The function shifts in Fourier space to simulate a phase screen moving according to the screen's velocity by scaling amplitude $A(\vec{f})$ with the term:
 $$\text{exp}({\frac{2π i}{N} (s v_x \tau + t v_y \tau)})$$
