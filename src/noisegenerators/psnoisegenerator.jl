@@ -44,8 +44,7 @@ end
 Retrieve power spectrum from given signal noise.
 """
 @inline function get_power_spectrum(psgen::PowerSpectrumNoiseGenerator, signoise::AbstractArray)::AbstractArray
-    return (abs.(get_fourier_noise(psgen, signoise))).^2
-
+    return .5 * (abs.(get_fourier_noise(psgen, signoise))).^2
 end
 
 @inline function AbstractFFTs.rfftfreq(psgen::PowerSpectrumNoiseGenerator)
