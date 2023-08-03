@@ -31,13 +31,3 @@ and when $f\geq f_1$:
 $$ P(\vec{f})=0. $$
 
 
-[`PhaseScreenPowerLaw`](@ref) is specific to Interstellar-Medium-generated fluctuations, intended for use in Event Horizon Telescope imaging of Sagittarius A*. It describes the 2-dimensional phase screen approximation of the ISM, following the equation:
-
-$$ P(\vec{f} ) = \bar{Q} \cdot (|\vec{f}| r_{\text{in}})^{-(\alpha + 2)} \cdot e^{-(|\vec{f}| r_{\text{in}})^2} \cdot P_{\phi}(\phi)$$
-
-in which $\phi$ is the angular polar coordinate of $\vec{f}$. The constant $\bar{Q}$, inner scale $r_{\text{in}}$, index $\alpha$, and function $P_{\phi}(\phi)$ are taken as input parameters. This type is intended for usage in tandem with the (under-development) package `ScatteringOptics.jl`.
-
-The amplitude-mapping function for [`PhaseScreenPowerLaw`](@ref) takes an optional parameter for time in hours, `t_hr`. The function shifts in Fourier space to simulate a phase screen moving according to the screen's velocity by scaling amplitude $A(\vec{f})$ with the term:
-$$\text{exp}({\frac{2π i}{N} (s v_x \tau + t v_y \tau)})$$
-
-in which $s$ and $t$ represent the cartesian coordinates of frequency $\vec{f}$ in Fourier space and $\tau$ is the given time. $v_x$ and $v_y$ are the x and y components of the phase screen velocity in physical space, optionally defined in the construction of the [`PhaseScreenPowerLaw`](@ref) object as parameters `Vx_km_per_s` and `Vy_km_per_s`.
