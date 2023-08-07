@@ -25,8 +25,11 @@ Scaling the gaussian fourier noise by the power law function and then transformi
 rfft generates the signal noise.
 """
 
-@inline function generate_signal_noise(psgen::PowerSpectrumNoiseGenerator)::AbstractArray
-    return psgen.noisesignal.invplan * (amplitude_map(psgen.psmodel, psgen.noisesignal) .* generate_gaussian_noise(psgen.noisesignal))
+@inline function generate_signal_noise(psgen::PowerSpectrumNoiseGenerator, noise_screen = nothing)::AbstractArray
+    if isnothing(noise_screen)
+        noise_screen = generate_gaussian_noise(psgen.noisesignal)
+    end
+    return psgen.noisesignal.invplan * (amplitude_map(psgen.psmodel, psgen.noisesignal) .* noise_screen)
 end
 
 """
