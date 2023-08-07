@@ -89,12 +89,12 @@ end
 
 Generate complex gausisian noises on Fourier space over the frequency space expected for Real FFT.
 This return a complex array, which is consistent with Fourier-domain representation of a real uncorrelated Gaussian noise
-with the zero mean and variance of `sizeof(data)/2` in signal-domain. The size of the output array is given by `rfftsize(data)`.
+with the zero mean and variance of `sizeof(data)` in signal-domain. The size of the output array is given by `rfftsize(data)`.
 """
 @inline function generate_gaussian_noise(data::AbstractNoiseSignal; rng=Random.default_rng())
     # generate Gaussian noises
-    ϵre = randn(rng, Float64, rfftsize(data)...)
-    ϵim = randn(rng, Float64, rfftsize(data)...)
+    ϵre = randn(rng, Float64, rfftsize(data)...) ./ √2
+    ϵim = randn(rng, Float64, rfftsize(data)...) ./ √2
     ϵre[1] = 0.0 # Mean of the generated signals will be 0
     ϵim[1] = 0.0 # Real signal should be real at this frequency
 
