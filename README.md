@@ -20,7 +20,7 @@ The package is currently in the significant stages of development. We are planni
 
 
 ## Installation
-The package is being registered to the Julia standard repository as of June 30, 2023. Once registered, it will be installable by
+The package is available on the Julia standard repository. It can be installed by
 ```julia
 using Pkg
 Pkg.add("StationaryRandomFields")
