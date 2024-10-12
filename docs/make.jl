@@ -10,16 +10,8 @@ makedocs(;
     authors="Anna Tartaglia, Kazunori Akiyama",
     repo="https://github.com/EHTJulia/StationaryRandomFields.jl/blob/{commit}{path}#{line}",
     sitename="StationaryRandomFields.jl",
-#    format=Documenter.HTML(;
-#        prettyurls=get(ENV, "CI", "false") == "true",
-#        canonical="https://EHTJulia.github.io/StationaryRandomFields.jl",
-#        edit_link="main",
-#        assets=String[],
-#    ),
     format = MarkdownVitepress(
         repo = "https://github.com/EHTJulia/StationaryRandomFields.jl",
-        devurl = "dev",
-        deploy_url = "https://EHTJulia.github.io/StationaryRandomFields.jl",
     ),
     pages=[
         "Home" => "index.md",
@@ -32,6 +24,8 @@ makedocs(;
 
 deploydocs(;
     repo="github.com/EHTJulia/StationaryRandomFields.jl",
+    target = "build",
     devbranch="main",
+    branch = "gh-pages",
     push_preview=true,
 )

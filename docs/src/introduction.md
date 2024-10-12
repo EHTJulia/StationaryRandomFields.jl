@@ -1,3 +1,6 @@
+```@meta
+CurrentModule = StationaryRandomFields
+```
 # Introduction
 
 `StationaryRandomFields.jl` simulates realistic correlated noise for signal data of any given dimensions. 
