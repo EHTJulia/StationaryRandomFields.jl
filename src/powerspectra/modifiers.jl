@@ -15,10 +15,7 @@ true
 
 To implement a model transform you need to specify the following methods:
 - [`transform_ν`](@ref)
-- [`transform_image`](@ref)
 - [`scale_fourier`](@ref)
-- [`scale_image`](@ref)
-- [`radialextent`](@ref)
 See the docstrings of those methods for guidance on implementation details.
 
 Additionally these methods assume the modifiers are of the form

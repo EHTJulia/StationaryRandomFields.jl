@@ -9,7 +9,6 @@ The data type extends the AbstractNoiseSignal data type for use in PowerSpectrum
 **Mandatory fields**
 - `noisesignal::AbstractNoiseSignal`: noise signal object
 """
-
 abstract type AbstractContinuousNoiseSignal end
 
 
