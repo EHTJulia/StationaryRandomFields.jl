@@ -44,19 +44,15 @@ noisegen = PSNoiseGenerator(stretched_ps, cns)
 # generate signal noise
 signoise = generate_signal_noise(noisegen)
 ```
-## Plotting
-
 We can now plot our generated signal noise in the signal domain:
-```julia
+```@example 1
 using CairoMakie
 
 # plot signal noise in position plane
 xgrid = (1:signal.dims[1],1:signal.dims[2])
 fig = CairoMakie.Figure()
 ax = Axis(fig[1,1], title = "Signal Noise in Image Plane", xlabel = "x", ylabel = "y")
-cplot = CairoMakie.contourf!(f[1,1], xgrid..., signoise)
+cplot = CairoMakie.heatmap!(fig[1,1], xgrid..., signoise)
 Colorbar(fig[1,2], cplot)
 fig
 ```
-
-![fig](images/signalnoise2d.png)
