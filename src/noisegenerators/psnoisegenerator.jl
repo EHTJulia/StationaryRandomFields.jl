@@ -24,7 +24,6 @@ contained in psgen.
 Scaling the gaussian fourier noise by the power law function and then transforming to the signal domain with an inverse 
 rfft generates the signal noise.
 """
-
 @inline function generate_signal_noise(psgen::PowerSpectrumNoiseGenerator, noise_screen = nothing)::AbstractArray
     if isnothing(noise_screen)
         noise_screen = generate_gaussian_noise(psgen.noisesignal)
