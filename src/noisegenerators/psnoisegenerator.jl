@@ -13,7 +13,6 @@ This is an abstract data type for power spectrum noise generators.
 - [`get_fourier_noise`](@ref): Computes fourier noise for given signal domain noise
 - [`get_power_spectrum`](@ref): Returns power spectrum model retrieved from given signal domain noise
 """
-
 abstract type PowerSpectrumNoiseGenerator end
 
 """

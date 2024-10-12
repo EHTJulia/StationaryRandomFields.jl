@@ -15,11 +15,11 @@ various methods.
 - `dims::Tuple`: dimension of data
 
 **Mandatory methods**
-- [`size`](@ref): returns the size of the signal
-- [`sizeof`](@ref): returns product of signal dimensions
-- [`ndims`](@ref): returns the number of the dimension
+- `size`: returns the size of the signal
+- `sizeof`: returns product of signal dimensions
+- `ndims`: returns the number of the dimension
 - [`rfftsize`](@ref): returns the size of the signal in the Fourier plane (for rfft)
-- [`rfftfreq`](@ref): returns the frequency grid along each dimension in the Fourier plane (for rfft)
+- `rfftfreq`: returns the frequency grid along each dimension in the Fourier plane (for rfft)
 - [`generate_gaussian_noise`](@ref): returns Gaussian noises in Fourier domain with the size of `rfftsize(data)`
 """
 abstract type AbstractNoiseSignal end

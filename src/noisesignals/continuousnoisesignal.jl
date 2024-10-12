@@ -10,7 +10,6 @@ The type of data (default Float64) may also be specified.
 # Fields
 $(FIELDS)
 """
-
 struct ContinuousNoiseSignal{T, N <: AbstractNoiseSignal, D <: Tuple, P, PI} <: AbstractContinuousNoiseSignal
     noisesignal::N
     dims::D
