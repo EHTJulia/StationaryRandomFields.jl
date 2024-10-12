@@ -19,7 +19,7 @@ makedocs(;
     format = MarkdownVitepress(
         repo = "https://github.com/EHTJulia/StationaryRandomFields.jl",
         devurl = "dev",
-        deploy_url = "EHTJulia.github.io/StationaryRandomFields.jl",
+        deploy_url = "https://EHTJulia.github.io/StationaryRandomFields.jl",
     ),
     pages=[
         "Home" => "index.md",
