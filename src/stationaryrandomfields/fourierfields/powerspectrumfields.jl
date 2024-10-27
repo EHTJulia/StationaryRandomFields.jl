@@ -19,7 +19,7 @@ struct PowerSpectrumRandomFourierField{N, T<:Tuple, D<:Distributions.UnivariateD
         dims=(rfftsize(signaldims...)..., 2)
         freq=rfftfreq(dims)
         zero_index_list = _zero_index_list(dims)
-        psdkernel = power_map(psdmodel, freq)
+        psdkernel = amplitude_map(psdmodel, freq)
         return new{length(dims), typeof(dims), typeof(dist), typeof(zero_index_list), typeof(dims), typeof{psdmodel}, typeof{psdkernel}}(
             dims, dist, eltype(dist)(mean), zero_index_list, freq, psdmodel, psdkernel
         )
