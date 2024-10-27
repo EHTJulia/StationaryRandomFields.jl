@@ -113,14 +113,11 @@ function power_map(model::AbstractPowerSpectrumModel, gridofν::Tuple)
     @assert length(gridofν) == ndims(model)
 
     prod = collect(Iterators.product(gridofν...))
-    pow = zeros(size(prod)...)
-    for i in eachindex(prod)[2:end]
+    for i in eachindex(prod)[1:end]
         pow[i] = power_point(model, prod[i]...)
     end
     return pow
 end
-
-power_map(model::AbstractPowerSpectrumModel, noisesignal::Union{AbstractNoiseSignal,AbstractContinuousNoiseSignal}) = power_map(model, rfftfreq(noisesignal))
 
 """
     amplitude_map(model::AbstractPowerSpectrumModel, data)

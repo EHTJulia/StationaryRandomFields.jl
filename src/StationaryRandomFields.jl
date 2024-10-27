@@ -33,6 +33,10 @@ include("stationaryrandomfields/fourierfields/rfftutils.jl")
 include("stationaryrandomfields/fourierfields/univariatefields.jl")
 include("stationaryrandomfields/fourierfields/powerspectrumfields.jl")
 
+# Powerspectrum Random Fourier Fields
+include("stationaryrandomfields/powerspectrumfields/abstract.jl")
+include("stationaryrandomfields/powerspectrumfields/powerspectrumfields.jl")
+
 # Noise Signal Models
 #include("./noisesignals/abstractnoisesignal.jl")
 #include("./noisesignals/noisesignal.jl")
