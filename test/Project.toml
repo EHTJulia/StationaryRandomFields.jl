@@ -1,0 +1,5 @@
+[deps]
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+StableRNGs = "860ef19b-820b-49d6-a774-d7a799459cd3"
+StationaryRandomFields = "6ab34832-f7e5-40a4-9cd7-47ea82b5c144"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

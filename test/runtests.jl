@@ -1,6 +1,8 @@
+using StableRNGs
 using StationaryRandomFields
+using Distributions
 using Test
 
 @testset "StationaryRandomFields.jl" begin
-    # Write your tests here.
+    include(univariatefields.jl)
 end
