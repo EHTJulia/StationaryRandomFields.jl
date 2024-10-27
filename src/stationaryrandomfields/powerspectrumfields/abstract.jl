@@ -9,7 +9,7 @@
 
 This type is a random uncorrelated field where each element is drawn from a univariate distribution.
 """
-abstract struct AbstractPowerSpectrumRandomField{N} <: AbstractStationaryRandomField{N} end
+abstract type AbstractPowerSpectrumRandomField{N} <: AbstractStationaryRandomField{N} end
 
 @inline function Distributions._rand!(rng::AbstractRNG, field::AbstractPowerSpectrumRandomField, x::AbstractArray{<:Real})
     x[:] = forward(field, rand(rng, field.dist, field.dist.dims...))
