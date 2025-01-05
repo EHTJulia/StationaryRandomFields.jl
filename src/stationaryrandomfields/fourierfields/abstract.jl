@@ -21,14 +21,14 @@ See the documentation of `AbstractUnivariateRandomField` for the methods require
 """
 abstract type AbstractRandomFourierField{N} <: AbstractStationaryRandomField{N} end
 
-
 @inline function enforce_mean!(field::AbstractRandomFourierField, x::AbstractArray{<:Real})
     x[1] = field.μ
     return nothing
 end
 
-
-@inline function enforce_realfield!(field::AbstractRandomFourierField, x::AbstractArray{<:Real})
+@inline function enforce_realfield!(
+    field::AbstractRandomFourierField, x::AbstractArray{<:Real}
+)
     @assert size(x) == field.dims
 
     # get a view on the imaginary part
@@ -54,7 +54,7 @@ Find the frequency index where fourier field signal must be real number to make 
 """
 @inline function _zero_index_list(dims::Tuple)
     index_list = []
-    
+
     push!(index_list, (1,))
 
     evenness = iseven.(dims)
@@ -62,11 +62,11 @@ Find the frequency index where fourier field signal must be real number to make 
     if evenness[1]
         # create iterator
         iter = []
-        for idim in 1:length(dims)-1
+        for idim in 1:(length(dims) - 1)
             if evenness[idim]
                 push!(iter, tuple(1, midindex[idim]))
             else
-                push!(iter, tuple(1,))
+                push!(iter, tuple(1))
             end
         end
 
@@ -78,10 +78,9 @@ Find the frequency index where fourier field signal must be real number to make 
     return index_list
 end
 
-
 @inline function _view_real_and_imag(x::AbstractArray{<:Real})
     viewidx = []
-    for idim in 1:ndims(x)-1
+    for idim in 1:(ndims(x) - 1)
         push!(viewidx, :)
     end
     ϵre = view(x, viewidx..., 1)
@@ -89,20 +88,18 @@ end
     return ϵre, ϵim
 end
 
-
 @inline function _view_real(x::AbstractArray{<:Real})
     viewidx = []
-    for idim in 1:ndims(x)-1
+    for idim in 1:(ndims(x) - 1)
         push!(viewidx, :)
     end
     ϵre = view(x, viewidx..., 1)
     return ϵre
 end
 
-
 @inline function _view_imag(x::AbstractArray{<:Real})
     viewidx = []
-    for idim in 1:ndims(x)-1
+    for idim in 1:(ndims(x) - 1)
         push!(viewidx, :)
     end
     ϵim = view(x, viewidx..., 2)

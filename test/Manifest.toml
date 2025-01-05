@@ -352,12 +352,12 @@ uuid = "860ef19b-820b-49d6-a774-d7a799459cd3"
 version = "1.0.2"
 
 [[deps.StationaryRandomFields]]
-deps = ["DocStringExtensions", "FFTW", "Random", "Statistics"]
-git-tree-sha1 = "25a67eee05fcbb2b032af9c38db5e7a9f16c6e0d"
+deps = ["Distributions", "DocStringExtensions", "FFTW", "Random", "Statistics"]
+git-tree-sha1 = "d29823017b91ebe1106f498c496f73b929bc19b1"
 repo-rev = "kazuakiyama_reinfrastructure"
 repo-url = ".."
 uuid = "6ab34832-f7e5-40a4-9cd7-47ea82b5c144"
-version = "0.1.3"
+version = "1.0.0"
 
 [[deps.Statistics]]
 deps = ["LinearAlgebra", "SparseArrays"]
