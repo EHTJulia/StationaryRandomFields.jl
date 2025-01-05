@@ -3,12 +3,12 @@ normal = Normal()
 laplace = Laplace()
 
 # check if initiralization works ok
-@test UnivariateGaussianRandomField((10,),normal) == UnivariateRandomField((10,), normal)
-@test UnivariateLaplaceRandomField((10,),laplace) == UnivariateRandomField((10,), laplace)
+@test UnivariateGaussianRandomField((10,), normal) == UnivariateRandomField((10,), normal)
+@test UnivariateLaplaceRandomField((10,), laplace) == UnivariateRandomField((10,), laplace)
 
 # check random numbers
-grf = UnivariateGaussianRandomField((100,100),normal)
-lrf = UnivariateLaplaceRandomField((100,100),laplace)
+grf = UnivariateGaussianRandomField((100, 100), normal)
+lrf = UnivariateLaplaceRandomField((100, 100), laplace)
 
 # check random number generations and logpdf
 for rf in [grf, lrf]

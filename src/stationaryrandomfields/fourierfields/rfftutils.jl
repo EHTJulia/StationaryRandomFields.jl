@@ -5,7 +5,7 @@ export rfftfreq
 # Real FFT Frequency
 #
 @inline function rfftsize(dims::Number)::Tuple
-    return tuple(dims ÷ 2 + 1,)
+    return tuple(dims ÷ 2 + 1)
 end
 
 @inline function rfftsize(dims::Number...)::Tuple

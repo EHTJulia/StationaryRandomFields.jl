@@ -15,8 +15,12 @@ See the documentation of `AbstractUnivariateRandomField`. No additional methods 
 """
 abstract type AbstractUnivariateRandomField{N} <: AbstractStationaryRandomField{N} end
 
-@inline function Distributions._rand!(rng::AbstractRNG, field::AbstractUnivariateRandomField, x::AbstractMatrix{<:Real}) 
-    Distributions.rand!(rng, field.dist, x)
+@inline function Distributions._rand!(
+    rng::AbstractRNG, field::AbstractUnivariateRandomField, x::AbstractMatrix{<:Real}
+)
+    return Distributions.rand!(rng, field.dist, x)
 end
 
-@inline Distributions._logpdf(field::AbstractUnivariateRandomField, x::AbstractMatrix{<:Real}) = sum(logpdf.(field.dist, x))
+@inline Distributions._logpdf(
+    field::AbstractUnivariateRandomField, x::AbstractMatrix{<:Real}
+) = sum(logpdf.(field.dist, x))

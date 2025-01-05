@@ -3,14 +3,14 @@ module StationaryRandomFields
 # Import Modules
 using Base
 using Distributions
-import Distributions
+using Distributions: Distributions
 using DocStringExtensions
 using FFTW
 using Random
 using Statistics
 
 # Set the default noise sampler in Fourier space
-const DefaultFourierDistribution = Distributions.Normal(0, 1/√2)
+const DefaultFourierDistribution = Distributions.Normal(0, 1 / √2)
 const DefaultGaussianDistribution = Distributions.Normal()
 const DefaultLaplaceDistribution = Distributions.Laplace()
 

@@ -36,7 +36,6 @@ Returns a number on how to scale the fourier coefficients at the frequency coord
 """
 function scale_fourier end
 
-
 """
     transform_ν(model::AbstractModifier, ν...)
 
@@ -56,7 +55,8 @@ For a list of potential modifiers or transforms see `subtypes(ModelModifiers)`.
 # Fields
 $(FIELDS)
 """
-struct ModifiedPowerSpectrumModel{N,M<:AbstractPowerSpectrumModel{N},T<:Tuple} <: AbstractPowerSpectrumModel{N}
+struct ModifiedPowerSpectrumModel{N,M<:AbstractPowerSpectrumModel{N},T<:Tuple} <:
+       AbstractPowerSpectrumModel{N}
     """base model"""
     model::M
     """model transforms"""
@@ -73,7 +73,6 @@ function Base.show(io::IO, mi::ModifiedPowerSpectrumModel)
         println(io, "    $i. ", summary(mi.transform[i]))
     end
 end
-
 
 """
     unmodified(model::ModifiedPowerSpectrumModel)
@@ -101,10 +100,12 @@ julia> basemodel(stretched(Disk(), 1.0, 2.0)) == Disk()
 true
 ```
 """
-basemodel(model::ModifiedPowerSpectrumModel) = ModifiedPowerSpectrumModel(model.model, Base.front(model.transform))
+basemodel(model::ModifiedPowerSpectrumModel) =
+    ModifiedPowerSpectrumModel(model.model, Base.front(model.transform))
 basemodel(model::ModifiedPowerSpectrumModel{N,M,Tuple{}}) where {N,M} = model
 
-@inline fourieranalytic(::Type{ModifiedPowerSpectrumModel{N,M,T}}) where {N,M,T} = fourieranalytic(M)
+@inline fourieranalytic(::Type{ModifiedPowerSpectrumModel{N,M,T}}) where {N,M,T} =
+    fourieranalytic(M)
 
 @inline function ModifiedPowerSpectrumModel(m::AbstractPowerSpectrumModel, t::ModelModifier)
     return ModifiedPowerSpectrumModel(m, (t,))
@@ -144,7 +145,7 @@ end
     mbase = m.model
     transform = m.transform
     scale, ν = modify_fourier(mbase, transform, unitscale(eltype(ν), typeof(mbase)), ν...)
-    scale * power_point(mbase, ν...)
+    return scale * power_point(mbase, ν...)
 end
 
 function modify_fourier(model, transform::Tuple, scale, ν::AbstractVector...)
@@ -156,7 +157,7 @@ function __extract_tangent(dm::ModifiedPowerSpectrumModel)
     tm = __extract_tangent(dm.model)
     dtm = dm.transform
     ttm = map(x -> Tangent{typeof(x)}(; ntfromstruct(x)...), dtm)
-    tm = Tangent{typeof(dm)}(model=tm, transform=ttm)
+    return tm = Tangent{typeof(dm)}(; model=tm, transform=ttm)
 end
 
 """
@@ -177,7 +178,6 @@ struct Renormalize{T} <: ModelModifier{T}
     scale::T
 end
 
-
 """
     $(SIGNATURES)
 
@@ -189,7 +189,8 @@ julia> renormed(m, f) == f*M
 true
 ```
 """
-renormed(model::M, f) where {M<:AbstractPowerSpectrumModel} = ModifiedPowerSpectrumModel(model, Renormalize(f))
+renormed(model::M, f) where {M<:AbstractPowerSpectrumModel} =
+    ModifiedPowerSpectrumModel(model, Renormalize(f))
 Base.:*(model::AbstractPowerSpectrumModel, f::Number) = renormed(model, f)
 Base.:*(f::Number, model::AbstractPowerSpectrumModel) = renormed(model, f)
 Base.:/(f::Number, model::AbstractPowerSpectrumModel) = renormed(model, inv(f))
@@ -201,7 +202,8 @@ Base.:/(model::AbstractPowerSpectrumModel, f::Number) = renormed(model, inv(f))
 Base.:-(model::AbstractPowerSpectrumModel) = renormed(model, -1)
 
 @inline transform_ν(m, ::Renormalize, ν...) = (ν...,)
-@inline scale_fourier(::M, transform::Renormalize, ν...) where {M} = transform.scale * unitscale(typeof(transform.scale), M)
+@inline scale_fourier(::M, transform::Renormalize, ν...) where {M} =
+    transform.scale * unitscale(typeof(transform.scale), M)
 
 """
     Stretch(α, β)
@@ -227,7 +229,7 @@ true
 struct Stretch{T,N} <: ModelModifier{T}
     α::NTuple{N,T}
     function Stretch(scale::T...) where {T}
-        new{T,length(scale)}(scale)
+        return new{T,length(scale)}(scale)
     end
 end
 
@@ -245,7 +247,6 @@ end
 
 @inline transform_ν(m, transform::Stretch, ν...) = ν ./ transform.α
 @inline scale_fourier(::M, ::Stretch{T}, ν...) where {M,T} = unitscale(T)
-
 
 """
     Rotate(ξ)
@@ -267,7 +268,6 @@ struct Rotate{T} <: ModelModifier{T}
         return new{F}(s, c)
     end
 end
-
 
 """
     $(SIGNATURES)

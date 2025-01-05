@@ -3,15 +3,17 @@ using Documenter
 using DocumenterVitepress
 using FFTW
 
-DocMeta.setdocmeta!(StationaryRandomFields, :DocTestSetup, :(using StationaryRandomFields); recursive=true)
+DocMeta.setdocmeta!(
+    StationaryRandomFields, :DocTestSetup, :(using StationaryRandomFields); recursive=true
+)
 
 makedocs(;
     modules=[StationaryRandomFields],
     authors="Anna Tartaglia, Kazunori Akiyama",
     repo="https://github.com/EHTJulia/StationaryRandomFields.jl/blob/{commit}{path}#{line}",
     sitename="StationaryRandomFields.jl",
-    format = MarkdownVitepress(
-        repo = "https://github.com/EHTJulia/StationaryRandomFields.jl",
+    format=MarkdownVitepress(;
+        repo="https://github.com/EHTJulia/StationaryRandomFields.jl"
     ),
     pages=[
         "Home" => "index.md",
@@ -24,8 +26,8 @@ makedocs(;
 
 deploydocs(;
     repo="github.com/EHTJulia/StationaryRandomFields.jl",
-    target = "build",
+    target="build",
     devbranch="main",
-    branch = "gh-pages",
+    branch="gh-pages",
     push_preview=true,
 )

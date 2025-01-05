@@ -24,12 +24,14 @@ Here are the additional methods that should be implemented.
 - `sizeof`: returns product of signal dimensions
 - `ndims`: returns the number of the dimension
 """
-abstract type AbstractStationaryRandomField{N} <: Distributions.Distribution{Distributions.ArrayLikeVariate{N}, Distributions.Continuous} end
+abstract type AbstractStationaryRandomField{N} <: Distributions.Distribution{
+    Distributions.ArrayLikeVariate{N},Distributions.Continuous
+} end
 
 #
 # Mandatory methods for Distributions.Distribution
 #
-@inline Base.length(::AbstractStationaryRandomField{N}) where N = N
+@inline Base.length(::AbstractStationaryRandomField{N}) where {N} = N
 
 # Each subtype should implement this method
 function Base.eltype(::AbstractStationaryRandomField) end
@@ -52,7 +54,9 @@ function Base.eltype(::AbstractStationaryRandomField) end
 #
 # Other useful methods
 #
-@inline Base.zeros(field::AbstractStationaryRandomField) = zeros(eltype(field), field.dims...)
+@inline Base.zeros(field::AbstractStationaryRandomField) =
+    zeros(eltype(field), field.dims...)
 @inline Base.ones(field::AbstractStationaryRandomField) = ones(eltype(field), field.dims...)
 @inline Base.Array(undef, field) = Array{eltype(field)}(undef, field.dims...)
-@inline Base.fill(value, field::AbstractStationaryRandomField) = fill(eltype(field)(value), field.dims...)
+@inline Base.fill(value, field::AbstractStationaryRandomField) =
+    fill(eltype(field)(value), field.dims...)

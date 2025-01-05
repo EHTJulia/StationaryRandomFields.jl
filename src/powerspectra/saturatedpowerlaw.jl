@@ -20,7 +20,7 @@ struct SaturatedPowerLaw{N,T} <: AbstractPowerSpectrumModel{N}
         if outscale <= inscale
             throw(ArgumentError("Value of 'outscale' must be greater than 'inscale.'"))
         end
-        new{N,typeof(index)}(index, inscale, outscale)
+        return new{N,typeof(index)}(index, inscale, outscale)
     end
 end
 
