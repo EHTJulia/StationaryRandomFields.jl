@@ -1,8 +1,14 @@
-using StableRNGs
-using StationaryRandomFields
-using Distributions
 using Test
+using Random
+using LinearAlgebra
+using Statistics
+using Distributions
+using Wavelets
+using StationaryRandomFields
 
-@testset "StationaryRandomFields.jl" begin
-    include(univariatefields.jl)
-end
+const SRF = StationaryRandomFields
+
+include("fields.jl")
+include("spectra.jl")
+include("transforms.jl")
+include("enzyme.jl")

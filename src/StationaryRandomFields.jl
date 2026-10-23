@@ -1,39 +1,54 @@
 module StationaryRandomFields
 
-# Import Modules
-using Base
 using Distributions
-using Distributions: Distributions
-using DocStringExtensions
-using FFTW
+using FastHartleyTransform
+using LinearAlgebra
 using Random
 using Statistics
+using Wavelets
 
-# Set the default noise sampler in Fourier space
-const DefaultFourierDistribution = Distributions.Normal(0, 1 / √2)
-const DefaultGaussianDistribution = Distributions.Normal()
-const DefaultLaplaceDistribution = Distributions.Laplace()
+import Distributions: _rand!, _logpdf, insupport, logpdf
 
-# AbstractStationaryRandomField
-include("stationaryrandomfields/abstract.jl")
+export AbstractStationaryRandomField,
+    UnivariateRandomField,
+    UnivariateGaussianRandomField,
+    UnivariateLaplaceRandomField,
+    TransformedRandomField,
+    AbstractFieldTransform,
+    IdentityTransform,
+    HartleyTransform,
+    SpectralScaling,
+    WaveletTransform,
+    ScaleTransform,
+    TransformChain,
+    FieldGrid,
+    prepare,
+    apply,
+    apply!,
+    input_size,
+    output_size,
+    AbstractPowerSpectrumModel,
+    SinglePowerLaw,
+    SaturatedPowerLaw,
+    ConstantPowerSpectrum,
+    power_point,
+    amplitude_point,
+    power_map,
+    amplitude_map,
+    power_map!,
+    amplitude_map!,
+    stretched,
+    rotated,
+    renormed,
+    modify,
+    Stretch,
+    Rotate,
+    Renormalize
 
-# Power Spectrum Models
-include("./powerspectra/abstractpowerspectrum.jl")
-include("./powerspectra/modifiers.jl")
-include("./powerspectra/singlepowerlaw.jl")
-include("./powerspectra/saturatedpowerlaw.jl")
+include("fields.jl")
+include("spectra.jl")
+include("transforms.jl")
+include("wavelets.jl")
+include("transformed.jl")
 
-# Univariate Random Fields
-include("stationaryrandomfields/univariatefields/abstract.jl")
-include("stationaryrandomfields/univariatefields/univariatefields.jl")
-
-# Univariate Random Fourier Fields
-include("stationaryrandomfields/fourierfields/abstract.jl")
-include("stationaryrandomfields/fourierfields/rfftutils.jl")
-include("stationaryrandomfields/fourierfields/univariatefields.jl")
-include("stationaryrandomfields/fourierfields/powerspectrumfields.jl")
-
-# Powerspectrum Random Fourier Fields
-include("stationaryrandomfields/powerspectrumfields/abstract.jl")
-include("stationaryrandomfields/powerspectrumfields/powerspectrumfields.jl")
 end
