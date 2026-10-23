@@ -95,26 +95,28 @@ end
 power_point(p::SumPowerSpectrum, ν...) = sum(m -> power_point(m, ν...), p.models)
 
 abstract type ModelModifier end
-struct Renormalize{T<:Real} <: ModelModifier
+struct Renormalize{T} <: ModelModifier
     scale::T
-    function Renormalize(s::T) where {T<:Real}
-        isfinite(s) && s >= 0 || throw(ArgumentError("Power scaling must be nonnegative."))
+    function Renormalize(s::T; check_args::Bool=true) where {T<:Number}
+        (!check_args || (isfinite(s) && s >= 0)) ||
+            throw(ArgumentError("Power scaling must be nonnegative."))
         return new{T}(s)
     end
 end
-struct Stretch{N,T<:Real} <: ModelModifier
+struct Stretch{N,T} <: ModelModifier
     factors::NTuple{N,T}
 end
-function Stretch(s::Real...)
+function Stretch(s::Number...; check_args::Bool=true)
     f = promote(s...)
-    !isempty(f) && all(v -> isfinite(v) && v > 0, f) ||
+    !isempty(f) && (!check_args || all(v -> isfinite(v) && v > 0, f)) ||
         throw(ArgumentError("Stretch factors must be positive."))
     return Stretch(f)
 end
 struct Rotate{N,T} <: ModelModifier
     rows::NTuple{N,NTuple{N,T}}
 end
-function Rotate(angle::Real)
+function Rotate(angle::Number)
+    angle isa Complex && throw(ArgumentError("Rotation angles must be real."))
     s, c = sincos(angle)
     return Rotate(((c, -s), (s, c)))
 end

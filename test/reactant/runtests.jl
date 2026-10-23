@@ -161,3 +161,40 @@ end
     @test all(isfinite, Array(rx))
     @test first != Array(rx)
 end
+
+function geometry_loss(a, x, h, s)
+    model = modify(
+        SinglePowerLaw{2}(-1.2),
+        Stretch(exp(sum(a[1:1])), exp(sum(a[2:2])); check_args=false),
+        Rotate(sum(a[3:3])),
+    )
+    return sum(abs2, apply(h, apply(s, x, model)) .- 0.3)
+end
+function geometry_gradient(a, x, h, s)
+    da = zero(a)
+    Enzyme.autodiff(
+        Reverse, geometry_loss, Active, Duplicated(a, da), Const(x), Const(h), Const(s)
+    )
+    return da
+end
+@testset "Compiled spectrum stretch and angle gradients" begin
+    x = reshape(sin.(1:20), 4, 5)
+    rx = Reactant.to_rarray(x)
+    h = prepare(HartleyTransform(size(x)), rx)
+    s = prepare(SpectralScaling(FieldGrid(size(x)), SinglePowerLaw{2}(-1.2)), rx)
+    a = [0.1, -0.2, 0.3]
+    ra = Reactant.to_rarray(a)
+    gradient = Reactant.@compile geometry_gradient(ra, rx, h, s)
+    actual = Array(gradient(ra, rx, h, s))
+    hc = prepare(HartleyTransform(size(x)), x)
+    sc = prepare(SpectralScaling(FieldGrid(size(x)), SinglePowerLaw{2}(-1.2)), x)
+    step = 1e-5
+    expected = map(eachindex(a)) do i
+        plus, minus = copy(a), copy(a)
+        plus[i] += step
+        minus[i] -= step
+        (geometry_loss(plus, x, hc, sc) - geometry_loss(minus, x, hc, sc)) / (2step)
+    end
+    @test all(isfinite, actual)
+    @test actual ≈ expected rtol=1e-7
+end

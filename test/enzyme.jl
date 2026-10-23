@@ -97,3 +97,25 @@ end
     @test isfinite(da)
     @test da ≈ finite rtol=1e-7
 end
+
+function geometry_loss(a, x, h, s)
+    model = modify(
+        SinglePowerLaw{2}(-1.2),
+        Stretch(exp(sum(a[1:1])), exp(sum(a[2:2])); check_args=false),
+        Rotate(sum(a[3:3])),
+    )
+    return sum(abs2, apply(h, apply(s, x, model)) .- 0.3)
+end
+@testset "Spectrum stretch and angle gradients" begin
+    x = reshape(sin.(1:20), 4, 5)
+    h = prepare(HartleyTransform(size(x)), x)
+    s = prepare(SpectralScaling(FieldGrid(size(x)), SinglePowerLaw{2}(-1.2)), x)
+    a = [0.1, -0.2, 0.3]
+    da = zero(a)
+    Enzyme.autodiff(
+        Reverse, geometry_loss, Active, Duplicated(a, da), Const(x), Const(h), Const(s)
+    )
+    expected = finite_gradient(b -> geometry_loss(b, x, h, s), a)
+    @test all(isfinite, da)
+    @test da ≈ expected rtol=1e-7
+end
