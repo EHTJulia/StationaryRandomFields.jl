@@ -206,3 +206,76 @@ function amplitude_map!(out, p::AbstractPowerSpectrumModel, coordinates::Tuple)
     out .= sqrt.(out)
     return out
 end
+
+@doc """
+    power_point(model, frequencies...)
+
+Evaluate nonnegative power at one frequency coordinate, in cycles per coordinate unit.
+Custom spectrum types implement this method for their declared rank.
+""" power_point
+
+@doc """
+    amplitude_point(model, frequencies...)
+
+Evaluate the square root of pointwise power. Zero-power modes use a zero boundary
+subgradient in transform execution; hard cutoffs remain nonsmooth.
+""" amplitude_point
+
+@doc """
+    power_map(model, frequency_axes::Tuple)
+    power_map(model, grid::FieldGrid)
+
+Evaluate pointwise power on a Cartesian frequency grid. This does not perform the
+conjugate-bin averaging used by SpectralScaling.
+""" power_map
+
+@doc """
+    amplitude_map(model, grid)
+
+Allocate the square root of a pointwise power map.
+""" amplitude_map
+
+@doc """
+    power_map!(output, model, coordinates::Tuple)
+
+Evaluate power using broadcastable coordinate arrays on the output backend. For a
+2D grid, coordinate shapes are `(nx, 1)` and `(1, ny)`, not two unshaped axis vectors.
+The caller owns and may reuse the coordinate arrays.
+""" power_map!
+
+@doc """
+    amplitude_map!(output, model, coordinates::Tuple)
+
+Write the square root of pointwise power into output using prepared coordinate arrays.
+""" amplitude_map!
+
+@doc """
+    modify(model, modifiers...)
+
+Compose spectral coordinate and power modifiers in the supplied order. The last
+coordinate modifier acts first when evaluating the pullback to the base spectrum.
+""" modify
+
+@doc """
+    renormed(model, factor)
+
+Scale power by a finite nonnegative factor; signal amplitude changes by its square root.
+""" renormed
+
+@doc """
+    stretched(model, factors...)
+
+Evaluate the spectrum at frequencies divided by positive per-axis factors. Integrated
+power is not renormalized.
+""" stretched
+
+@doc """
+    rotated(model, angle_or_matrix)
+
+Pull frequencies back through a 2D rotation angle or an N-dimensional proper orthogonal
+matrix. Angles are in radians.
+""" rotated
+
+@doc """A nonnegative power multiplier. Disable checks only for validated dynamic parameterizations.""" Renormalize
+@doc """Positive per-axis frequency widths. `check_args=false` supports compiled positive parameterizations.""" Stretch
+@doc """A rotation of frequency coordinates, represented by fixed-size matrix rows.""" Rotate

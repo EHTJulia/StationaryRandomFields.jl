@@ -1,65 +1,97 @@
 name: CI
 on:
   push:
-    branches:
-      - main
+    branches: [main]
     tags: ['*']
   pull_request:
+  workflow_dispatch:
 concurrency:
-  # Skip intermediate builds: always.
-  # Cancel intermediate builds: only if it is a pull request build.
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ startsWith(github.ref, 'refs/pull/') }}
+permissions:
+  contents: read
 jobs:
+  format:
+    name: BlueStyle
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.10.12'
+      - uses: julia-actions/cache@v2
+      - run: julia --project=tools -e 'using Pkg; Pkg.instantiate()'
+      - run: julia --project=tools tools/format.jl
   test:
-    name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
+    name: Julia ${{ matrix.version }} / ${{ matrix.os }} / ${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
-        version:
-          - '1'
-        os:
-          - ubuntu-latest
-        arch:
-          - x86
+        version: ['1.10.12', '1']
+        os: [ubuntu-latest, windows-latest, macos-15-intel]
+        arch: [x64]
+        include:
+          - version: '1.10.12'
+            os: macos-14
+            arch: aarch64
+          - version: '1.10.12'
+            os: ubuntu-24.04-arm
+            arch: aarch64
     steps:
-      - uses: actions/checkout@v3
-      - uses: julia-actions/setup-julia@v1
+      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+        with:
+          repository: EHTJulia/AbstractFastHartleyTransforms.jl
+          ref: bd08b5244d829d5d2dac2acaf9e260f5ff0da7e6
+          path: .ci/AbstractFastHartleyTransforms
+      - uses: actions/checkout@v6
+        with:
+          repository: EHTJulia/FastHartleyTransform.jl
+          ref: a1484b1df9b90aabe95e9c412cd631afeb6f3b9f
+          path: .ci/FastHartleyTransform
+      - uses: julia-actions/setup-julia@v2
         with:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
-      - uses: julia-actions/cache@v1
-      - uses: julia-actions/julia-buildpkg@v1
+      - uses: julia-actions/cache@v2
+      - run: julia tools/setup.jl
       - uses: julia-actions/julia-runtest@v1
-      - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v5
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
+      - name: Benchmark after warmup
+        run: julia tools/setup.jl benchmark
+      - run: julia --project=benchmark benchmark/benchmarks.jl
+  reactant:
+    name: Reactant CPU
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+        with:
+          repository: EHTJulia/AbstractFastHartleyTransforms.jl
+          ref: bd08b5244d829d5d2dac2acaf9e260f5ff0da7e6
+          path: .ci/AbstractFastHartleyTransforms
+      - uses: actions/checkout@v6
+        with:
+          repository: EHTJulia/FastHartleyTransform.jl
+          ref: a1484b1df9b90aabe95e9c412cd631afeb6f3b9f
+          path: .ci/FastHartleyTransform
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.10.12'
+      - uses: julia-actions/cache@v2
+      - run: julia tools/setup.jl test/reactant
+      - run: julia --project=test/reactant test/reactant/runtests.jl
   docs:
     name: Documentation
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      statuses: write
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v3
-      - uses: julia-actions/setup-julia@v1
+      - uses: actions/checkout@v6
+      - uses: julia-actions/setup-julia@v2
         with:
-          version: '1'
-      - name: Configure doc environment
-        run: |
-          julia --project=docs/ -e '
-            using Pkg
-            Pkg.develop(PackageSpec(path=pwd()))
-            Pkg.instantiate()'
-      - uses: julia-actions/julia-buildpkg@v1
-      - uses: julia-actions/julia-docdeploy@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: |
-          julia --project=docs -e '
-            using Documenter: DocMeta, doctest
-            using StationaryRandomFields
-            DocMeta.setdocmeta!(StationaryRandomFields, :DocTestSetup, :(using StationaryRandomFields); recursive=true)
-            doctest(StationaryRandomFields)'
+          version: '1.10.12'
+      - uses: julia-actions/cache@v2
+      - run: julia tools/setup.jl docs
+      - run: julia --project=docs docs/make.jl

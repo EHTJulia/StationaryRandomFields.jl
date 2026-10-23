@@ -171,3 +171,41 @@ function check_buffers(y, t, x)
 end
 
 sample_eltype(x::AbstractArray) = eltype(x)
+
+@doc """
+    input_size(transform)
+
+Return the shape of one latent/coefficient input, excluding batch axes.
+""" input_size
+
+@doc """
+    output_size(transform)
+
+Return the shape of one transformed signal, excluding batch axes.
+""" output_size
+
+@doc """
+    prepare(transform, prototype)
+    prepare(field, latent_prototype)
+
+Prepare fixed-shape execution metadata for the prototype's backend and element type.
+Call outside differentiation and compilation. Prepare each original descriptor separately
+for concurrent tasks. Model-dependent spectral amplitudes are not cached.
+""" prepare
+
+@doc """
+    apply(transform, x)
+    apply(prepared_spectral, x, model)
+
+Apply a deterministic transform. An unprepared descriptor is prepared automatically;
+reuse a prepared object for repeated execution. Built-in transforms preserve the input
+floating-point element type. The three-argument form reevaluates a new spectrum model.
+""" apply
+
+@doc """
+    apply!(output, transform, input)
+
+Write a transformed signal to a matching preallocated output and return it. Internal
+allocations depend on the backend; this is not an allocation-free guarantee. Hartley
+execution rejects overlapping input and output storage.
+""" apply!

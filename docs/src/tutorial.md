@@ -1,58 +1,73 @@
-```@meta
-CurrentModule = StationaryRandomFields
-```
-
 # Tutorial
-This example code segment uses StationaryRandomFields.jl to generate correlated noise for a signal of given dimensions.
 
-We begin by defining a noise signal object with dimensions input as a tuple. 
-```@example 1
-using StationaryRandomFields
-using FFTW
+## Gaussian correlated signal
 
-# Define a 2D signal with dimensions (1000,1000)
-signal = NoiseSignal((1000,1000))
-```
-We can immediately access the RFFT frequency grid that corresponds to the signal dimensions
+```julia
+using StationaryRandomFields, Distributions, Random
 
-```@example 1
-ν = rfftfreq(signal)
+latent = UnivariateGaussianRandomField(Float64, (32, 32))
+z = rand(MersenneTwister(12), latent)
+grid = FieldGrid(size(z); spacing=(0.1, 0.1))
+ps = SaturatedPowerLaw{2}(-2.0, 0.1, 4.0)
+spectral = prepare(SpectralScaling(grid, ps), z)
+hartley = prepare(HartleyTransform(size(z)), z)
+signal = apply(hartley, apply(spectral, z))
+logprior = logpdf(latent, z)
 ```
-We can also directly create Gaussian noise in Fourier space for the given signal with an optional input of the desired rng (if not the default).
-This is not a necessary step as the NoiseGenerator will implement it automatically later.
-```@example 1
-gnoise = generate_gaussian_noise(signal)
-```
-Now construct the power spectrum to be used, designating the dimension in brackets. 
-```@example 1
-# Create a basic power spectrum with index β = -2
-ps = SinglePowerLaw{2}(-2.)
-```
-The power spectrum may be modified via renormalization, rotation, and stretching
-```@example 1
-renormed_ps = 1000 * ps 
-rotated_ps = rotated(renormed_ps, π/6) # π/6 is the rotation factor
-stretched_ps = stretched(rotated_ps, 100, 100) # 100 is the stretch factor of both axes
-```
-The noise generator requires a [`ContinuousNoiseSignal`](@ref) as input, which can be created from the original [`NoiseSignal`](@ref)
-```@example 1
-cns = ContinuousNoiseSignal(signal)
-```
-Now create a power spectrum noise generator comprising the designated power spectrum and continuous noise signal. Note that the power spectrum and noise signal must be of the same dimension. The output `signoise` gives correlated power-law noise in the signal domain, with dimensions of the original [`NoiseSignal`](@ref) object.
-```@example 1
-noisegen = PSNoiseGenerator(stretched_ps, cns)
-# generate signal noise
-signoise = generate_signal_noise(noisegen)
-```
-We can now plot our generated signal noise in the signal domain:
-```@example 1
-using CairoMakie
 
-# plot signal noise in position plane
-xgrid = (1:signal.dims[1],1:signal.dims[2])
-fig = CairoMakie.Figure()
-ax = Axis(fig[1,1], title = "Signal Noise in Image Plane", xlabel = "x", ylabel = "y")
-cplot = CairoMakie.heatmap!(fig[1,1], xgrid..., signoise)
-Colorbar(fig[1,2], cplot)
-fig
+Update a spectrum without rebuilding a plan or caching stale amplitudes:
+
+```julia
+updated = 2.0 * ps + ConstantPowerSpectrum{2}(0.01)
+signal = apply(hartley, apply(spectral, z, updated))
 ```
+
+## Laplace coefficients
+
+```julia
+latent = UnivariateLaplaceRandomField(Float32, (32, 32); b=0.2f0)
+z = rand(latent)
+synthesis = prepare(WaveletTransform(size(z); levels=3), z)
+signal = apply(synthesis, z)
+logprior = logpdf(latent, z)
+```
+
+Use `IdentityTransform(size(z))` for a direct image-space Laplace prior. Use
+`TransformChain(ScaleTransform(size(z), weights), WaveletTransform(size(z); levels=3))`
+for coefficient weights. The weights must broadcast to the coefficient shape.
+
+## Sampling a transformed field
+
+```julia
+field = TransformedRandomField(latent, synthesis)
+x = rand(field)
+```
+
+`logpdf(field, x)` is deliberately unavailable. Evaluate `logpdf(field.latent, z)`.
+For a vector-valued field, `rand(field, n)` follows Distributions' matrix-of-columns
+convention; higher-rank fields use arrays of sample arrays. `rand!(rng, field, batch)`
+also accepts a numeric array whose trailing axes index independent samples.
+
+## Differentiation and compiled execution
+
+Prepare transforms outside the objective and keep random draws fixed during AD.
+`examples/latent_inference.jl` contains a complete latent log-posterior example.
+The CPU Enzyme suite checks latent, wavelet, Hartley, and spectral-parameter gradients.
+
+For Reactant, transfer the latent array, prepare using that array as the prototype, and
+compile `apply` or the objective. Trainable parameters should be device arrays, not Julia
+scalar constants. A scalar parameter can be represented by a one-element array and
+reduced with `sum`, avoiding scalar indexing. When constructing a dynamic positive
+constant spectrum with `exp(sum(parameters))`, use `check_args=false` to keep host
+validation outside the compiled objective. Validate physical parameter ranges before
+compilation and use positive parameterizations for optimization.
+
+CPU and CUDA sampling use backend-specific RNGs. Compiled Reactant sampling uses an
+explicit `ReactantRNG`, preserving state between calls. RNG streams and sample values
+need not match between backends; numerical transforms are compared with fixed inputs.
+
+For trainable spectrum geometry, construct modifiers with
+`Stretch(exp(logwidth1), exp(logwidth2); check_args=false)` and `Rotate(angle)`,
+then combine them with `modify`. The compiled gradient suite checks both widths and
+the two-dimensional rotation angle against finite differences. Static proper rotation
+matrices support arbitrary spectrum rank.

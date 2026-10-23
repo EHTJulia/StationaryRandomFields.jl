@@ -1,39 +1,77 @@
 # StationaryRandomFields.jl
 
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://EHTJulia.github.io/StationaryRandomFields.jl/stable/)
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://EHTJulia.github.io/StationaryRandomFields.jl/dev/)
-[![Build Status](https://github.com/EHTJulia/StationaryRandomFields.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/EHTJulia/StationaryRandomFields.jl/actions/workflows/CI.yml?query=branch%3Amain)
-[![Coverage](https://codecov.io/gh/EHTJulia/StationaryRandomFields.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/EHTJulia/StationaryRandomFields.jl)
+Array-valued latent priors and composable transforms for Bayesian signal reconstruction.
+The current redesign provides independent Gaussian/Laplace latent fields, power spectra,
+orthonormal multidimensional Hartley synthesis, and multilevel wavelet synthesis.
 
-
-This Julia package is designed to provide toolkits for handling signals sampled from stationary Gaussian random fields that follow a specific stationary power spectrum in the Fourier domain. The package offers:
-
-- Abstract types and methods for multi-dimensional discrete signals.
-- Abstract multi-dimensional power spectrum types, which can be easily scaled, stretched, and rotated.
-- toolkits to sample signals from input (or generated) Gaussian random fields in the Fourier space.
-
-The package is currently in the significant stages of development. We are planning to implement:
-- Chain rules to make the relevant methods compatible with Julia's standard automatic differentiation packages.
-- Custom kernels for [KernelFunctions.jl](https://github.com/JuliaGaussianProcesses/KernelFunctions.jl), enabling the integration of stationary Gaussian random fields characterized by power spectra into the rich ecosystem of the [Julia Gaussian Processing packages](https://github.com/JuliaGaussianProcesses).
-
-**Disclaimer**: The package may have significant changes in near future given the early stage of the development. 
-
-
-## Installation
-The package is available on the Julia standard repository. It can be installed by
 ```julia
-using Pkg
-Pkg.add("StationaryRandomFields")
+using StationaryRandomFields, Distributions, Random
+
+latent = UnivariateGaussianRandomField(Float32, (64, 64))
+z = rand(MersenneTwister(12), latent)
+grid = FieldGrid(size(z); spacing=(0.1, 0.1))
+ps = SaturatedPowerLaw{2}(-2f0, 0.1f0, 4f0)
+transform = TransformChain(SpectralScaling(grid, ps), HartleyTransform(size(z)))
+prepared = prepare(transform, z)
+x = apply(prepared, z)
+logprior = logpdf(latent, z)
+field = TransformedRandomField(latent, prepared)
+sample = rand(field)
 ```
 
-## Usage
-To be written soon.
+`UnivariateRandomField` describes the common scalar distribution of independent latent
+elements. A sample is an N-dimensional array; the full prior is their joint product.
+`logpdf` is evaluated **only in latent space**. Signal-space `logpdf` and general signal
+support membership deliberately throw informative errors. No Jacobian API is required.
 
+For a wavelet-coefficient Laplace prior:
 
-## Acknowledgements
-The development & developers of this package has been finantially supported by the following programs.
-- AST-2107681, National Science Foundation, USA: v0.1.0 - present
-- AST-2034306, National Science Foundation, USA: v0.1.0 - present
-- OMA-2029670, National Science Foundation, USA: v0.1.0 - present
-- AST-1950348, National Science Foundation, USA: v0.1.0 - present
-- AST-1935980, National Science Foundation, USA: v0.1.0 - present
+```julia
+latent = UnivariateLaplaceRandomField(Float32, (64, 64); b=0.2f0)
+z = rand(latent)
+synthesis = prepare(WaveletTransform(size(z); levels=3), z)
+x = apply(synthesis, z)
+logprior = logpdf(latent, z)
+```
+
+`TransformChain(a, b)` applies `a` first and `b` second. `IdentityTransform` expresses
+an image-space prior; `ScaleTransform` expresses scalar or coefficient-wise amplitude
+weights. These weights are distinct from a Fourier power spectrum.
+
+See [the tutorial](docs/src/tutorial.md), [the mathematical conventions](docs/src/math.md),
+[the redesign review](REVIEW.md), and [the reproducible measurements](benchmark/RESULTS.md).
+An executable inference example is in `examples/latent_inference.jl`.
+
+## Development and validation
+
+Julia 1.10 LTS or newer is required. The companion Hartley packages currently need the
+reviewed development commits listed in `REVIEW.md`; they are not replaced by an old
+registry release. The checked-in development manifest uses sibling checkouts. With the
+three repositories checked out next to each other, run:
+
+```julia
+using Pkg
+Pkg.develop([
+    PackageSpec(path="../AbstractFastHartleyTransforms"),
+    PackageSpec(path="../FastHartleyTransform"),
+])
+Pkg.instantiate()
+Pkg.test()
+```
+
+For standalone CI, `tools/setup.jl` uses explicit companion commit revisions.
+CPU tests cover Float32/Float64, numerical references, shape validation, and Enzyme.
+The Reactant suite runs compiled execution and differentiation on CPU by default.
+CUDA and Reactant GPU suites require an actual device and are run explicitly; an
+unavailable device is an error, not a silently passing test. No DMOG job is launched
+by the repository scripts or workflows.
+
+```sh
+julia --project=tools -e 'using Pkg; Pkg.instantiate()'
+julia --project=tools tools/format.jl --write
+julia --project=tools tools/format.jl
+```
+
+JuliaFormatter is pinned to 2.1.2 and uses the root BlueStyle configuration. Code comments,
+docstrings, and configuration comments use American English. Contributions follow
+[ColPrac](https://github.com/SciML/ColPrac), with topic branches and independent review.

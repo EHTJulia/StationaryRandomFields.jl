@@ -1,46 +1,99 @@
-```@meta
-CurrentModule = StationaryRandomFields
-```
+# Mathematical conventions
 
-# Mathematical Basis
+## Latent prior
 
-To generate correlated noise, the procedure designated in [Timmer et al. (1995)](https://ui.adsabs.harvard.edu/abs/1995A%26A...300..707T/abstract) is followed. 
-First, random Gaussian noise $G(\vec{f})$ is generated in the Fourier domain, by drawing from a normal distribution at each point in frequency space. 
-The frequency space grid is computed simply from the size of the signal data itself. 
-Fourier Gaussian noise is then scaled by the square root of a designated Fourier domain power function: 
+For `M = prod(size(latent))` independent elements:
 
 ```math
-A(\vec{f}) = \sqrt{ P(\vec{f}) } = \sqrt{ f^{\beta} }
+\log p_Z(z)=\sum_{i=1}^M\log p(z_i).
 ```
 
-in which $\beta$ is a negative index and $f$ denotes the vector norm $|\vec{f}|$. This is the most basic power spectrum available for use, but other special power law functions may also be implemented.
-
-The power-law-scaled Fourier noise, $F(\vec{f}) = G(\vec{f}) \cdot A(\vec{f})$ is inverse Fourier transformed back into the signal domain to produce the output signal noise:
+For a Laplace marginal with location `μ` and scale `b`:
 
 ```math
-S(\vec{r}) = \frac{1}{N} \sum_{f = 0}^{N} F(\vec{f})e^{2\pi i \vec{f} \cdot \vec{r}}
+\log p_Z(z)=-M\log(2b)-\frac{1}{b}\sum_i|z_i-\mu|.
 ```
 
-Reversing the process, the approximate power spectrum can be retrieved from a given signal noise $S(\vec{r})$ via a forward Fourier transform:
+The scale is not a standard deviation: its variance is `2b^2`. At the Laplace cusp,
+AD uses the zero subgradient. Finite-difference checks avoid the cusp. An image-space
+Laplace prior penalizes image values; a wavelet-coefficient prior penalizes coefficients.
+They express different models.
+
+## Hartley synthesis and discrete power
+
+For zero-based grid coordinates, define the true multidimensional Hartley matrix:
 
 ```math
-\bar{P}(\vec{f}) = |F(\vec{f})|^2 = |\frac{1}{N} \sum_{f = 0}^{N} S(\vec{r})e^{-2\pi i \vec{f} \cdot \vec{r}}|^2
+H_{nk}=\operatorname{cas}\left(2\pi\sum_d\frac{n_d k_d}{m_d}\right),
+\qquad Q=H/\sqrt{M},\qquad Q^\mathsf{T}Q=I.
 ```
 
-The approximated power spectrum output by [`get_power_spectrum`](@ref) divides this above result, $\bar{P}(\vec{f})$, by 2 to correct for a positively skewed offset in the squared amplitude of Gaussian noise.  
+This is one Hartley kernel of the summed phase, not a product of one-dimensional
+Hartley kernels. `HartleyTransform` applies `Q`. The companion package's unnormalized
+`fht` is divided by `sqrt(M)`; using `ifht` without compensating normalization would
+produce a different variance.
 
-## Power Laws
-
-StationaryRandomFields.jl implements additional power law functions to be substituted as $P(f)$ in the above equations. [`SaturatedPowerLaw`](@ref) takes the standard form of $P(\vec{f})=f^{\beta}$ only within the interval $f_0 < f < f_1 $, where $f_0$ and $f_1$ are input inner and outer scale cutoffs (`inscale` and `outscale`), respectively. When ${f}\leq f_0$, the spectrum becomes:
+For centered, unit-variance Gaussian latent coefficients:
 
 ```math
-P(\vec{f})=f_0^{\beta}
+x=\mu_x+Q\,\operatorname{diag}(\sqrt{P_k})z,\qquad
+C=Q\,\operatorname{diag}(P_k)Q^\mathsf{T}.
 ```
 
-and when $f\geq f_1$: 
+For latent variance `v`, the covariance is multiplied by `v`. Standard-normal latent
+coefficients are recommended to avoid degeneracy between latent scale and spectral
+amplitude. A nonzero latent mean is transformed by the same operator; it is not a
+constant signal mean. Add a constant signal mean explicitly in the observation model.
+
+`P` is discrete power, or covariance eigenvalue, rather than a continuous spectral
+density. With an unnormalized DFT, the centered periodogram convention is
+`abs2(fft(x)) / M`. There is no additional factor of 1/2. Converting a continuous density
+to discrete power requires frequency-cell volumes and the chosen Fourier convention;
+this conversion is not silently inferred.
+
+Frequencies use cycles per coordinate unit: `k / (m_d * spacing_d)`, in unshifted FFT
+ordering. Even-size Nyquist bins use the negative representative. On a finite grid,
+`SpectralScaling` averages `P(k)` and `P(-k)` using discrete conjugate indices before
+computing an amplitude. This also handles Nyquist aliases after rotation/stretching.
+`power_map` remains a direct pointwise map; the paired effective power belongs to the
+spectral transform.
+
+`SinglePowerLaw` has an explicit DC power, defaulting to zero. `SaturatedPowerLaw` is
+flat below a positive inner frequency and zero at/above an outer frequency. Zero-power
+modes require no division. Their amplitude derivative is defined to be zero at exactly
+zero power; changing the active band at a hard cutoff remains nonsmooth.
+
+## Spectrum composition
+
+`p + q` adds powers. Scaling power by `c >= 0` scales signal amplitude by `sqrt(c)`.
+Scaling a signal by `a` scales its power by `abs2(a)`. Summing signals made from the same
+latent sample introduces cross terms and does not implement `p + q`.
+
+`stretched(p, s...)` evaluates `p(ν ./ s)`. It changes frequency-coordinate widths and
+does not normalize integrated power. `rotated(p, R)` evaluates `p(R * ν)` for a proper
+orthogonal matrix. `rotated(p, angle)` uses the corresponding two-dimensional matrix.
+Modifiers compose in application order; the last coordinate modifier is evaluated first
+when pulling a frequency back to the base model.
+
+## Wavelets
+
+The initial implementation uses periodic orthogonal filter-bank DWT packing compatible
+with Wavelets.jl. The approximation occupies the low-index corner; each subsequent
+level transforms that corner. Every dimension must be divisible by `2^levels`.
+CPU ranks 1–3 use Wavelets.jl. A separable implementation extends the same convention to
+higher ranks, CUDA arrays, and Reactant. Float32 filters are converted once at preparation.
+
+For synthesis `x = S D z`, coefficient weights belong to `D`; a Laplace latent prior
+still evaluates `z`. For orthogonal `S` and invertible `D`, this corresponds, up to constants
+for fixed weights, to an L1 penalty on `D^{-1} S^T x`. Redundant/custom synthesis does not
+in general define that analysis penalty on `x`.
+
+## Inference
 
 ```math
-P(\vec{f})=0.
+\log p(z,\theta\mid y)=\log p(y\mid T_\theta(z))+
+\log p_Z(z)+\log p(\theta)+C.
 ```
 
-
+The sampled variables are `z` and model parameters. No signal density or Jacobian term
+is evaluated. `logpdf` on a transformed field raises an informative error.
