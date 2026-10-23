@@ -75,3 +75,9 @@ julia --project=tools tools/format.jl
 JuliaFormatter is pinned to 2.1.2 and uses the root BlueStyle configuration. Code comments,
 docstrings, and configuration comments use American English. Contributions follow
 [ColPrac](https://github.com/SciML/ColPrac), with topic branches and independent review.
+
+
+The optional KernelFunctions extension wraps `PeriodicCovariance` as a finite periodic
+spectral kernel. Dense kernel matrices and the fast full-grid FHT covariance action
+are separate APIs. See [covariance kernels](docs/src/kernels.md) for normalization,
+off-grid semantics, parameter differentiation, and examples.

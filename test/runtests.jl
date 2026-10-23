@@ -12,3 +12,5 @@ include("fields.jl")
 include("spectra.jl")
 include("transforms.jl")
 include("enzyme.jl")
+
+include("covariance.jl")

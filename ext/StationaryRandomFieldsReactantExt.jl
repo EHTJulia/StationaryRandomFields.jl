@@ -19,6 +19,15 @@ function Distributions.logpdf(
     size(x) == size(f) || throw(DimensionMismatch("Wrong latent shape."))
     return latent_logpdf(f.dist, x)
 end
+function Distributions.logpdf(
+    f::UnivariateRandomField{N,D},
+    x::ReactantArray{T,N};
+    location=mean(f.dist),
+    scale=StationaryRandomFields.prior_scale(f.dist),
+    check_args=true,
+) where {T,N,D<:Union{Normal,Laplace}}
+    return StationaryRandomFields.parameterized_logpdf(f, x, location, scale, check_args)
+end
 sample_eltype(::ReactantArray{T}) where {T} = T
 
 function check_input(t, x::ReactantArray{T}) where {T}

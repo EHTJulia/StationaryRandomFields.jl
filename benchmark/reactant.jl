@@ -45,7 +45,13 @@ function main()
     for T in (Float32, Float64), dims in ((32, 32), (8, 8, 8))
         x = Reactant.to_rarray(reshape(T.(sin.(1:prod(dims))), dims))
         println("case=", T, " ", dims)
-        for t in (HartleyTransform(dims), WaveletTransform(dims; levels=2))
+        for t in (
+            HartleyTransform(dims),
+            WaveletTransform(dims; levels=2),
+            PeriodicCovariance(
+                FieldGrid(dims), SinglePowerLaw{length(dims)}(T(-0.8); dc=T(0.3))
+            ),
+        )
             println("plan construction ", typeof(t))
             @time p = prepare(t, x)
             println("compile forward ", typeof(t))

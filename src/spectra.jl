@@ -39,7 +39,9 @@ struct SinglePowerLaw{N,T,S} <: AbstractPowerSpectrumModel{N}
             throw(ArgumentError("Invalid power law."))
         (!check_args || (isfinite(dc) && dc >= 0)) ||
             throw(ArgumentError("Invalid DC power."))
-        return new{N,T,S}(index, dc)
+        # Homogeneous parameter storage preserves mixed-precision Enzyme derivatives.
+        β, dcvalue = promote(index, dc)
+        return new{N,typeof(β),typeof(dcvalue)}(β, dcvalue)
     end
 end
 
@@ -60,18 +62,21 @@ function check_frequency(p, ν)
     length(ν) == ndims(p) || throw(DimensionMismatch("Wrong frequency rank."))
     return nothing
 end
-function power_point(p::ConstantPowerSpectrum, ν...)
+# Specialize frequency tuple lengths in pointwise and broadcast evaluations.
+function power_point(p::ConstantPowerSpectrum, ν::Vararg{Any,K}) where {K}
     check_frequency(p, ν)
     return p.power
 end
-function power_point(p::SinglePowerLaw, ν...)
+function power_point(p::SinglePowerLaw, ν::Vararg{Any,K}) where {K}
     check_frequency(p, ν)
     r2 = sum(abs2, ν)
-    # Keep the unused DC branch finite during automatic differentiation.
-    r = sqrt(ifelse(iszero(r2), one(r2), r2))
-    return ifelse(iszero(r2), p.dc, r^p.index)
+    # Arithmetic masks keep the DC expression finite during device differentiation.
+    dc_mode = ifelse(iszero(r2), one(r2), zero(r2))
+    r = sqrt(r2 + dc_mode)
+    value = r^p.index
+    return dc_mode * oftype(value, p.dc) + (one(dc_mode) - dc_mode) * value
 end
-function power_point(p::SaturatedPowerLaw, ν...)
+function power_point(p::SaturatedPowerLaw, ν::Vararg{Any,K}) where {K}
     check_frequency(p, ν)
     r2 = sum(abs2, ν)
     r = sqrt(max(r2, p.inscale^2))
@@ -79,10 +84,12 @@ function power_point(p::SaturatedPowerLaw, ν...)
 end
 # Zero-power modes stay fixed at zero; use a zero derivative at this boundary.
 function power_amplitude(power)
-    safe = ifelse(iszero(power), one(power), power)
-    return ifelse(iszero(power), zero(power), sqrt(safe))
+    zero_mode = ifelse(iszero(power), one(power), zero(power))
+    return (one(power) - zero_mode) * sqrt(power + zero_mode)
 end
-amplitude_point(p::AbstractPowerSpectrumModel, ν...) = power_amplitude(power_point(p, ν...))
+function amplitude_point(p::AbstractPowerSpectrumModel, ν::Vararg{Any,K}) where {K}
+    power_amplitude(power_point(p, ν...))
+end
 
 struct SumPowerSpectrum{N,P<:Tuple} <: AbstractPowerSpectrumModel{N}
     models::P
@@ -90,9 +97,14 @@ end
 function Base.:+(
     a::AbstractPowerSpectrumModel{N}, b::AbstractPowerSpectrumModel{N}
 ) where {N}
-    return SumPowerSpectrum{N,typeof((a, b))}((a, b))
+    models = promote_models((a, b))
+    return SumPowerSpectrum{N,typeof(models)}(models)
 end
-power_point(p::SumPowerSpectrum, ν...) = sum(m -> power_point(m, ν...), p.models)
+power_point(p::SumPowerSpectrum, ν::Vararg{Any,K}) where {K} = summed_power(p.models, ν)
+summed_power(models::Tuple{Any}, ν) = power_point(only(models), ν...)
+function summed_power(models::Tuple, ν)
+    return power_point(first(models), ν...) + summed_power(Base.tail(models), ν)
+end
 
 abstract type ModelModifier end
 struct Renormalize{T} <: ModelModifier
@@ -133,7 +145,7 @@ struct ModifiedPowerSpectrumModel{N,P<:AbstractPowerSpectrumModel{N},M<:Tuple} <
     model::P
     modifiers::M
 end
-function modify(p::AbstractPowerSpectrumModel{N}, ms::ModelModifier...) where {N}
+function modify(p::AbstractPowerSpectrumModel{N}, ms::Vararg{ModelModifier,K}) where {N,K}
     for m in ms
         m isa Stretch &&
             length(m.factors) != N &&
@@ -142,9 +154,11 @@ function modify(p::AbstractPowerSpectrumModel{N}, ms::ModelModifier...) where {N
             length(m.rows) != N &&
             throw(DimensionMismatch("Rotation has the wrong rank."))
     end
-    return ModifiedPowerSpectrumModel{N,typeof(p),typeof(ms)}(p, ms)
+    return promoted_modified(
+        p, ms, common_parameter_type((parameter_type(p), map(parameter_type, ms)...))
+    )
 end
-function power_point(p::ModifiedPowerSpectrumModel, ν...)
+function power_point(p::ModifiedPowerSpectrumModel, ν::Vararg{Any,K}) where {K}
     check_frequency(p, ν)
     return modified_power(p.model, p.modifiers, ν)
 end
@@ -165,6 +179,64 @@ Base.:*(s::Real, p::AbstractPowerSpectrumModel) = renormed(p, s)
 function Base.:/(p::AbstractPowerSpectrumModel, s::Real)
     isfinite(s) && s > 0 || throw(ArgumentError("Power divisor must be positive."))
     return renormed(p, inv(s))
+end
+
+# Promote built-in compositions before storing parameters. Mixed Float32/Float64
+# fields can otherwise lose Enzyme adjoints on Julia 1.10 when sampled into Float32.
+# Custom models retain their representation unless they opt into this internal trait.
+parameter_type(::AbstractPowerSpectrumModel) = nothing
+parameter_type(::ConstantPowerSpectrum{N,T}) where {N,T} = T
+parameter_type(::SinglePowerLaw{N,T,S}) where {N,T,S} = promote_type(T, S)
+parameter_type(::SaturatedPowerLaw{N,T}) where {N,T} = T
+parameter_type(::Renormalize{T}) where {T} = T
+parameter_type(::Stretch{N,T}) where {N,T} = T
+parameter_type(::Rotate{N,T}) where {N,T} = T
+function common_parameter_type(types)
+    return any(isnothing, types) ? nothing : promote_type(types...)
+end
+parameter_type(p::SumPowerSpectrum) = common_parameter_type(map(parameter_type, p.models))
+function parameter_type(p::ModifiedPowerSpectrumModel)
+    common_parameter_type((parameter_type(p.model), map(parameter_type, p.modifiers)...))
+end
+function convert_parameters(::Type{T}, p::ConstantPowerSpectrum{N}) where {T,N}
+    return ConstantPowerSpectrum{N}(convert(T, p.power); check_args=false)
+end
+function convert_parameters(::Type{T}, p::SinglePowerLaw{N}) where {T,N}
+    return SinglePowerLaw{N}(convert(T, p.index); dc=convert(T, p.dc), check_args=false)
+end
+function convert_parameters(::Type{T}, p::SaturatedPowerLaw{N}) where {T,N}
+    return SaturatedPowerLaw{N,T}(
+        convert(T, p.index), convert(T, p.inscale), convert(T, p.outscale)
+    )
+end
+function convert_parameters(::Type{T}, m::Renormalize) where {T}
+    Renormalize(convert(T, m.scale); check_args=false)
+end
+function convert_parameters(::Type{T}, m::Stretch) where {T}
+    Stretch(map(v -> convert(T, v), m.factors))
+end
+function convert_parameters(::Type{T}, m::Rotate) where {T}
+    Rotate(map(row -> map(v -> convert(T, v), row), m.rows))
+end
+function convert_parameters(::Type{T}, p::SumPowerSpectrum{N}) where {T,N}
+    models = map(m -> convert_parameters(T, m), p.models)
+    return SumPowerSpectrum{N,typeof(models)}(models)
+end
+function raw_modified(p::AbstractPowerSpectrumModel{N}, ms) where {N}
+    return ModifiedPowerSpectrumModel{N,typeof(p),typeof(ms)}(p, ms)
+end
+function convert_parameters(::Type{T}, p::ModifiedPowerSpectrumModel) where {T}
+    return raw_modified(
+        convert_parameters(T, p.model), map(m -> convert_parameters(T, m), p.modifiers)
+    )
+end
+promoted_modified(p, ms, ::Nothing) = raw_modified(p, ms)
+function promoted_modified(p, ms, ::Type{T}) where {T}
+    return raw_modified(convert_parameters(T, p), map(m -> convert_parameters(T, m), ms))
+end
+function promote_models(models)
+    T = common_parameter_type(map(parameter_type, models))
+    return isnothing(T) ? models : map(m -> convert_parameters(T, m), models)
 end
 
 function frequency_axes(g::FieldGrid{N}, (::Type{T})=Float64) where {N,T}

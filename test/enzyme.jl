@@ -55,6 +55,17 @@ end
             Const(target),
         )
         @test dx ≈ 2sqrt(T(2)) .* apply(h, sqrt(T(2)) .* apply(h, x) .- target)
+        tangent = Enzyme.autodiff(
+            Forward,
+            field_loss,
+            Duplicated,
+            Duplicated(x, one.(x)),
+            Const(h),
+            Const(s),
+            Const(p),
+            Const(target),
+        )[1]
+        @test tangent ≈ sum(dx)
         for wt in (wavelet(WT.haar), wavelet(WT.db2))
             w = prepare(WaveletTransform(size(x), wt; levels=2), x)
             dx = zero(x)
@@ -118,4 +129,28 @@ end
     expected = finite_gradient(b -> geometry_loss(b, x, h, s), a)
     @test all(isfinite, da)
     @test da ≈ expected rtol=1e-7
+end
+
+function prior_parameter_loss(a, x, ::Val{family}) where {family}
+    μ, scale = sum(a[1:1]), exp(sum(a[2:2]))
+    dist = family === :normal ? Normal() : Laplace()
+    field = UnivariateRandomField(size(x), dist)
+    return logpdf(field, x; location=μ, scale=scale, check_args=false)
+end
+function prior_parameter_gradient(a, x, family)
+    da = zero(a)
+    Enzyme.autodiff(
+        Reverse, prior_parameter_loss, Active, Duplicated(a, da), Const(x), Const(family)
+    )
+    return da
+end
+@testset "Latent prior location and log-scale gradients" begin
+    for T in (Float32, Float64), family in (Val(:normal), Val(:laplace))
+        x = reshape(T.(0.2 .+ sin.(1:16)), 4, 4)
+        a = T[0.1, -0.2]
+        actual = prior_parameter_gradient(a, x, family)
+        expected = finite_gradient(b -> prior_parameter_loss(b, x, family), a)
+        @test all(isfinite, actual)
+        @test actual ≈ expected rtol = (T == Float32 ? 0.003 : 1e-7)
+    end
 end

@@ -20,6 +20,7 @@ CUDA.versioninfo()
             @test Array(y) ≈ apply(prepare(t, x), x)
         end
         for dist in (Normal(T(0.1), T(1.3)), Laplace(T(-0.2), T(0.7)))
+            copyto!(dx, x)
             f = UnivariateRandomField(dims, dist)
             @test logpdf(f, dx) ≈ logpdf(f, x)
             rand!(f, dx)
@@ -44,4 +45,15 @@ CUDA.versioninfo()
     output = CUDA.zeros(Float32, size(f))
     @test rand!(field, output) === output
     @test all(isfinite, Array(output))
+end
+
+@testset "CUDA covariance action" begin
+    for T in (Float32, Float64), dims in ((7,), (3, 4), (2, 3, 4))
+        x = reshape(T.(sin.(1:prod(dims))), dims)
+        grid = FieldGrid(dims)
+        model = SinglePowerLaw{length(dims)}(T(-0.8); dc=T(0.3))
+        covariance = PeriodicCovariance(grid, model; variance=T(1.4))
+        dx = CuArray(x)
+        @test Array(apply(prepare(covariance, dx), dx)) ≈ apply(prepare(covariance, x), x)
+    end
 end

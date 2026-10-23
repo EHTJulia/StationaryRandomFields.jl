@@ -43,12 +43,16 @@ export AbstractStationaryRandomField,
     modify,
     Stretch,
     Rotate,
-    Renormalize
+    Renormalize,
+    PeriodicCovariance,
+    covariance_value,
+    spectral_kernel
 
 include("fields.jl")
 include("spectra.jl")
 include("transforms.jl")
 include("wavelets.jl")
 include("transformed.jl")
+include("covariance.jl")
 
 end

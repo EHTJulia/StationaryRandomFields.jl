@@ -37,3 +37,17 @@
     @test_throws DomainError UnivariateLaplaceRandomField((2,); b=0)
     @test_throws ArgumentError size(f, 0)
 end
+
+@testset "Parameterized latent logpdf" begin
+    x = reshape(sin.(1:12), 3, 4)
+    for d in (Normal(0.2, 0.8), Laplace(0.2, 0.8))
+        field = UnivariateRandomField(size(x), d)
+        reference = UnivariateRandomField(
+            size(x), d isa Normal ? Normal(0.4, 1.2) : Laplace(0.4, 1.2)
+        )
+        @test logpdf(field, x; location=0.4, scale=1.2) ≈ logpdf(reference, x)
+        @test_throws ArgumentError logpdf(field, x; scale=0)
+        @test_throws ArgumentError logpdf(field, x; location=Inf)
+        @test_throws DimensionMismatch logpdf(field, zeros(2, 2); scale=1.2)
+    end
+end

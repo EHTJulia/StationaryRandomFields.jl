@@ -101,11 +101,14 @@ function prepare(t::SpectralScaling, x)
     reflected = frequency_coordinates(t.grid, x; reflected=true)
     return PreparedSpectralScaling(input_size(t), t.model, coords, reflected)
 end
-function paired_amplitude(model, ν...)
+function paired_power(model, ν::Vararg{Any,K}) where {K}
     n = ndims(model)
     p = power_point(model, ν[1:n]...)
     q = power_point(model, ν[(n + 1):(2n)]...)
-    return power_amplitude((p + q) / 2)
+    return (p + q) / 2
+end
+function paired_amplitude(model, ν::Vararg{Any,K}) where {K}
+    power_amplitude(paired_power(model, ν...))
 end
 function spectral_amplitude(t::PreparedSpectralScaling, model)
     return paired_amplitude.(Ref(model), t.coordinates..., t.reflected...)

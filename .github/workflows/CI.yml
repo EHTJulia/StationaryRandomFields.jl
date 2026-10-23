@@ -61,6 +61,7 @@ jobs:
       - name: Benchmark after warmup
         run: julia tools/setup.jl benchmark
       - run: julia --project=benchmark benchmark/benchmarks.jl
+      - run: julia --project=benchmark benchmark/kernels.jl
   reactant:
     name: Reactant CPU
     runs-on: ubuntu-latest

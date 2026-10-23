@@ -22,6 +22,7 @@ makedocs(;
         "Introduction" => "introduction.md",
         "Mathematical Basis" => "math.md",
         "Tutorial" => "tutorial.md",
+        "Covariance Kernels" => "kernels.md",
         "API" => "autodocs.md",
     ],
 )

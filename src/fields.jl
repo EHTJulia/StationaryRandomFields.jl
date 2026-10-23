@@ -64,10 +64,41 @@ end
 
 # The scalar formulas remain visible to device compilers and differentiation.
 function latent_logpdf(d::Normal, x)
-    μ, σ = mean(d), std(d)
+    return latent_logpdf(d, x, mean(d), std(d))
+end
+function latent_logpdf(::Normal, x, μ, σ)
     return -sum(v -> abs2((v - μ) / σ), x) / 2 - length(x) * log(σ * sqrt(oftype(σ, 2π)))
 end
-latent_logpdf(d::Laplace, x) = -sum(v -> abs(v - d.μ), x) / d.θ - length(x) * log(2 * d.θ)
+latent_logpdf(d::Laplace, x) = latent_logpdf(d, x, d.μ, d.θ)
+latent_logpdf(::Laplace, x, μ, b) = -sum(v -> abs(v - μ), x) / b - length(x) * log(2 * b)
+prior_scale(d::Normal) = std(d)
+prior_scale(d::Laplace) = d.θ
+
+function parameterized_logpdf(f, x, location, scale, check_args)
+    size(x) == size(f) || throw(DimensionMismatch("Wrong latent shape."))
+    (!check_args || (isfinite(scale) && scale > 0 && isfinite(location))) ||
+        throw(ArgumentError("Require a finite location and a positive finite scale."))
+    return latent_logpdf(f.dist, x, location, scale)
+end
+
+"""
+    logpdf(field, x; location=mean(field.dist), scale, check_args=true)
+
+Evaluate an independent Gaussian or Laplace latent prior with optional active
+location and scale parameters. `scale` is Gaussian standard deviation or Laplace
+scale and defaults to the stored value. This avoids constructing a Distributions
+object from traced scalar parameters. Set `check_args=false` inside a compiled
+objective after enforcing a positive scale, for example with `exp(logscale)`.
+"""
+function Distributions.logpdf(
+    f::UnivariateRandomField{N,D},
+    x::AbstractArray{<:Real,N};
+    location=mean(f.dist),
+    scale=prior_scale(f.dist),
+    check_args=true,
+) where {N,D<:Union{Normal,Laplace}}
+    return parameterized_logpdf(f, x, location, scale, check_args)
+end
 latent_logpdf(d::ContinuousUnivariateDistribution, x) = sum(v -> logpdf(d, v), x)
 
 function Distributions._logpdf(

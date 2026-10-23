@@ -15,8 +15,13 @@ jobs:
           version: '1.10.12'
       - run: julia tools/setup.jl test/gpu
       - run: julia --project=test/gpu test/gpu/runtests.jl
+      - run: julia --project=test/gpu benchmark/gpu.jl
       - run: julia tools/setup.jl test/reactant
       - name: Reactant GPU and gradients
         env:
           SRF_REACTANT_BACKEND: gpu
         run: julia --project=test/reactant test/reactant/runtests.jl
+      - name: Reactant GPU benchmarks
+        env:
+          SRF_REACTANT_BACKEND: gpu
+        run: julia --project=test/reactant benchmark/reactant.jl

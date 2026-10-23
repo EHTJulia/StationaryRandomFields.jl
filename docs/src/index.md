@@ -7,3 +7,6 @@ with a Hartley transform. Laplace latent coefficients can be synthesized with wa
 Start with the [tutorial](tutorial.md), then read the [mathematical conventions](math.md).
 The public density interface belongs to the latent prior; signal density evaluation is
 outside the current scope.
+
+See [finite periodic covariance kernels](kernels.md) for the optional KernelFunctions
+extension and the separate fast covariance action.
