@@ -36,7 +36,7 @@ export default defineConfig({
     },
     nav: 'REPLACE_ME_DOCUMENTER_VITEPRESS',
     sidebar: 'REPLACE_ME_DOCUMENTER_VITEPRESS',
-    editLink: 'REPLACE_ME_DOCUMENTER_VITEPRESS',
+    editLink: { pattern: 'https://github.com/EHTJulia/StationaryRandomFields.jl/edit/main/docs/src/:path' },
     socialLinks: [
       { icon: 'github', link: 'REPLACE_ME_DOCUMENTER_VITEPRESS' }
     ],

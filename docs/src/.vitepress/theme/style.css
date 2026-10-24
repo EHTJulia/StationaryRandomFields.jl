@@ -10,8 +10,8 @@ https://github.com/vuejs/vitepress/blob/main/src/client/theme-default/styles/var
 } */
 
 .VPHero .clip {
-  white-space: pre;
-  max-width: 500px;
+  white-space: normal;
+  max-width: none;
 }
 
 /* Fonts */
@@ -263,4 +263,10 @@ mjx-container > svg {
     cursor: pointer;
     user-select: none;
     margin: 0 0 8px;
+}
+
+/* Keep the full package name visible in the home-page heading. */
+.VPHero .name {
+  font-size: clamp(24px, 3vw, 40px);
+  line-height: 1.2;
 }

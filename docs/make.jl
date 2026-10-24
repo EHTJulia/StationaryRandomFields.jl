@@ -11,15 +11,16 @@ makedocs(;
     authors = "Anna Tartaglia, Kazunori Akiyama",
     sitename = "StationaryRandomFields.jl",
     repo = "https://github.com/EHTJulia/StationaryRandomFields.jl/blob/{commit}{path}#{line}",
-    format = if get(ENV, "SRF_DOCS_FORMAT", "vitepress") == "html"
-        Documenter.HTML(; prettyurls = get(ENV, "CI", "false") == "true", edit_link = "main")
-    else
-        MarkdownVitepress(; repo = "https://github.com/EHTJulia/StationaryRandomFields.jl")
-    end,
+    format = MarkdownVitepress(;
+        repo = "https://github.com/EHTJulia/StationaryRandomFields.jl",
+        devbranch = "main",
+        description = "Correlated noise and latent-field priors for astronomical signals and images",
+    ),
     checkdocs = :exports,
     pages = [
         "Home" => "index.md",
         "Introduction" => "introduction.md",
+        "Installation" => "installation.md",
         "Mathematical Basis" => "math.md",
         "Tutorial" => "tutorial.md",
         "Covariance Kernels" => "kernels.md",

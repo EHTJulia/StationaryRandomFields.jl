@@ -1,4 +1,24 @@
-# Mathematical conventions
+# Mathematical Basis
+
+## The idea before the equations
+
+Choose how much variation you expect on each scale, draw independent random
+coefficients, and turn those coefficients into a signal. For Gaussian synthesis,
+large-scale modes get larger amplitudes when the power spectrum is steeper. The
+[illustrated tutorial](tutorial.md) shows each step before introducing any inference.
+
+This follows the spectral-synthesis idea of **Timmer & König (1995),
+“On Generating Power Law Noise,” A&A 300, 707–710**
+([ADS](https://ui.adsabs.harvard.edu/abs/1995A%26A...300..707T/abstract)). Their algorithm
+randomizes both Fourier amplitudes and phases. Here independent Gaussian Hartley
+coefficients give a real-valued representation of the same Gaussian spectral-synthesis
+principle on a finite periodic grid, with the multidimensional normalization below.
+We do not fix every realized Fourier amplitude to the square root of its target power:
+the power spectrum is an ensemble expectation, and individual realizations fluctuate.
+
+In the equations, `z` means the latent coefficient array, `x` the synthesized signal,
+`M` the number of array elements, and `P` the power assigned to a discrete mode. A
+covariance describes how values at two signal locations vary together across draws.
 
 ## Latent prior
 
@@ -76,6 +96,13 @@ Modifiers compose in application order; the last coordinate modifier is evaluate
 when pulling a frequency back to the base model.
 
 ## Wavelets
+
+A wavelet coefficient controls a feature at a particular location and scale. Synthesis
+adds these features to form an image or time series. Laplace coefficients favor a small
+number of prominent features compared with an equally scaled Gaussian prior. They are
+continuous random variables: this preference does not create exact zeros by itself.
+Scale-dependent coefficient weights can favor broad structure over fine texture.
+
 
 The initial implementation uses periodic orthogonal filter-bank DWT packing compatible
 with Wavelets.jl. The approximation occupies the low-index corner; each subsequent

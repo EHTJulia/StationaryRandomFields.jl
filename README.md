@@ -1,8 +1,34 @@
 # StationaryRandomFields.jl
 
-Array-valued latent priors and composable transforms for Bayesian signal reconstruction.
-The current redesign provides independent Gaussian/Laplace latent fields, power spectra,
-orthonormal multidimensional Hartley synthesis, and multilevel wavelet synthesis.
+Generate realistic correlated noise for signal data following specified power spectra,
+and synthesize signals from a sparsity-promoting wavelet space, in any array dimension.
+Use a one-dimensional array for a light curve, two dimensions for an image or phase
+screen, or higher dimensions for data cubes. These same models provide latent priors
+for Bayesian signal reconstruction.
+
+Gaussian coefficients are scaled by the square root of a power spectrum and mapped
+into signal space with a multidimensional Hartley transform. Laplace coefficients
+provide a sparsity-promoting wavelet prior, optionally weighted by scale. Applications
+include correlated variability, radio imaging priors, scattering/atmospheric phase
+screens, and sparse Bayesian imaging. Physical propagation and telescope responses
+are supplied by the application.
+
+## Installation
+
+For the registered release:
+
+```julia
+using Pkg
+Pkg.add("StationaryRandomFields")
+```
+
+The examples below describe the redesigned development API, which differs from the
+registered 0.1 series. For this development checkout, run `julia tools/setup.jl` from
+the repository root, then start Julia with `julia --project`. The script installs the
+required companion revisions. See [installation](docs/src/installation.md) for details
+and [the illustrated tutorial](docs/src/tutorial.md) for executable CairoMakie figures.
+
+## A Gaussian correlated field
 
 ```julia
 using StationaryRandomFields, Distributions, Random
