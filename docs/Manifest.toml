@@ -22,7 +22,7 @@ weakdeps = ["ChainRulesCore", "Test"]
 
 [[deps.AbstractFastHartleyTransforms]]
 deps = ["AbstractFFTs", "LinearAlgebra"]
-path = "../../AbstractFastHartleyTransforms"
+git-tree-sha1 = "51883ccd9d5e1b1b91b923aefc1c4b2a1e9d4330"
 uuid = "19a999c2-4b91-4a95-a5ef-9640c9e909f0"
 version = "0.1.7"
 
@@ -457,7 +457,7 @@ version = "3.3.12+0"
 
 [[deps.FastHartleyTransform]]
 deps = ["AbstractFastHartleyTransforms", "FFTW", "LinearAlgebra", "PrecompileTools"]
-path = "../../FastHartleyTransform"
+git-tree-sha1 = "68c63a99c8d1bed7bb6bee7131c18d9bc371b9b3"
 uuid = "e0605d58-1a4b-427b-8ab9-d16fed775e83"
 version = "0.1.6"
 

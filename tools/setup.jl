@@ -1,12 +1,12 @@
 using Pkg
 
-function setup(project=dirname(@__DIR__))
+function setup(project = dirname(@__DIR__))
     root = dirname(@__DIR__)
 
     Pkg.activate(project)
 
     if abspath(project) != root
-        Pkg.develop(PackageSpec(; path=root))
+        Pkg.develop(PackageSpec(; path = root))
     end
 
     Pkg.instantiate()
