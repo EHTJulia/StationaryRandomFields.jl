@@ -24,7 +24,7 @@ weakdeps = ["ChainRulesCore", "Test"]
 deps = ["AbstractFFTs", "LinearAlgebra"]
 path = "../../AbstractFastHartleyTransforms"
 uuid = "19a999c2-4b91-4a95-a5ef-9640c9e909f0"
-version = "0.1.5"
+version = "0.1.7"
 
     [deps.AbstractFastHartleyTransforms.extensions]
     AbstractFastHartleyTransformsEnzymeCoreExt = "EnzymeCore"
@@ -459,7 +459,7 @@ version = "3.3.12+0"
 deps = ["AbstractFastHartleyTransforms", "FFTW", "LinearAlgebra", "PrecompileTools"]
 path = "../../FastHartleyTransform"
 uuid = "e0605d58-1a4b-427b-8ab9-d16fed775e83"
-version = "0.1.5"
+version = "0.1.6"
 
     [deps.FastHartleyTransform.extensions]
     FastHartleyTransformCUDAExt = ["CUDA"]
@@ -1542,9 +1542,9 @@ version = "1.4.4"
 
 [[deps.StationaryRandomFields]]
 deps = ["AbstractFastHartleyTransforms", "Distributions", "FastHartleyTransform", "LinearAlgebra", "Random", "Statistics", "Wavelets"]
-path = ".."
+path = "/Users/kazu/.julia/dev/StationaryRandomFields"
 uuid = "6ab34832-f7e5-40a4-9cd7-47ea82b5c144"
-version = "1.0.0"
+version = "2.0.0"
 
     [deps.StationaryRandomFields.extensions]
     StationaryRandomFieldsCUDAExt = "CUDA"

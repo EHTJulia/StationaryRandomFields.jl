@@ -41,16 +41,6 @@ jobs:
             arch: aarch64
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/checkout@v6
-        with:
-          repository: EHTJulia/AbstractFastHartleyTransforms.jl
-          ref: bd08b5244d829d5d2dac2acaf9e260f5ff0da7e6
-          path: .ci/AbstractFastHartleyTransforms
-      - uses: actions/checkout@v6
-        with:
-          repository: EHTJulia/FastHartleyTransform.jl
-          ref: a1484b1df9b90aabe95e9c412cd631afeb6f3b9f
-          path: .ci/FastHartleyTransform
       - uses: julia-actions/setup-julia@v2
         with:
           version: ${{ matrix.version }}
@@ -68,16 +58,6 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/checkout@v6
-        with:
-          repository: EHTJulia/AbstractFastHartleyTransforms.jl
-          ref: bd08b5244d829d5d2dac2acaf9e260f5ff0da7e6
-          path: .ci/AbstractFastHartleyTransforms
-      - uses: actions/checkout@v6
-        with:
-          repository: EHTJulia/FastHartleyTransform.jl
-          ref: a1484b1df9b90aabe95e9c412cd631afeb6f3b9f
-          path: .ci/FastHartleyTransform
       - uses: julia-actions/setup-julia@v2
         with:
           version: '1.10.12'
