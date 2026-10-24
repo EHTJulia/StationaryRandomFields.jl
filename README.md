@@ -63,10 +63,6 @@ logprior = logpdf(latent, z)
 an image-space prior; `ScaleTransform` expresses scalar or coefficient-wise amplitude
 weights. These weights are distinct from a Fourier power spectrum.
 
-See [the tutorial](docs/src/tutorial.md), [the mathematical conventions](docs/src/math.md),
-[the redesign review](REVIEW.md), and [the reproducible measurements](benchmark/RESULTS.md).
-An executable inference example is in `examples/latent_inference.jl`.
-
 ## Development and validation
 
 Julia 1.10 LTS or newer is required. The companion Hartley packages currently need the
