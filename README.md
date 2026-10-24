@@ -28,7 +28,7 @@ the repository root, then start Julia with `julia --project`. The script install
 required companion revisions. See [installation](docs/src/installation.md) for details
 and [the illustrated tutorial](docs/src/tutorial.md) for executable CairoMakie figures.
 
-## A Gaussian correlated field
+## Generation of correlated fields
 
 ```julia
 using StationaryRandomFields, Distributions, Random
