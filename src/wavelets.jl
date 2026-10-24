@@ -1,9 +1,14 @@
 """
-    WaveletTransform(dims, wavelet = wavelet(WT.haar); levels = 1)
+    WaveletTransform(dims, wavelet = wavelet(WT.haar); levels = nothing)
 
 Periodic, orthogonal, multilevel wavelet synthesis with Wavelets.jl coefficient packing.
-Each dimension must be divisible by `2^levels`. CPU ranks 1–3 use Wavelets.jl;
-a separable array implementation also supports higher ranks and compiled backends.
+By default, use the largest level count for which every dimension is divisible
+by `2^levels`. Pass an explicit integer to use fewer levels. An odd-sized axis
+limits the default to zero levels (the identity).
+Each dimension must be divisible by `2^levels`. CPU ranks 1–3 use Wavelets.jl.
+CUDA ranks 1–3 also use Wavelets.jl when its GPU extension is available (v0.10.2+).
+A separable array implementation supports higher ranks, compiled backends,
+and older Wavelets.jl versions.
 """
 struct WaveletTransform{N, W} <: AbstractFieldTransform
     dims::NTuple{N, Int}
@@ -11,11 +16,12 @@ struct WaveletTransform{N, W} <: AbstractFieldTransform
     levels::Int
 end
 function WaveletTransform(
-        dims::NTuple{N, Integer}, wt = Wavelets.wavelet(Wavelets.WT.haar); levels::Integer = 1
+        dims::NTuple{N, Integer}, wt = Wavelets.wavelet(Wavelets.WT.haar); levels::Union{Nothing, Integer} = nothing
     ) where {N}
     wt isa Wavelets.WT.OrthoFilter{Wavelets.WT.PerBoundary} ||
         throw(ArgumentError("Only periodic orthogonal filter wavelets are supported."))
     shape = size(FieldGrid(dims))
+    levels = isnothing(levels) ? minimum(trailing_zeros, shape) : levels
     levels >= 0 && levels <= minimum(trailing_zeros, shape) ||
         throw(ArgumentError("Each dimension must be divisible by 2^levels."))
     return WaveletTransform(shape, wt, Int(levels))

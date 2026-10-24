@@ -235,10 +235,10 @@ end
 end
 
 @testset "Compiled multilevel Daubechies synthesis gradients" begin
-    for T in (Float32, Float64)
+    for T in (Float32, Float64), wt in (wavelet(WT.db2), wavelet(WT.db4))
         x = reshape(T.(0.2 .+ sin.(1:16)), 4, 4)
         rx = Reactant.to_rarray(x)
-        descriptor = WaveletTransform(size(x), wavelet(WT.db2); levels = 2)
+        descriptor = WaveletTransform(size(x), wt)
         p, pc = prepare(descriptor, rx), prepare(descriptor, x)
         compiled = Reactant.@compile transform_gradient(rx, p)
         actual = Array(compiled(rx, p))
@@ -301,4 +301,30 @@ end
         @test all(isfinite, actual)
         @test actual ≈ expected rtol = 1.0e-7
     end
+end
+
+include("../backend_descriptors.jl")
+function compiled_apply(p, x)
+    f = Reactant.@compile apply(p, x)
+    return f(p, x)
+end
+check_backend_descriptors(Reactant.to_rarray, compiled_apply)
+
+@testset "Normalized descriptor compiled gradient" begin
+    latent = UnivariateGaussianRandomField((16,))
+    z = rand(MersenneTwister(5), latent)
+    x = Reactant.to_rarray(z)
+    spec = TransformChain(SpectralScaling(MaternPS{1}(2.0, 1.5); normalization = :unit_variance), HartleyTransform())
+    p = prepare(spec, latent; prototype = x)
+    pc = prepare(spec, latent)
+    f = Reactant.@compile transform_gradient(x, p)
+    actual = Array(f(x, p))
+    h = 1.0e-5
+    expected = map(eachindex(z)) do i
+        a, b = copy(z), copy(z)
+        a[i] += h
+        b[i] -= h
+        (transform_loss(a, pc) - transform_loss(b, pc)) / (2h)
+    end
+    @test actual ≈ expected rtol = 1.0e-6
 end

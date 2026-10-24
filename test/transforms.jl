@@ -87,6 +87,28 @@ end
     @test_throws ArgumentError WaveletTransform((8,); levels = -1)
 end
 
+@testset "Maximum-depth periodic DWT" begin
+    for T in (Float32, Float64), (dims, depth) in (
+                ((16,), 4), ((8, 16), 3), ((8, 8, 8), 3),
+                ((24, 40), 3), ((7, 8), 0), ((1,), 0),
+            )
+        x = reshape(T.(sin.(1:prod(dims))), dims)
+        wt = wavelet(WT.db4)
+        descriptor = @inferred WaveletTransform(dims, wt)
+        @test descriptor.levels == depth
+        p = prepare(descriptor, x)
+        y = @inferred apply(p, x)
+        @test y ≈ idwt(x, wt, depth)
+        @test SRF.wavelet_synthesis(x, p.filters, depth) ≈ y
+        @test SRF.wavelet_analysis(p, y) ≈ x
+        @test sum(abs2, y) ≈ sum(abs2, x)
+        @test WaveletTransform(dims, wt; levels = 0).levels == 0
+    end
+    @test WaveletTransform((16,)).levels == 4
+    @test WaveletTransform((16,); levels = 1).levels == 1
+    @test_throws ArgumentError WaveletTransform((8,); levels = 4)
+end
+
 struct ReshapeTransform{I, O} <: AbstractFieldTransform
     input::I
     output::O

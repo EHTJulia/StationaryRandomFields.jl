@@ -9,6 +9,9 @@ struct TransformedRandomField{N, L, T} <: AbstractStationaryRandomField{N}
     transform::T
 end
 function TransformedRandomField(latent::AbstractStationaryRandomField, transform)
+    if !has_shape(transform)
+        return TransformedRandomField(latent, prepare(transform, latent))
+    end
     size(latent) == input_size(transform) ||
         throw(DimensionMismatch("Latent shape mismatch."))
     n = length(output_size(transform))

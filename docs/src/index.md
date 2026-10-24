@@ -24,15 +24,3 @@ features:
     details: Evaluate priors in latent space, differentiate model parameters, and connect finite-grid covariances to KernelFunctions.jl.
 ---
 ```
-
-## What can I make with it?
-
-Generate realistic correlated noise for signal data following specified power spectra,
-or build signals from a wavelet space with a sparsity-promoting prior. A one-dimensional
-array can represent a light curve; a two-dimensional array can represent an image or a
-phase screen; higher-dimensional arrays can represent data cubes.
-
-Start with the [motivation and astronomical applications](introduction.md),
-[install the package](installation.md), and follow the [illustrated tutorial](tutorial.md).
-The [mathematical basis](math.md) explains the normalization and probability model;
-[covariance kernels](kernels.md) and the [API reference](autodocs.md) cover further use.

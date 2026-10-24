@@ -66,8 +66,8 @@ end
             Const(target),
         )[1]
         @test tangent ≈ sum(dx)
-        for wt in (wavelet(WT.haar), wavelet(WT.db2))
-            w = prepare(WaveletTransform(size(x), wt; levels = 2), x)
+        for wt in (wavelet(WT.haar), wavelet(WT.db2), wavelet(WT.db4))
+            w = prepare(WaveletTransform(size(x), wt), x)
             dx = zero(x)
             Enzyme.autodiff(Reverse, wavelet_loss, Active, Duplicated(x, dx), Const(w))
             @test dx ≈ SRF.wavelet_analysis(w, 2 .* (apply(w, x) .- 0.3))
@@ -152,5 +152,32 @@ end
         expected = finite_gradient(b -> prior_parameter_loss(b, x, family), a)
         @test all(isfinite, actual)
         @test actual ≈ expected rtol = (T == Float32 ? 0.003 : 1.0e-7)
+    end
+end
+
+function smooth_spectrum_loss(a, x, h, s, kind)
+    p = if kind == 1
+        MaternPS{2}(exp(a), 1.3; check_args = false)
+    else
+        MarkovPS{2}((exp(a), 0.4); check_args = false)
+    end
+    return sum(abs2, apply(h, apply(s, x, p)) .- 0.3)
+end
+@testset "Smooth spectrum parameter derivatives" begin
+    x = reshape(sin.(1:16), 4, 4)
+    h = prepare(HartleyTransform(size(x)), x)
+    s = prepare(SpectralScaling(FieldGrid(size(x)), MaternPS{2}(1, 1)), x)
+    for kind in (1, 2)
+        a = 0.2
+        da = Enzyme.autodiff(
+            Reverse, smooth_spectrum_loss, Active,
+            Active(a), Const(x), Const(h), Const(s), Const(kind)
+        )[1][1]
+        step = 1.0e-5
+        finite = (
+            smooth_spectrum_loss(a + step, x, h, s, kind) -
+                smooth_spectrum_loss(a - step, x, h, s, kind)
+        ) / (2step)
+        @test da ≈ finite rtol = 1.0e-5
     end
 end

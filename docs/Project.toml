@@ -1,4 +1,5 @@
 [deps]
+Wavelets = "29a6e085-ba6d-5f35-a997-948ac2efa89a"
 AbstractFastHartleyTransforms = "19a999c2-4b91-4a95-a5ef-9640c9e909f0"
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"

@@ -14,3 +14,5 @@ include("transforms.jl")
 include("enzyme.jl")
 
 include("covariance.jl")
+
+include("descriptors.jl")

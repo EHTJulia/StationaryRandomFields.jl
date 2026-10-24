@@ -132,14 +132,17 @@ end
 function TransformChain(ts::Union{AbstractFieldTransform, AbstractPreparedTransform}...)
     isempty(ts) && throw(ArgumentError("A transform chain cannot be empty."))
     for i in 2:length(ts)
-        output_size(ts[i - 1]) == input_size(ts[i]) ||
+        !has_shape(ts[i - 1]) || !has_shape(ts[i]) || output_size(ts[i - 1]) == input_size(ts[i]) ||
             throw(DimensionMismatch("Transform shapes do not compose."))
     end
     return TransformChain(ts)
 end
 input_size(t::TransformChain) = input_size(first(t.transforms))
 output_size(t::TransformChain) = output_size(last(t.transforms))
-function prepare(t::TransformChain, x)
+function prepare(t::TransformChain, x; grid = nothing, spacing = nothing)
+    if !has_shape(t) || !isnothing(grid) || !isnothing(spacing)
+        return prepare_on_grid(t, x, resolve_grid(x, grid, spacing))
+    end
     check_input(t, x)
     return TransformChain(
         map(t.transforms) do part

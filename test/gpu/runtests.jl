@@ -29,8 +29,8 @@ CUDA.versioninfo()
     end
     for dims in ((8,), (4, 8), (4, 4, 4), (4, 2, 2, 2))
         x = reshape(Float32.(sin.(1:prod(dims))), dims)
-        for wt in (wavelet(WT.haar), wavelet(WT.db2))
-            t = WaveletTransform(dims, wt; levels = 1)
+        for wt in (wavelet(WT.haar), wavelet(WT.db2), wavelet(WT.db4))
+            t = WaveletTransform(dims, wt)
             @test Array(apply(prepare(t, CuArray(x)), CuArray(x))) ≈ apply(prepare(t, x), x)
         end
     end
@@ -57,3 +57,31 @@ end
         @test Array(apply(prepare(covariance, dx), dx)) ≈ apply(prepare(covariance, x), x)
     end
 end
+
+@testset "CUDA multilevel wavelet synthesis and transpose" begin
+    @test !isnothing(Base.get_extension(Wavelets, :WaveletsGPUExt))
+    for T in (Float32, Float64), dims in ((16,), (8, 16), (4, 8, 4), (4, 2, 2, 2), (24, 40), (7, 8), (1,))
+        x = reshape(T.(sin.(1:prod(dims))), dims)
+        v = reshape(T.(cos.(1:prod(dims))), dims)
+        for wt in (wavelet(WT.haar), wavelet(WT.db4)), levels in unique((0, minimum(trailing_zeros, dims)))
+            descriptor = WaveletTransform(dims, wt; levels)
+            dx, dv = CuArray(x), CuArray(v)
+            p, pc = prepare(descriptor, dx), prepare(descriptor, x)
+            y = @inferred apply(p, dx)
+            transpose_v = @inferred StationaryRandomFields.wavelet_analysis(p, dv)
+            @test Array(y) ≈ apply(pc, x)
+            @test Array(transpose_v) ≈ StationaryRandomFields.wavelet_analysis(pc, v)
+            @test Array(StationaryRandomFields.wavelet_analysis(p, y)) ≈ x
+            @test sum(Array(y) .* v) ≈ sum(x .* Array(transpose_v))
+            @test Array(dx) == x
+            @test Array(dv) == v
+            output = similar(dx)
+            @test apply!(output, p, dx) === output
+            @test Array(output) ≈ Array(y)
+            @test_throws DimensionMismatch apply(p, CUDA.zeros(T, prod(dims) + 1))
+        end
+    end
+end
+
+include("../backend_descriptors.jl")
+check_backend_descriptors(CuArray, apply)

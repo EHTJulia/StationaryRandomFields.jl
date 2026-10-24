@@ -29,6 +29,8 @@ export AbstractStationaryRandomField,
     output_size,
     AbstractPowerSpectrumModel,
     SinglePowerLaw,
+    MaternPS,
+    MarkovPS,
     SaturatedPowerLaw,
     ConstantPowerSpectrum,
     power_point,
@@ -54,5 +56,7 @@ include("transforms.jl")
 include("wavelets.jl")
 include("transformed.jl")
 include("covariance.jl")
+include("display.jl")
+include("descriptors.jl")
 
 end

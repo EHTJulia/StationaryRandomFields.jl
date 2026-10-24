@@ -35,10 +35,9 @@ using StationaryRandomFields, Distributions, Random
 
 latent = UnivariateGaussianRandomField(Float32, (64, 64))
 z = rand(MersenneTwister(12), latent)
-grid = FieldGrid(size(z); spacing = (0.1, 0.1))
 ps = SaturatedPowerLaw{2}(-2.0f0, 0.1f0, 4.0f0)
-transform = TransformChain(SpectralScaling(grid, ps), HartleyTransform(size(z)))
-prepared = prepare(transform, z)
+transform = TransformChain(SpectralScaling(ps), HartleyTransform())
+prepared = prepare(transform, latent; spacing = (0.1, 0.1))
 x = apply(prepared, z)
 logprior = logpdf(latent, z)
 field = TransformedRandomField(latent, prepared)
@@ -50,12 +49,12 @@ elements. A sample is an N-dimensional array; the full prior is their joint prod
 `logpdf` is evaluated **only in latent space**. Signal-space `logpdf` and general signal
 support membership deliberately throw informative errors. No Jacobian API is required.
 
-For a wavelet-coefficient Laplace prior:
+For a wavelet-coefficient Laplace prior with all available dyadic levels:
 
 ```julia
 latent = UnivariateLaplaceRandomField(Float32, (64, 64); b = 0.2f0)
 z = rand(latent)
-synthesis = prepare(WaveletTransform(size(z); levels = 3), z)
+synthesis = prepare(WaveletTransform(), latent)
 x = apply(synthesis, z)
 logprior = logpdf(latent, z)
 ```

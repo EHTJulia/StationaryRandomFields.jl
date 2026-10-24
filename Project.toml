@@ -1,7 +1,7 @@
 name = "StationaryRandomFields"
 uuid = "6ab34832-f7e5-40a4-9cd7-47ea82b5c144"
-authors = ["Anna Tartaglia", "Kazunori Akiyama"]
-version = "1.0.0"
+authors = ["Kazunori Akiyama", "Anna Tartaglia", "Paul Tiede"]
+version = "2.0.0"
 
 [deps]
 AbstractFastHartleyTransforms = "19a999c2-4b91-4a95-a5ef-9640c9e909f0"

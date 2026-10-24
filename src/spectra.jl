@@ -58,6 +58,72 @@ function SaturatedPowerLaw{N}(index, inscale, outscale; check_args::Bool = true)
     return SaturatedPowerLaw{N, typeof(β)}(β, lo, hi)
 end
 
+"""
+    MaternPS{N}(rho, nu; check_args = true)
+
+A Matérn spectral shape with positive range `rho` and smoothness `nu`.
+Frequencies are in cycles per coordinate unit and `kappa = sqrt(8nu)/rho`.
+Power is `(1 + (2pi*f/kappa)^2)^(-nu-N/2)`, with radial frequency `f`.
+DC power is one; this is not a unit-variance or continuum-normalized density.
+Use `renormed` to set a power scale. The finite grid represents a periodic field.
+"""
+struct MaternPS{N, T} <: AbstractPowerSpectrumModel{N}
+    rho::T
+    nu::T
+    function MaternPS{N}(rho::Real, nu::Real; check_args::Bool = true) where {N}
+        r, v = float.(promote(rho, nu))
+        N > 0 || throw(ArgumentError("Spectrum rank must be positive."))
+        (!check_args || (isfinite(r) && r > 0 && isfinite(v) && v > 0)) ||
+            throw(ArgumentError("Matérn range and smoothness must be finite and positive."))
+        return new{N, typeof(r)}(r, v)
+    end
+end
+
+"""
+    MarkovPS{N}(scales::Tuple; check_args = true)
+
+A Markov-type spectral shape `1 / (1 + sum((rho[j]*k)^(2j)))`, where
+`k = 2pi*sqrt(sum(abs2, frequencies))`. Scales are in coordinate units,
+finite and nonnegative, with at least one positive entry. DC power is one.
+A single scale gives a Lorentzian spectrum. This samples a continuum spectral
+shape on a periodic grid; it does not imply a sparse lattice precision matrix.
+The model does not normalize marginal variance. Use `renormed` for power scaling.
+"""
+struct MarkovPS{N, M, T} <: AbstractPowerSpectrumModel{N}
+    scales::NTuple{M, T}
+    function MarkovPS{N}(scales::Tuple; check_args::Bool = true) where {N}
+        N > 0 && !isempty(scales) || throw(ArgumentError("Rank and order must be positive."))
+        all(x -> x isa Real, scales) || throw(ArgumentError("Scales must be real."))
+        s = float.(promote(scales...))
+        (!check_args || (all(x -> isfinite(x) && x >= 0, s) && any(>(0), s))) ||
+            throw(ArgumentError("Require finite nonnegative scales with a positive entry."))
+        return new{N, length(s), eltype(s)}(s)
+    end
+end
+
+function power_point(p::MaternPS{N}, f::Vararg{Any, K}) where {N, K}
+    check_frequency(p, f)
+    r2 = float(sum(abs2, f))
+    angular = oftype(r2, 2pi)
+    return (one(r2) + (angular * p.rho)^2 * r2 / (8 * p.nu))^(-p.nu - oftype(p.nu, N) / 2)
+end
+function power_point(p::MarkovPS, f::Vararg{Any, K}) where {K}
+    check_frequency(p, f)
+    r2 = float(sum(abs2, f))
+    k2 = oftype(r2, 2pi)^2 * r2
+    terms = ntuple(j -> (p.scales[j]^2 * k2)^j, length(p.scales))
+    return inv(one(k2) + sum(terms))
+end
+
+parameter_type(::MaternPS{N, T}) where {N, T} = T
+parameter_type(::MarkovPS{N, M, T}) where {N, M, T} = T
+function convert_parameters(::Type{T}, p::MaternPS{N}) where {T, N}
+    return MaternPS{N}(T(p.rho), T(p.nu); check_args = false)
+end
+function convert_parameters(::Type{T}, p::MarkovPS{N}) where {T, N}
+    return MarkovPS{N}(map(T, p.scales); check_args = false)
+end
+
 function check_frequency(p, ν)
     length(ν) == ndims(p) || throw(DimensionMismatch("Wrong frequency rank."))
     return nothing

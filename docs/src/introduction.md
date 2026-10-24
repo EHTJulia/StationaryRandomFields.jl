@@ -35,7 +35,7 @@ zero at most entries, and is not a thresholded sparse reconstruction.
 
 - **Time-domain simulations:** generate correlated variability or noise realizations to
   test a light-curve analysis. The spectral-synthesis motivation goes back to
-  [Timmer & König (1995)](https://ui.adsabs.harvard.edu/abs/1995A%26A...300..707T/abstract).
+  [Timmer & König (1995)](https://scixplorer.org/abs/1995A%26A...300..707T/abstract).
 - **Radio imaging priors:** describe extended emission or fluctuations around a reference
   image, and infer the correlation parameters along with the image. Related Bayesian
   imaging work includes [Arras et al. (2021)](https://doi.org/10.1051/0004-6361/202039258)
@@ -57,32 +57,5 @@ additional physical mapping, such as exponentiation, in your observation model.
 The plotting examples use arbitrary units; select spacings, cutoffs, amplitudes, and
 units appropriate to the science before interpreting a field as a physical screen.
 
-## From a model to inference
-
-`UnivariateRandomField` stores an array shape and the shared scalar distribution of
-its independent latent coefficients. An `AbstractFieldTransform` describes how those
-coefficients become a signal. `TransformedRandomField` combines them for sampling.
-The output shape may differ from the latent shape for a custom transform.
-
-In Bayesian use, estimate the latent coefficients and transform parameters, evaluate
-`logpdf` on the latent field, and evaluate the likelihood on the synthesized signal.
-Signal-space `logpdf` is not exposed. See the [tutorial](tutorial.md) for working examples
-and the [mathematical basis](math.md) for the explicit probability model.
-
-For Gaussian spectral models, the optional [KernelFunctions interface](kernels.md)
-provides the covariance of the same finite periodic-grid sampler.
-
-## Preparing work for a backend
-
-`prepare(transform, prototype)` builds reusable plans and static metadata for an array
-with the prototype's type and shape. Prepare outside differentiated or compiled
-objectives; model-dependent spectral amplitudes are recomputed during execution.
-Array storage selects CPU, CUDA, or Reactant execution. Transfer coefficient weights
-explicitly to the input's backend. Prepare separate objects and output buffers for
-concurrent tasks; Hartley `apply!` rejects overlapping input and output storage.
-
-`rand(field)` follows the Distributions CPU-allocation convention. For device-prepared
-fields, use `rand!(rng, field, device_output)`. CPU sampling accepts an `AbstractRNG`,
-CUDA uses its own RNG, and compiled Reactant sampling uses an explicit `ReactantRNG`.
-Keep RNG state outside differentiation. The [tutorial](tutorial.md) explains how to
-hold a random draw fixed while differentiating a model.
+For sampling and Bayesian use, see [latent fields and inference](math-latent.md).
+The [tutorials](tutorial.md) demonstrate both constructions.
