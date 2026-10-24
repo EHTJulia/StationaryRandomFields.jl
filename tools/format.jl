@@ -1,16 +1,16 @@
-using JuliaFormatter
+using Runic
 
 function main(args)
     all(arg -> arg == "--write", args) || error("Usage: format.jl [--write]")
     root = dirname(@__DIR__)
-    formatted = format(root; overwrite="--write" in args, format_markdown=false)
-    docs_formatted = format(
-        joinpath(root, "docs", "src"); overwrite="--write" in args, format_markdown=true
-    )
-    if !(formatted && docs_formatted) && !("--write" in args)
-        error("Julia files do not match the root BlueStyle configuration.")
+    # Include new files while excluding ignored builds and companion checkouts.
+    files = cd(root) do
+        split(read(`git ls-files -z --cached --others --exclude-standard -- '*.jl' '*.md'`, String), '\0'; keepempty = false)
     end
-    return nothing
+    paths = [joinpath(root, file) for file in files if isfile(joinpath(root, file))]
+    isempty(paths) && error("No Julia or Markdown files found.")
+    mode = "--write" in args ? ["--inplace"] : ["--check", "--diff"]
+    return Runic.main(vcat(mode, ["--docstrings", "--languages=julia,julia-repl,jldoctest,@example,@repl,@setup,@eval"], paths))
 end
 
-main(ARGS)
+exit(main(ARGS))

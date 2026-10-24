@@ -9,8 +9,8 @@ using StationaryRandomFields, Distributions, Random
 
 latent = UnivariateGaussianRandomField(Float32, (64, 64))
 z = rand(MersenneTwister(12), latent)
-grid = FieldGrid(size(z); spacing=(0.1, 0.1))
-ps = SaturatedPowerLaw{2}(-2f0, 0.1f0, 4f0)
+grid = FieldGrid(size(z); spacing = (0.1, 0.1))
+ps = SaturatedPowerLaw{2}(-2.0f0, 0.1f0, 4.0f0)
 transform = TransformChain(SpectralScaling(grid, ps), HartleyTransform(size(z)))
 prepared = prepare(transform, z)
 x = apply(prepared, z)
@@ -27,9 +27,9 @@ support membership deliberately throw informative errors. No Jacobian API is req
 For a wavelet-coefficient Laplace prior:
 
 ```julia
-latent = UnivariateLaplaceRandomField(Float32, (64, 64); b=0.2f0)
+latent = UnivariateLaplaceRandomField(Float32, (64, 64); b = 0.2f0)
 z = rand(latent)
-synthesis = prepare(WaveletTransform(size(z); levels=3), z)
+synthesis = prepare(WaveletTransform(size(z); levels = 3), z)
 x = apply(synthesis, z)
 logprior = logpdf(latent, z)
 ```
@@ -51,10 +51,12 @@ three repositories checked out next to each other, run:
 
 ```julia
 using Pkg
-Pkg.develop([
-    PackageSpec(path="../AbstractFastHartleyTransforms"),
-    PackageSpec(path="../FastHartleyTransform"),
-])
+Pkg.develop(
+    [
+        PackageSpec(path = "../AbstractFastHartleyTransforms"),
+        PackageSpec(path = "../FastHartleyTransform"),
+    ]
+)
 Pkg.instantiate()
 Pkg.test()
 ```
@@ -72,7 +74,9 @@ julia --project=tools tools/format.jl --write
 julia --project=tools tools/format.jl
 ```
 
-JuliaFormatter is pinned to 2.1.2 and uses the root BlueStyle configuration. Code comments,
+[Runic](https://github.com/fredrikekre/Runic.jl) is pinned to 1.13.0 in the tooling
+environment. The check is read-only and covers Julia files, docstrings, and Julia code
+blocks in Markdown, including Documenter examples. Code comments,
 docstrings, and configuration comments use American English. Contributions follow
 [ColPrac](https://github.com/SciML/ColPrac), with topic branches and independent review.
 

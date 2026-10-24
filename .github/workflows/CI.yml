@@ -12,7 +12,7 @@ permissions:
   contents: read
 jobs:
   format:
-    name: BlueStyle
+    name: Runic
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
