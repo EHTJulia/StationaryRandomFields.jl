@@ -67,7 +67,7 @@ end
         )[1]
         @test tangent ≈ sum(dx)
         for wt in (wavelet(WT.haar), wavelet(WT.db2))
-            w = prepare(WaveletTransform(size(x), wt; levels=2), x)
+            w = prepare(WaveletTransform(size(x), wt; levels = 2), x)
             dx = zero(x)
             Enzyme.autodiff(Reverse, wavelet_loss, Active, Duplicated(x, dx), Const(w))
             @test dx ≈ SRF.wavelet_analysis(w, 2 .* (apply(w, x) .- 0.3))
@@ -83,12 +83,12 @@ end
         step = cbrt(eps(T))
         finite =
             (spectrum_loss(a + step, x, h, s) - spectrum_loss(a - step, x, h, s)) / (2step)
-        @test isapprox(da, finite; rtol=T == Float32 ? 0.003 : 1e-7)
+        @test isapprox(da, finite; rtol = T == Float32 ? 0.003 : 1.0e-7)
     end
 end
 
 function indexed_spectrum_loss(a, x, h, s)
-    model = SinglePowerLaw{ndims(x)}(a; dc=0.0)
+    model = SinglePowerLaw{ndims(x)}(a; dc = 0.0)
     return sum(abs2, apply(h, apply(s, x, model)) .- 0.3)
 end
 @testset "Spectrum index gradient with a zero DC mode" begin
@@ -99,20 +99,20 @@ end
     da = Enzyme.autodiff(
         Reverse, indexed_spectrum_loss, Active, Active(a), Const(x), Const(h), Const(s)
     )[1][1]
-    step = 1e-5
+    step = 1.0e-5
     finite =
         (
-            indexed_spectrum_loss(a + step, x, h, s) -
+        indexed_spectrum_loss(a + step, x, h, s) -
             indexed_spectrum_loss(a - step, x, h, s)
-        ) / (2step)
+    ) / (2step)
     @test isfinite(da)
-    @test da ≈ finite rtol=1e-7
+    @test da ≈ finite rtol = 1.0e-7
 end
 
 function geometry_loss(a, x, h, s)
     model = modify(
         SinglePowerLaw{2}(-1.2),
-        Stretch(exp(sum(a[1:1])), exp(sum(a[2:2])); check_args=false),
+        Stretch(exp(sum(a[1:1])), exp(sum(a[2:2])); check_args = false),
         Rotate(sum(a[3:3])),
     )
     return sum(abs2, apply(h, apply(s, x, model)) .- 0.3)
@@ -128,14 +128,14 @@ end
     )
     expected = finite_gradient(b -> geometry_loss(b, x, h, s), a)
     @test all(isfinite, da)
-    @test da ≈ expected rtol=1e-7
+    @test da ≈ expected rtol = 1.0e-7
 end
 
 function prior_parameter_loss(a, x, ::Val{family}) where {family}
     μ, scale = sum(a[1:1]), exp(sum(a[2:2]))
     dist = family === :normal ? Normal() : Laplace()
     field = UnivariateRandomField(size(x), dist)
-    return logpdf(field, x; location=μ, scale=scale, check_args=false)
+    return logpdf(field, x; location = μ, scale = scale, check_args = false)
 end
 function prior_parameter_gradient(a, x, family)
     da = zero(a)
@@ -151,6 +151,6 @@ end
         actual = prior_parameter_gradient(a, x, family)
         expected = finite_gradient(b -> prior_parameter_loss(b, x, family), a)
         @test all(isfinite, actual)
-        @test actual ≈ expected rtol = (T == Float32 ? 0.003 : 1e-7)
+        @test actual ≈ expected rtol = (T == Float32 ? 0.003 : 1.0e-7)
     end
 end

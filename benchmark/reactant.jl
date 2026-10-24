@@ -18,7 +18,7 @@ function measure(label, f, args...)
         push!(bytes, trial.bytes)
     end
     println(
-        label, " | median_us=", median(times) * 1e6, " | median_host_bytes=", median(bytes)
+        label, " | median_us=", median(times) * 1.0e6, " | median_host_bytes=", median(bytes)
     )
     return nothing
 end
@@ -46,12 +46,12 @@ function main()
         x = Reactant.to_rarray(reshape(T.(sin.(1:prod(dims))), dims))
         println("case=", T, " ", dims)
         for t in (
-            HartleyTransform(dims),
-            WaveletTransform(dims; levels=2),
-            PeriodicCovariance(
-                FieldGrid(dims), SinglePowerLaw{length(dims)}(T(-0.8); dc=T(0.3))
-            ),
-        )
+                HartleyTransform(dims),
+                WaveletTransform(dims; levels = 2),
+                PeriodicCovariance(
+                    FieldGrid(dims), SinglePowerLaw{length(dims)}(T(-0.8); dc = T(0.3))
+                ),
+            )
             println("plan construction ", typeof(t))
             @time p = prepare(t, x)
             println("compile forward ", typeof(t))
@@ -70,5 +70,6 @@ function main()
         @time scaling = Reactant.@compile apply(s, x)
         measure("spectrum apply", scaling, s, x)
     end
+    return
 end
 main()

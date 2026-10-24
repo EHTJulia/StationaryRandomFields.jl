@@ -21,22 +21,23 @@ function main()
         x = CUDA.randn(T, dims)
         println("case=", T, " ", dims)
         for t in (
-            HartleyTransform(dims),
-            WaveletTransform(dims; levels=2),
-            PeriodicCovariance(
-                FieldGrid(dims), SinglePowerLaw{length(dims)}(T(-0.8); dc=T(0.3))
-            ),
-        )
+                HartleyTransform(dims),
+                WaveletTransform(dims; levels = 2),
+                PeriodicCovariance(
+                    FieldGrid(dims), SinglePowerLaw{length(dims)}(T(-0.8); dc = T(0.3))
+                ),
+            )
             println("first preparation (includes compilation) ", typeof(t))
             @time CUDA.@sync prepare(t, x)
             println("plan ", typeof(t), " ", dims)
-            display(@benchmark CUDA.@sync(prepare($t, $x)) samples=30 evals=1 seconds=1)
+            display(@benchmark CUDA.@sync(prepare($t, $x)) samples = 30 evals = 1 seconds = 1)
             p = prepare(t, x)
             println("first execution (includes compilation) ", typeof(t))
             @time CUDA.@sync apply(p, x)
             println("execution ", typeof(t), " ", dims)
-            display(@benchmark CUDA.@sync(apply($p, $x)) samples=30 evals=1 seconds=1)
+            display(@benchmark CUDA.@sync(apply($p, $x)) samples = 30 evals = 1 seconds = 1)
         end
     end
+    return
 end
 main()

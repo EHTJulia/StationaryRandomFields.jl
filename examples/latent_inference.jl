@@ -1,10 +1,10 @@
 using StationaryRandomFields, Distributions, Random
 
-function gaussian_example(rng=MersenneTwister(12))
+function gaussian_example(rng = MersenneTwister(12))
     dims = (32, 32)
     latent = UnivariateGaussianRandomField(Float64, dims)
     z = rand(rng, latent)
-    grid = FieldGrid(dims; spacing=(0.1, 0.1))
+    grid = FieldGrid(dims; spacing = (0.1, 0.1))
     spectrum = SaturatedPowerLaw{2}(-2.0, 0.1, 4.0)
     scaling = prepare(SpectralScaling(grid, spectrum), z)
     synthesis = prepare(HartleyTransform(dims), z)
@@ -19,12 +19,12 @@ function gaussian_example(rng=MersenneTwister(12))
     return (; latent, z, signal, observed, logposterior)
 end
 
-function laplace_example(rng=MersenneTwister(12))
-    latent = UnivariateLaplaceRandomField(Float32, (32, 32); b=0.2f0)
+function laplace_example(rng = MersenneTwister(12))
+    latent = UnivariateLaplaceRandomField(Float32, (32, 32); b = 0.2f0)
     z = rand(rng, latent)
-    transform = prepare(WaveletTransform(size(z); levels=3), z)
+    transform = prepare(WaveletTransform(size(z); levels = 3), z)
     signal = apply(transform, z)
-    return (; latent, z, signal, logprior=logpdf(latent, z))
+    return (; latent, z, signal, logprior = logpdf(latent, z))
 end
 
 if abspath(PROGRAM_FILE) == @__FILE__

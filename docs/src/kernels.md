@@ -47,9 +47,9 @@ it subtypes `KernelFunctions.Kernel` and implements scalar pair evaluation.
 using StationaryRandomFields
 using KernelFunctions: kernelmatrix
 
-grid = FieldGrid((8, 8); spacing=(0.5, 0.5))
-power = SinglePowerLaw{2}(-1.2; dc=0.3)
-latent = UnivariateGaussianRandomField(size(grid); σ=1.4)
+grid = FieldGrid((8, 8); spacing = (0.5, 0.5))
+power = SinglePowerLaw{2}(-1.2; dc = 0.3)
+latent = UnivariateGaussianRandomField(size(grid); σ = 1.4)
 covariance = PeriodicCovariance(grid, power, latent)
 kernel = spectral_kernel(covariance)
 points = [(0.0, 0.0), (0.5, 1.0), (0.13, 0.27)]
@@ -99,7 +99,7 @@ using Distributions
 prior = UnivariateGaussianRandomField((8, 8))
 z = zeros(8, 8)
 location, logscale = 0.2, -0.3
-value = logpdf(prior, z; location, scale=exp(logscale), check_args=false)
+value = logpdf(prior, z; location, scale = exp(logscale), check_args = false)
 ```
 
 The scale is standard deviation for Gaussian priors and the Laplace scale ``b`` for

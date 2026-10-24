@@ -7,9 +7,9 @@ function gradient!(dx, x, f)
     return dx
 end
 function report(name, b)
-    trial = run(b; samples=30, evals=1, seconds=0.5)
+    trial = run(b; samples = 30, evals = 1, seconds = 0.5)
     m = median(trial)
-    println(name, " | ", round(m.time / 1000; digits=3), " | ", m.memory, " | ", m.allocs)
+    return println(name, " | ", round(m.time / 1000; digits = 3), " | ", m.memory, " | ", m.allocs)
 end
 function main()
     versioninfo()
@@ -49,29 +49,30 @@ function main()
             SpectralScaling(FieldGrid(dims), ConstantPowerSpectrum{length(dims)}(T(2))), x
         )
         h = prepare(HartleyTransform(dims), x)
-        w = prepare(WaveletTransform(dims; levels=2), x)
+        w = prepare(WaveletTransform(dims; levels = 2), x)
         for (name, b) in (
-            ("Gaussian sampling", @benchmarkable rand!($rng, $f, $x)),
-            ("Laplace sampling", @benchmarkable rand!($rng, $l, $x)),
-            ("Gaussian logpdf", @benchmarkable logpdf($f, $x)),
-            ("Laplace logpdf", @benchmarkable logpdf($l, $x)),
-            ("Spectrum apply", @benchmarkable apply($s, $x)),
-            (
-                "FHT plan construction",
-                @benchmarkable prepare($(HartleyTransform(dims)), $x)
-            ),
-            ("FHT apply", @benchmarkable apply($h, $x)),
-            ("FHT apply!", @benchmarkable apply!($y, $h, $x)),
-            (
-                "Wavelet plan construction",
-                @benchmarkable prepare($(WaveletTransform(dims; levels=2)), $x)
-            ),
-            ("Wavelet apply", @benchmarkable apply($w, $x)),
-            ("Latent gradient", @benchmarkable gradient!($dx, $x, $f)),
-        )
+                ("Gaussian sampling", @benchmarkable rand!($rng, $f, $x)),
+                ("Laplace sampling", @benchmarkable rand!($rng, $l, $x)),
+                ("Gaussian logpdf", @benchmarkable logpdf($f, $x)),
+                ("Laplace logpdf", @benchmarkable logpdf($l, $x)),
+                ("Spectrum apply", @benchmarkable apply($s, $x)),
+                (
+                    "FHT plan construction",
+                    @benchmarkable prepare($(HartleyTransform(dims)), $x)
+                ),
+                ("FHT apply", @benchmarkable apply($h, $x)),
+                ("FHT apply!", @benchmarkable apply!($y, $h, $x)),
+                (
+                    "Wavelet plan construction",
+                    @benchmarkable prepare($(WaveletTransform(dims; levels = 2)), $x)
+                ),
+                ("Wavelet apply", @benchmarkable apply($w, $x)),
+                ("Latent gradient", @benchmarkable gradient!($dx, $x, $f)),
+            )
             report(name, b)
         end
     end
+    return
 end
 
 main()

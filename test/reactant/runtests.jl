@@ -20,7 +20,7 @@ function parameter_loss(a, x, h, s)
     return sum(
         abs2,
         apply(
-            h, apply(s, x, ConstantPowerSpectrum{ndims(x)}(exp(sum(a)); check_args=false))
+            h, apply(s, x, ConstantPowerSpectrum{ndims(x)}(exp(sum(a)); check_args = false))
         ) .- 0.3,
     )
 end
@@ -61,7 +61,7 @@ end
             end
             @test Array(gradient(rx, f)) ≈ expected
         end
-        for t in (HartleyTransform(dims), WaveletTransform(dims; levels=1))
+        for t in (HartleyTransform(dims), WaveletTransform(dims; levels = 1))
             p = prepare(t, rx)
             compiled = Reactant.@compile apply(p, rx)
             expected = apply(prepare(t, x), x)
@@ -88,10 +88,10 @@ end
         step = cbrt(eps(T))
         finite =
             (
-                parameter_loss(T[0.4 + step], x, hc, sc) -
+            parameter_loss(T[0.4 + step], x, hc, sc) -
                 parameter_loss(T[0.4 - step], x, hc, sc)
-            ) / (2step)
-        @test isapprox(result, finite; rtol=T == Float32 ? 0.003 : 1e-7)
+        ) / (2step)
+        @test isapprox(result, finite; rtol = T == Float32 ? 0.003 : 1.0e-7)
     end
     for dist in (Normal(0.0f0, 1.0f0), Laplace(0.0f0, 1.0f0))
         f = UnivariateRandomField((64,), dist)
@@ -107,7 +107,7 @@ end
 end
 
 function index_loss(a, x, h, s)
-    model = SinglePowerLaw{ndims(x)}(sum(a); dc=0.0, check_args=false)
+    model = SinglePowerLaw{ndims(x)}(sum(a); dc = 0.0, check_args = false)
     return sum(abs2, apply(h, apply(s, x, model)) .- 0.3)
 end
 function index_gradient(a, x, h, s)
@@ -127,12 +127,12 @@ end
     result = only(Array(gradient(a, rx, h, s)))
     hc = prepare(HartleyTransform(size(x)), x)
     sc = prepare(SpectralScaling(FieldGrid(size(x)), SinglePowerLaw{2}(-1.2)), x)
-    step = 1e-5
+    step = 1.0e-5
     expected =
         (index_loss([-1.2 + step], x, hc, sc) - index_loss([-1.2 - step], x, hc, sc)) /
         (2step)
     @test isfinite(result)
-    @test result ≈ expected rtol=1e-7
+    @test result ≈ expected rtol = 1.0e-7
 end
 
 function buffered(p, x)
@@ -142,7 +142,7 @@ end
 @testset "Compiled buffered synthesis and signal sampling" begin
     x = reshape(Float32.(sin.(1:16)), 4, 4)
     rx = Reactant.to_rarray(x)
-    for t in (HartleyTransform(size(x)), WaveletTransform(size(x); levels=2))
+    for t in (HartleyTransform(size(x)), WaveletTransform(size(x); levels = 2))
         p = prepare(t, rx)
         compiled = Reactant.@compile buffered(p, rx)
         @test Array(compiled(p, rx)) ≈ apply(prepare(t, x), x)
@@ -165,7 +165,7 @@ end
 function geometry_loss(a, x, h, s)
     model = modify(
         SinglePowerLaw{2}(-1.2),
-        Stretch(exp(sum(a[1:1])), exp(sum(a[2:2])); check_args=false),
+        Stretch(exp(sum(a[1:1])), exp(sum(a[2:2])); check_args = false),
         Rotate(sum(a[3:3])),
     )
     return sum(abs2, apply(h, apply(s, x, model)) .- 0.3)
@@ -188,7 +188,7 @@ end
     actual = Array(gradient(ra, rx, h, s))
     hc = prepare(HartleyTransform(size(x)), x)
     sc = prepare(SpectralScaling(FieldGrid(size(x)), SinglePowerLaw{2}(-1.2)), x)
-    step = 1e-5
+    step = 1.0e-5
     expected = map(eachindex(a)) do i
         plus, minus = copy(a), copy(a)
         plus[i] += step
@@ -196,14 +196,14 @@ end
         (geometry_loss(plus, x, hc, sc) - geometry_loss(minus, x, hc, sc)) / (2step)
     end
     @test all(isfinite, actual)
-    @test actual ≈ expected rtol=1e-7
+    @test actual ≈ expected rtol = 1.0e-7
 end
 
 function prior_parameter_loss(a, x, ::Val{family}) where {family}
     μ, scale = sum(a[1:1]), exp(sum(a[2:2]))
     dist = family === :normal ? Normal() : Laplace()
     field = UnivariateRandomField(size(x), dist)
-    return logpdf(field, x; location=μ, scale=scale, check_args=false)
+    return logpdf(field, x; location = μ, scale = scale, check_args = false)
 end
 function prior_parameter_gradient(a, x, family)
     da = zero(a)
@@ -226,11 +226,11 @@ end
             minus[i] -= step
             (
                 prior_parameter_loss(plus, x, family) -
-                prior_parameter_loss(minus, x, family)
+                    prior_parameter_loss(minus, x, family)
             ) / (2step)
         end
         @test all(isfinite, actual)
-        @test actual ≈ expected rtol = (T == Float32 ? 0.003 : 1e-7)
+        @test actual ≈ expected rtol = (T == Float32 ? 0.003 : 1.0e-7)
     end
 end
 
@@ -238,7 +238,7 @@ end
     for T in (Float32, Float64)
         x = reshape(T.(0.2 .+ sin.(1:16)), 4, 4)
         rx = Reactant.to_rarray(x)
-        descriptor = WaveletTransform(size(x), wavelet(WT.db2); levels=2)
+        descriptor = WaveletTransform(size(x), wavelet(WT.db2); levels = 2)
         p, pc = prepare(descriptor, rx), prepare(descriptor, x)
         compiled = Reactant.@compile transform_gradient(rx, p)
         actual = Array(compiled(rx, p))
@@ -249,9 +249,9 @@ end
 
 function covariance_model(a)
     return modify(
-        SinglePowerLaw{2}(sum(a[2:2]); dc=0.3, check_args=false),
-        Renormalize(exp(sum(a[1:1])); check_args=false),
-        Stretch(exp(sum(a[3:3])), 0.8; check_args=false),
+        SinglePowerLaw{2}(sum(a[2:2]); dc = 0.3, check_args = false),
+        Renormalize(exp(sum(a[1:1])); check_args = false),
+        Stretch(exp(sum(a[3:3])), 0.8; check_args = false),
         Rotate(sum(a[4:4])),
     )
 end
@@ -288,17 +288,17 @@ end
     for mode in (Val(:point), Val(:action))
         compiled = Reactant.@compile covariance_gradient(ra, c, p, rx, mode)
         actual = Array(compiled(ra, c, p, rx, mode))
-        step = 1e-5
+        step = 1.0e-5
         expected = map(eachindex(a)) do i
             plus, minus = copy(a), copy(a)
             plus[i] += step
             minus[i] -= step
             (
                 covariance_loss(plus, c, pc, x, mode) -
-                covariance_loss(minus, c, pc, x, mode)
+                    covariance_loss(minus, c, pc, x, mode)
             ) / (2step)
         end
         @test all(isfinite, actual)
-        @test actual ≈ expected rtol=1e-7
+        @test actual ≈ expected rtol = 1.0e-7
     end
 end

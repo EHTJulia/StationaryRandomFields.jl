@@ -1,5 +1,5 @@
 """
-    PeriodicCovariance(grid, model; variance=1, check_args=true)
+    PeriodicCovariance(grid, model; variance = 1, check_args = true)
 
 Finite periodic covariance with the same paired discrete power as `SpectralScaling`.
 `variance` is the variance of each independent latent Gaussian coefficient.
@@ -8,15 +8,15 @@ Off-grid evaluation uses a finite cosine sum; it is not a continuous spectral in
 Use `prepare(covariance, prototype)` and `apply` for a fast covariance action on the
 complete grid. This action does not construct a dense kernel matrix.
 """
-struct PeriodicCovariance{G,P,V,F}
+struct PeriodicCovariance{G, P, V, F}
     grid::G
     model::P
     variance::V
     frequencies::F
 end
 function PeriodicCovariance(
-    grid::FieldGrid, model::AbstractPowerSpectrumModel; variance=1, check_args=true
-)
+        grid::FieldGrid, model::AbstractPowerSpectrumModel; variance = 1, check_args = true
+    )
     ndims(grid) == ndims(model) || throw(DimensionMismatch("Spectrum rank mismatch."))
     (!check_args || (isfinite(variance) && variance >= 0)) ||
         throw(ArgumentError("Latent variance must be finite and nonnegative."))
@@ -25,10 +25,10 @@ function PeriodicCovariance(
     )
 end
 function PeriodicCovariance(
-    grid::FieldGrid, model::AbstractPowerSpectrumModel, latent::UnivariateRandomField{N,D}
-) where {N,D<:Normal}
+        grid::FieldGrid, model::AbstractPowerSpectrumModel, latent::UnivariateRandomField{N, D}
+    ) where {N, D <: Normal}
     size(grid) == size(latent) || throw(DimensionMismatch("Latent shape mismatch."))
-    return PeriodicCovariance(grid, model; variance=var(latent.dist))
+    return PeriodicCovariance(grid, model; variance = var(latent.dist))
 end
 input_size(c::PeriodicCovariance) = size(c.grid)
 output_size(c::PeriodicCovariance) = size(c.grid)
@@ -41,7 +41,7 @@ function covariance_term(c, delta, model, index)
 end
 
 """
-    covariance_value(covariance, x, y, model=covariance.model)
+    covariance_value(covariance, x, y, model = covariance.model)
 
 Evaluate the finite periodic covariance at two coordinate tuples or vectors.
 Scalar coordinates are also accepted in one dimension. The optional model argument
@@ -49,7 +49,7 @@ allows differentiating updated spectrum parameters without rebuilding grid metad
 Each evaluation costs O(prod(size(grid))); dense matrix assembly remains a separate
 operation from the FHT covariance action.
 """
-function covariance_value(c::PeriodicCovariance, x, y, model=c.model)
+function covariance_value(c::PeriodicCovariance, x, y, model = c.model)
     n = ndims(c.grid)
     length(x) == length(y) == n || throw(DimensionMismatch("Coordinate rank mismatch."))
     ndims(model) == n || throw(DimensionMismatch("Spectrum rank mismatch."))
@@ -61,13 +61,13 @@ function covariance_value(c::PeriodicCovariance, x, y, model=c.model)
     end
     return c.variance * total / length(indices)
 end
-function covariance_value(c::PeriodicCovariance, x::Number, y::Number, model=c.model)
+function covariance_value(c::PeriodicCovariance, x::Number, y::Number, model = c.model)
     ndims(c.grid) == 1 || throw(DimensionMismatch("Scalar coordinates require a 1D grid."))
     return covariance_value(c, (x,), (y,), model)
 end
 (c::PeriodicCovariance)(x, y) = covariance_value(c, x, y)
 
-struct PreparedPeriodicCovariance{H,S,V} <: AbstractPreparedTransform
+struct PreparedPeriodicCovariance{H, S, V} <: AbstractPreparedTransform
     hartley::H
     scaling::S
     variance::V

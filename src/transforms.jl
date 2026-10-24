@@ -4,8 +4,8 @@ abstract type AbstractPreparedTransform end
 
 """A shape-preserving identity map."""
 struct IdentityTransform{N} <: AbstractFieldTransform
-    dims::NTuple{N,Int}
-    function IdentityTransform(dims::NTuple{N,Integer}) where {N}
+    dims::NTuple{N, Int}
+    function IdentityTransform(dims::NTuple{N, Integer}) where {N}
         return new{N}(size(FieldGrid(dims)))
     end
 end
@@ -16,15 +16,15 @@ apply(t::IdentityTransform, x) = (check_input(t, x); copy(x))
 
 """A true multidimensional, orthonormally normalized Hartley synthesis."""
 struct HartleyTransform{N} <: AbstractFieldTransform
-    dims::NTuple{N,Int}
-    function HartleyTransform(dims::NTuple{N,Integer}) where {N}
+    dims::NTuple{N, Int}
+    function HartleyTransform(dims::NTuple{N, Integer}) where {N}
         return new{N}(size(FieldGrid(dims)))
     end
 end
 input_size(t::HartleyTransform) = t.dims
 output_size(t::HartleyTransform) = t.dims
-struct PreparedHartley{N,P,T} <: AbstractPreparedTransform
-    dims::NTuple{N,Int}
+struct PreparedHartley{N, P, T} <: AbstractPreparedTransform
+    dims::NTuple{N, Int}
     plan::P
     scale::T
 end
@@ -53,16 +53,16 @@ function apply!(y, t::PreparedHartley, x)
 end
 
 """Multiply signal or coefficient amplitudes by a scalar or broadcastable array."""
-struct ScaleTransform{N,S} <: AbstractFieldTransform
-    dims::NTuple{N,Int}
+struct ScaleTransform{N, S} <: AbstractFieldTransform
+    dims::NTuple{N, Int}
     scale::S
-    function ScaleTransform(dims::NTuple{N,Integer}, scale) where {N}
+    function ScaleTransform(dims::NTuple{N, Integer}, scale) where {N}
         shape = size(FieldGrid(dims))
         if scale isa AbstractArray
             ndims(scale) <= N && all(d -> size(scale, d) in (1, shape[d]), 1:N) ||
                 throw(DimensionMismatch("Scale must broadcast to the transform shape."))
         end
-        return new{N,typeof(scale)}(shape, scale)
+        return new{N, typeof(scale)}(shape, scale)
     end
 end
 input_size(t::ScaleTransform) = t.dims
@@ -77,18 +77,18 @@ Multiply Hartley coefficients by the square root of discrete power.
 Conjugate frequency pairs are averaged on the sampled grid, including Nyquist aliases.
 The power model is reevaluated on every application, so parameter changes are visible.
 """
-struct SpectralScaling{G,P} <: AbstractFieldTransform
+struct SpectralScaling{G, P} <: AbstractFieldTransform
     grid::G
     model::P
     function SpectralScaling(grid::FieldGrid, model::AbstractPowerSpectrumModel)
         ndims(grid) == ndims(model) || throw(DimensionMismatch("Spectrum rank mismatch."))
-        return new{typeof(grid),typeof(model)}(grid, model)
+        return new{typeof(grid), typeof(model)}(grid, model)
     end
 end
 input_size(t::SpectralScaling) = size(t.grid)
 output_size(t::SpectralScaling) = size(t.grid)
-struct PreparedSpectralScaling{N,P,C,R} <: AbstractPreparedTransform
-    dims::NTuple{N,Int}
+struct PreparedSpectralScaling{N, P, C, R} <: AbstractPreparedTransform
+    dims::NTuple{N, Int}
     model::P
     coordinates::C
     reflected::R
@@ -98,17 +98,17 @@ output_size(t::PreparedSpectralScaling) = t.dims
 function prepare(t::SpectralScaling, x)
     check_input(t, x)
     coords = frequency_coordinates(t.grid, x)
-    reflected = frequency_coordinates(t.grid, x; reflected=true)
+    reflected = frequency_coordinates(t.grid, x; reflected = true)
     return PreparedSpectralScaling(input_size(t), t.model, coords, reflected)
 end
-function paired_power(model, ν::Vararg{Any,K}) where {K}
+function paired_power(model, ν::Vararg{Any, K}) where {K}
     n = ndims(model)
     p = power_point(model, ν[1:n]...)
     q = power_point(model, ν[(n + 1):(2n)]...)
     return (p + q) / 2
 end
-function paired_amplitude(model, ν::Vararg{Any,K}) where {K}
-    power_amplitude(paired_power(model, ν...))
+function paired_amplitude(model, ν::Vararg{Any, K}) where {K}
+    return power_amplitude(paired_power(model, ν...))
 end
 function spectral_amplitude(t::PreparedSpectralScaling, model)
     return paired_amplitude.(Ref(model), t.coordinates..., t.reflected...)
@@ -119,17 +119,17 @@ function apply(t::PreparedSpectralScaling, x, model::AbstractPowerSpectrumModel)
     ndims(model) == length(t.dims) || throw(DimensionMismatch("Spectrum rank mismatch."))
     return sample_eltype(x).(x .* spectral_amplitude(t, model))
 end
-function apply!(y, t::PreparedSpectralScaling, x, model::AbstractPowerSpectrumModel=t.model)
+function apply!(y, t::PreparedSpectralScaling, x, model::AbstractPowerSpectrumModel = t.model)
     check_buffers(y, t, x)
     y .= x .* spectral_amplitude(t, model)
     return y
 end
 
 """A left-to-right composition: `TransformChain(a, b)` computes `b(a(x))`."""
-struct TransformChain{T<:Tuple} <: AbstractFieldTransform
+struct TransformChain{T <: Tuple} <: AbstractFieldTransform
     transforms::T
 end
-function TransformChain(ts::Union{AbstractFieldTransform,AbstractPreparedTransform}...)
+function TransformChain(ts::Union{AbstractFieldTransform, AbstractPreparedTransform}...)
     isempty(ts) && throw(ArgumentError("A transform chain cannot be empty."))
     for i in 2:length(ts)
         output_size(ts[i - 1]) == input_size(ts[i]) ||
@@ -154,7 +154,7 @@ apply_chain(ts::Tuple, x) = apply_chain(Base.tail(ts), apply(first(ts), x))
 
 prepare(t::AbstractPreparedTransform, x) = (check_input(t, x); t)
 apply(t::AbstractFieldTransform, x) = apply(prepare(t, x), x)
-function apply!(y, t::Union{AbstractFieldTransform,AbstractPreparedTransform}, x)
+function apply!(y, t::Union{AbstractFieldTransform, AbstractPreparedTransform}, x)
     check_buffers(y, t, x)
     copyto!(y, apply(t, x))
     return y

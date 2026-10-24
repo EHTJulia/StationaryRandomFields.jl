@@ -14,7 +14,7 @@
     @test power_point(rotated(anisotropic, r), v...) ≈ power_point(anisotropic, (r * v)...)
     @test power_point(rotated(anisotropic, θ), v...) ≈
         power_point(rotated(anisotropic, r), v...)
-    g = FieldGrid((5, 4); spacing=(0.2, 0.3))
+    g = FieldGrid((5, 4); spacing = (0.2, 0.3))
     out = zeros(Float32, size(g))
     coords = SRF.frequency_coordinates(g, out)
     @test power_map!(out, p, coords) === out
@@ -26,7 +26,7 @@
     @test_throws ArgumentError -2p
     @test_throws ArgumentError p / 0
     @test_throws ArgumentError SaturatedPowerLaw{2}(-2, 1, 0.1)
-    @test_throws ArgumentError FieldGrid((2,); spacing=(-1.0,))
+    @test_throws ArgumentError FieldGrid((2,); spacing = (-1.0,))
     @test_throws ArgumentError Rotate([1.0 1.0; 0.0 1.0])
     @test_throws DimensionMismatch rotated(p, Matrix{Float64}(I, 3, 3))
     @test_throws DimensionMismatch power_point(p, 1.0)

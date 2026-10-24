@@ -1,11 +1,13 @@
 function direct_hartley(dims, ::Type{T}) where {T}
     inds = collect(CartesianIndices(dims))
-    return (a -> reshape(a, prod(dims), prod(dims)))([
-        T(
-            cospi(2sum((i[d] - 1) * (j[d] - 1) / dims[d] for d in eachindex(dims))) +
-            sinpi(2sum((i[d] - 1) * (j[d] - 1) / dims[d] for d in eachindex(dims))),
-        ) for i in inds, j in inds
-    ])
+    return (a -> reshape(a, prod(dims), prod(dims)))(
+        [
+            T(
+                cospi(2sum((i[d] - 1) * (j[d] - 1) / dims[d] for d in eachindex(dims))) +
+                    sinpi(2sum((i[d] - 1) * (j[d] - 1) / dims[d] for d in eachindex(dims))),
+            ) for i in inds, j in inds
+        ]
+    )
 end
 
 @testset "Hartley synthesis and signal sampling" begin
@@ -48,11 +50,11 @@ end
     indices = vec(collect(CartesianIndices(dims)))
     fourier = [
         cispi(-2sum((k[d] - 1) * (n[d] - 1) / dims[d] for d in eachindex(dims))) for
-        k in indices, n in indices
+            k in indices, n in indices
     ]
     fourier_covariance = real.(fourier' * Diagonal(vec(a) .^ 2) * fourier) / length(z)
     @test expected ≈ fourier_covariance
-    expected_periodogram = vec(sum(abs2, fourier * generated; dims=2)) / length(z)
+    expected_periodogram = vec(sum(abs2, fourier * generated; dims = 2)) / length(z)
     @test expected_periodogram ≈ vec(a) .^ 2
 
     @test_throws DimensionMismatch TransformChain(
@@ -79,13 +81,13 @@ end
         end
     end
     x = reshape(sin.(1:256), 4, 4, 4, 4)
-    t = prepare(WaveletTransform(size(x); levels=2), x)
+    t = prepare(WaveletTransform(size(x); levels = 2), x)
     @test SRF.wavelet_analysis(t, apply(t, x)) ≈ x
-    @test_throws ArgumentError WaveletTransform((7, 8); levels=1)
-    @test_throws ArgumentError WaveletTransform((8,); levels=-1)
+    @test_throws ArgumentError WaveletTransform((7, 8); levels = 1)
+    @test_throws ArgumentError WaveletTransform((8,); levels = -1)
 end
 
-struct ReshapeTransform{I,O} <: AbstractFieldTransform
+struct ReshapeTransform{I, O} <: AbstractFieldTransform
     input::I
     output::O
 end

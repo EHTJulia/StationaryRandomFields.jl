@@ -26,7 +26,7 @@
             @test_throws DimensionMismatch logpdf(f, zeros(T, ntuple(_ -> 1, length(dims))))
         end
     end
-    f = UnivariateGaussianRandomField((3,); μ=0.4, σ=1.2)
+    f = UnivariateGaussianRandomField((3,); μ = 0.4, σ = 1.2)
     z = [0.2, -0.7, 1.3]
     @test logpdf(f, z) ≈ logpdf(MvNormal(fill(0.4, 3), 1.2^2 * I), z)
     @test UnivariateLaplaceRandomField(Float32, (2,)).dist == Laplace(0.0f0, 1.0f0)
@@ -34,7 +34,7 @@
         UnivariateRandomField((2,), Normal())
     @test_throws ArgumentError UnivariateRandomField((0, 2), Normal())
     @test_throws ArgumentError UnivariateRandomField((), Normal())
-    @test_throws DomainError UnivariateLaplaceRandomField((2,); b=0)
+    @test_throws DomainError UnivariateLaplaceRandomField((2,); b = 0)
     @test_throws ArgumentError size(f, 0)
 end
 
@@ -45,9 +45,9 @@ end
         reference = UnivariateRandomField(
             size(x), d isa Normal ? Normal(0.4, 1.2) : Laplace(0.4, 1.2)
         )
-        @test logpdf(field, x; location=0.4, scale=1.2) ≈ logpdf(reference, x)
-        @test_throws ArgumentError logpdf(field, x; scale=0)
-        @test_throws ArgumentError logpdf(field, x; location=Inf)
-        @test_throws DimensionMismatch logpdf(field, zeros(2, 2); scale=1.2)
+        @test logpdf(field, x; location = 0.4, scale = 1.2) ≈ logpdf(reference, x)
+        @test_throws ArgumentError logpdf(field, x; scale = 0)
+        @test_throws ArgumentError logpdf(field, x; location = Inf)
+        @test_throws DimensionMismatch logpdf(field, zeros(2, 2); scale = 1.2)
     end
 end

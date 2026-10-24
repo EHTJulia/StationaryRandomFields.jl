@@ -7,7 +7,7 @@ using StationaryRandomFields, Distributions, Random
 
 latent = UnivariateGaussianRandomField(Float64, (32, 32))
 z = rand(MersenneTwister(12), latent)
-grid = FieldGrid(size(z); spacing=(0.1, 0.1))
+grid = FieldGrid(size(z); spacing = (0.1, 0.1))
 ps = SaturatedPowerLaw{2}(-2.0, 0.1, 4.0)
 spectral = prepare(SpectralScaling(grid, ps), z)
 hartley = prepare(HartleyTransform(size(z)), z)
@@ -25,9 +25,9 @@ signal = apply(hartley, apply(spectral, z, updated))
 ## Laplace coefficients
 
 ```julia
-latent = UnivariateLaplaceRandomField(Float32, (32, 32); b=0.2f0)
+latent = UnivariateLaplaceRandomField(Float32, (32, 32); b = 0.2f0)
 z = rand(latent)
-synthesis = prepare(WaveletTransform(size(z); levels=3), z)
+synthesis = prepare(WaveletTransform(size(z); levels = 3), z)
 signal = apply(synthesis, z)
 logprior = logpdf(latent, z)
 ```

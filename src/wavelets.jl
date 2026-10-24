@@ -1,18 +1,18 @@
 """
-    WaveletTransform(dims, wavelet=wavelet(WT.haar); levels=1)
+    WaveletTransform(dims, wavelet = wavelet(WT.haar); levels = 1)
 
 Periodic, orthogonal, multilevel wavelet synthesis with Wavelets.jl coefficient packing.
 Each dimension must be divisible by `2^levels`. CPU ranks 1–3 use Wavelets.jl;
 a separable array implementation also supports higher ranks and compiled backends.
 """
-struct WaveletTransform{N,W} <: AbstractFieldTransform
-    dims::NTuple{N,Int}
+struct WaveletTransform{N, W} <: AbstractFieldTransform
+    dims::NTuple{N, Int}
     wavelet::W
     levels::Int
 end
 function WaveletTransform(
-    dims::NTuple{N,Integer}, wt=Wavelets.wavelet(Wavelets.WT.haar); levels::Integer=1
-) where {N}
+        dims::NTuple{N, Integer}, wt = Wavelets.wavelet(Wavelets.WT.haar); levels::Integer = 1
+    ) where {N}
     wt isa Wavelets.WT.OrthoFilter{Wavelets.WT.PerBoundary} ||
         throw(ArgumentError("Only periodic orthogonal filter wavelets are supported."))
     shape = size(FieldGrid(dims))
@@ -22,8 +22,8 @@ function WaveletTransform(
 end
 input_size(t::WaveletTransform) = t.dims
 output_size(t::WaveletTransform) = t.dims
-struct PreparedWavelet{N,W,F} <: AbstractPreparedTransform
-    dims::NTuple{N,Int}
+struct PreparedWavelet{N, W, F} <: AbstractPreparedTransform
+    dims::NTuple{N, Int}
     wavelet::W
     filters::F
     levels::Int
@@ -56,7 +56,7 @@ function wavelet_analysis(t::PreparedWavelet, x::Array)
     end
 end
 function wavelet_analysis(t::PreparedWavelet, x::AbstractArray)
-    wavelet_analysis(x, t.filters, t.levels)
+    return wavelet_analysis(x, t.filters, t.levels)
 end
 
 function axis_slice(x, d, range)
@@ -69,7 +69,7 @@ end
 function upsample_axis(x, d)
     shape = (size(x)[1:(d - 1)]..., 1, size(x)[d:end]...)
     a = reshape(x, shape)
-    interleaved = cat(a, zero.(a); dims=d)
+    interleaved = cat(a, zero.(a); dims = d)
     return reshape(interleaved, ntuple(i -> i == d ? 2size(x, i) : size(x, i), ndims(x)))
 end
 function synthesis_axis(x, h, d)
@@ -78,7 +78,7 @@ function synthesis_axis(x, h, d)
     high = upsample_axis(axis_slice(x, d, (half + 1):(2half)), d)
     terms = ntuple(length(h)) do r
         h[r] .* axis_shift(low, d, r - 1) .+
-        (isodd(r) ? h[r] : -h[r]) .* axis_shift(high, d, 2 - r)
+            (isodd(r) ? h[r] : -h[r]) .* axis_shift(high, d, 2 - r)
     end
     return reduce(+, terms)
 end
@@ -89,17 +89,17 @@ function analysis_axis(x, h, d)
         r -> (isodd(r) ? h[r] : -h[r]) .* axis_slice(axis_shift(x, d, r - 2), d, odd),
         length(h),
     )
-    return cat(reduce(+, lows), reduce(+, highs); dims=d)
+    return cat(reduce(+, lows), reduce(+, highs); dims = d)
 end
 function approximation(x)
     return x[ntuple(d -> 1:(size(x, d) ÷ 2), ndims(x))...]
 end
-function replace_approximation(x, low, d=1)
+function replace_approximation(x, low, d = 1)
     d > ndims(x) && return low
     n = size(x, d) ÷ 2
     a = axis_slice(x, d, 1:n)
     b = axis_slice(x, d, (n + 1):(2n))
-    return cat(replace_approximation(a, low, d + 1), b; dims=d)
+    return cat(replace_approximation(a, low, d + 1), b; dims = d)
 end
 function wavelet_synthesis(x, h, levels)
     levels == 0 && return copy(x)
