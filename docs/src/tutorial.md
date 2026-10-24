@@ -15,44 +15,71 @@ then turns them into samples along a time or position axis.
 
 ```@example tutorial
 using StationaryRandomFields, Distributions, Random, CairoMakie
+
+# Render figures without a display and use readable labels throughout the tutorial.
 CairoMakie.activate!(; type = "svg")
 set_theme!(Theme(; fontsize = 16))
 
+# Fix the seed so that rerunning this example reproduces the same realization.
 rng = MersenneTwister(12)
+
+# Draw 256 independent standard-normal coefficients, one for each Hartley mode.
 latent = UnivariateGaussianRandomField(Float64, (256,))
 z = rand(rng, latent)
+
+# Use unit sample spacing; frequencies are then measured in cycles per sample.
 grid = FieldGrid(size(z); spacing = (1.0,))
+
+# Choose P(f) = (f / 0.05)^(-2) away from DC; the default DC power is zero.
 power = 0.05^2 * SinglePowerLaw{1}(-2.0)
+
+# Prepare frequency metadata and the Hartley plan once for arrays shaped like z.
 spectral = prepare(SpectralScaling(grid, power), z)
 hartley = prepare(HartleyTransform(size(z)), z)
+
+# Multiply coefficients by sqrt(P), then synthesize the time-domain signal.
 scaled = apply(spectral, z)
 signal = apply(hartley, scaled)
+
+# The prior describes the original latent coefficients, before either operation.
 logprior = logpdf(latent, z)
 
+# Plot positive frequencies only, excluding DC and the even-grid Nyquist bin.
 frequency = (1:127) ./ 256
 power_values = [power_point(power, f) for f in frequency]
+
+# Compare the random input, target power, scaled coefficients, and final signal.
 fig = Figure(; size = (1000, 650))
+
+# The horizontal axis here indexes modes, not times.
 ax = Axis(
     fig[1, 1]; title = "1. Independent Gaussian coefficients",
     xlabel = "Packed frequency-mode index", ylabel = "Coefficient"
 )
 lines!(ax, eachindex(z), z; color = :steelblue)
+
+# Logarithmic axes make the slope of the target power law easy to see.
 ax = Axis(
     fig[1, 2]; title = "2. Chosen power spectrum",
     xlabel = "Frequency [cycles / sample]", ylabel = "Discrete power",
     xscale = log10, yscale = log10
 )
 lines!(ax, frequency, power_values; color = :darkorange, linewidth = 2)
+
+# This array is still in frequency space, after amplitude scaling.
 ax = Axis(
     fig[2, 1]; title = "3. Coefficients after spectral scaling",
     xlabel = "Packed frequency-mode index", ylabel = "Coefficient"
 )
 lines!(ax, eachindex(scaled), scaled; color = :steelblue)
+
+# After synthesis, samples are ordered along the time axis.
 ax = Axis(
     fig[2, 2]; title = "4. Correlated signal after FHT",
     xlabel = "Time [sample units]", ylabel = "Signal [arbitrary units]"
 )
 lines!(ax, 0:255, signal; color = :purple, linewidth = 2)
+# Save the figure that is displayed immediately below this code block.
 save("gaussian-1d.svg", fig)
 nothing # hide
 ```
@@ -78,15 +105,21 @@ Only the array shape and spectrum rank change. A mode now has two frequency
 coordinates, and the output can be an image or a phase screen.
 
 ```@example tutorial
+# Draw a fresh 128-by-128 array of independent Gaussian mode coefficients.
 latent = UnivariateGaussianRandomField(Float64, (128, 128))
 z = rand(MersenneTwister(23), latent)
+
+# Both coordinate directions have unit spacing. The radial spectrum favors broad features.
 grid = FieldGrid(size(z); spacing = (1.0, 1.0))
 power = 0.04^3 * SinglePowerLaw{2}(-3.0)
+
+# Prepare once, scale frequency amplitudes, and transform into image coordinates.
 spectral = prepare(SpectralScaling(grid, power), z)
 hartley = prepare(HartleyTransform(size(z)), z)
 scaled = apply(spectral, z)
 signal = apply(hartley, scaled)
 
+# Reuse this helper for image panels, with square pixels and a separate color bar.
 function field_panel!(slot, values, title, xlabel, ylabel; colormap = :balance)
     ax = Axis(slot[1, 1]; title, xlabel, ylabel, aspect = DataAspect())
     image = heatmap!(ax, values; colormap)
@@ -94,10 +127,13 @@ function field_panel!(slot, values, title, xlabel, ylabel; colormap = :balance)
     return ax
 end
 
+# Lay out the same four stages as in the time-series example.
 fig = Figure(; size = (1050, 850))
 field_panel!(fig[1, 1], z, "1. Gaussian latent coefficients", "Mode index 1", "Mode index 2")
 # Center frequencies only for display; execution uses unshifted mode ordering.
 shown_power = circshift(power_map(power, grid), (64, 64))
+
+# Clip zero power only in the plot so that log10 remains finite.
 field_panel!(
     fig[1, 2], log10.(max.(shown_power, 1.0e-8)),
     "2. Log10 power (DC clipped for display)", "Centered mode index 1", "Centered mode index 2";
@@ -105,6 +141,7 @@ field_panel!(
 )
 field_panel!(fig[2, 1], scaled, "3. Spectrally scaled coefficients", "Mode index 1", "Mode index 2")
 field_panel!(fig[2, 2], signal, "4. Correlated signal after FHT", "Pixel x", "Pixel y")
+# Use PNG to keep the heatmap figure small enough for convenient web viewing.
 save("gaussian-2d.png", fig)
 nothing # hide
 ```
@@ -129,7 +166,10 @@ a propagation model and physical units must be added separately.
 A spectrum can be updated without rebuilding the Hartley plan:
 
 ```@example tutorial
+# Double the original power and add a flat power floor at every mode.
 updated = 2.0 * power + ConstantPowerSpectrum{2}(0.01)
+
+# Hold z fixed to isolate the effect of the changed spectrum, reusing both plans.
 updated_signal = apply(hartley, apply(spectral, z, updated))
 size(updated_signal)
 ```
@@ -142,23 +182,35 @@ variance. Wavelet synthesis assembles these features into the signal. Here we us
 the default periodic Haar wavelet, whose basis functions make step-like features.
 
 ```@example tutorial
+# Draw wavelet coefficients from a zero-centered Laplace prior.
+# b is the Laplace scale, not its standard deviation.
 latent = UnivariateLaplaceRandomField(Float64, (256,); b = 0.2)
 z = rand(MersenneTwister(34), latent)
+
+# Use four Haar levels; the array length must be divisible by 2^4.
 synthesis = prepare(WaveletTransform(size(z); levels = 4), z)
+
+# Assemble localized wavelet features into a signal in position space.
 signal = apply(synthesis, z)
+
+# Evaluate the coefficient prior on z, rather than on the synthesized signal.
 logprior = logpdf(latent, z)
 
+# Show individual coefficient amplitudes beside the signal they synthesize.
 fig = Figure(; size = (1000, 370))
 ax = Axis(
     fig[1, 1]; title = "Independent Laplace coefficients",
     xlabel = "Packed wavelet-coefficient index", ylabel = "Coefficient"
 )
 stem!(ax, eachindex(z), z; color = :steelblue, markersize = 3)
+
+# Haar basis functions produce step-like contributions in position space.
 ax = Axis(
     fig[1, 2]; title = "Signal after Haar wavelet synthesis",
     xlabel = "Position [sample units]", ylabel = "Signal [arbitrary units]"
 )
 lines!(ax, 0:255, signal; color = :purple)
+# Save a vector figure so that lines remain sharp when zoomed.
 save("laplace-1d.svg", fig)
 nothing # hide
 ```
@@ -178,25 +230,36 @@ periodic packing used here, the approximation coefficients occupy the low-index
 corner at each level; the loop assigns larger weights to successive coarse corners.
 
 ```@example tutorial
+# Draw a reproducible image-sized array of latent wavelet coefficients.
 latent = UnivariateLaplaceRandomField(Float64, (128, 128); b = 0.2)
 z = rand(MersenneTwister(45), latent)
+
+# Begin with small amplitudes at all scales, then strengthen coarse-scale blocks.
 levels = 4
 weights = fill(0.1, size(z))
+# Each successive low-index corner contains the next coarser approximation.
 for level in 1:levels
     width = size(z, 1) ÷ 2^level
     weights[1:width, 1:width] .= 0.1 * 2.0^level
 end
+
+# Apply the weights first and wavelet synthesis second.
 transform = TransformChain(
     ScaleTransform(size(z), weights), WaveletTransform(size(z); levels)
 )
 synthesis = prepare(transform, z)
 signal = apply(synthesis, z)
+
+# Weighting is part of the transform; the prior still belongs to the unweighted z.
 logprior = logpdf(latent, z)
 
+# Compare latent coefficients, weighted coefficients, and the resulting image.
+# field_panel! is the plotting helper defined in the Gaussian image example.
 fig = Figure(; size = (1200, 390))
 field_panel!(fig[1, 1], z, "1. Laplace latent coefficients", "Packed index 1", "Packed index 2")
 field_panel!(fig[1, 2], weights .* z, "2. Coefficients with scale weights", "Packed index 1", "Packed index 2")
 field_panel!(fig[1, 3], signal, "3. Wavelet-synthesized signal", "Pixel x", "Pixel y")
+# Save the image panels as a compact raster figure for the documentation.
 save("laplace-2d.png", fig)
 nothing # hide
 ```
@@ -213,7 +276,10 @@ prior instead, use `IdentityTransform(size(z))`.
 ## Sampling a transformed field
 
 ```julia
+# Combine the last Laplace prior and prepared wavelet transform into a sampler.
 field = TransformedRandomField(latent, synthesis)
+
+# Draw new latent coefficients internally and return their synthesized signal.
 x = rand(field)
 ```
 
