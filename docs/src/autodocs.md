@@ -1,13 +1,5 @@
-```@meta
-CurrentModule = StationaryRandomFields
-```
-# StationaryRandomFields.jl API
+# API
 
-## Index
-```@index
-```
-
-## Docstrings
 ```@autodocs
 Modules = [StationaryRandomFields]
 ```

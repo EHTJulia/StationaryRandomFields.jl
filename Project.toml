@@ -1,22 +1,46 @@
 name = "StationaryRandomFields"
 uuid = "6ab34832-f7e5-40a4-9cd7-47ea82b5c144"
-authors = ["Anna Tartaglia", "Kazunori Akiyama"]
-version = "0.1.3"
+authors = ["Kazunori Akiyama", "Anna Tartaglia", "Paul Tiede"]
+version = "2.0.0"
 
 [deps]
-DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
-FFTW = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
+AbstractFastHartleyTransforms = "19a999c2-4b91-4a95-a5ef-9640c9e909f0"
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+FastHartleyTransform = "e0605d58-1a4b-427b-8ab9-d16fed775e83"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+Wavelets = "29a6e085-ba6d-5f35-a997-948ac2efa89a"
+
+[weakdeps]
+CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
+KernelFunctions = "ec8451be-7e33-11e9-00cf-bbf324bd1392"
+Reactant = "3c362404-f566-11ee-1572-e11a4b42c853"
+
+[extensions]
+StationaryRandomFieldsCUDAExt = "CUDA"
+StationaryRandomFieldsKernelFunctionsExt = "KernelFunctions"
+StationaryRandomFieldsReactantExt = "Reactant"
 
 [compat]
-DocStringExtensions = "0.9"
-FFTW = "1"
-Statistics = "1"
-julia = "1"
+AbstractFastHartleyTransforms = "0.1.3"
+CUDA = "5"
+Distributions = "0.25.117"
+Enzyme = "0.13.216"
+FastHartleyTransform = "0.1.2"
+KernelFunctions = "0.11"
+LinearAlgebra = "1.10"
+Random = "1.10"
+Reactant = "0.2.292"
+Statistics = "1.10"
+Wavelets = "0.10"
+julia = "1.10"
 
 [extras]
+Enzyme = "7da242da-08ed-463a-9acd-ee780be4f1d9"
+KernelFunctions = "ec8451be-7e33-11e9-00cf-bbf324bd1392"
+StableRNGs = "860ef19b-820b-49d6-a774-d7a799459cd3"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test"]
+test = ["KernelFunctions", "Enzyme", "StableRNGs", "Test"]

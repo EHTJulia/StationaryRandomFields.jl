@@ -1,22 +1,61 @@
-```@meta
-CurrentModule = StationaryRandomFields
-```
 # Introduction
 
-`StationaryRandomFields.jl` simulates realistic correlated noise for signal data of any given dimensions. 
-The package follows the power-law noise procedure introduced by [Timmer et al. (1995)](https://ui.adsabs.harvard.edu/abs/1995A%26A...300..707T/abstract); random Gaussian noise is drawn in the Fourier frequency domain and scaled by the square root of a power law spectrum. 
-An inverse transform back to the signal domain gives the stochastic power-law noise. 
+Astronomical signals often have structure across neighboring samples. A variable source
+can remain bright for several time samples; diffuse emission changes gradually across
+an image; a turbulent screen has fluctuations on many spatial scales. Drawing a new,
+independent noise value at every pixel misses that structure.
 
-The module currently
-- Provides abstract data types and methods to define noise signals, construct and modify power-law scaling functions, and generate signal noise
-- Implements multiple power spectrum types:
-    - Basic spectra of form $P = \nu^{\alpha}$ ([`SinglePowerLaw`](@ref))
-    - Cut-off spectra with inner and outer scales ([`SaturatedPowerLaw`](@ref))
-- Provides methods to reverse the process and retrieve underlying power spectra from input signal noise
+StationaryRandomFields.jl generates **correlated noise for signals of any array dimension
+with specified power spectra**, and **signals synthesized from a sparsity-promoting
+wavelet space**. It also provides these generative models as building blocks for Bayesian
+reconstruction. The same machinery can describe noise added to a signal or a prior on
+the unknown signal itself.
 
-## Installation
-The package can be installed by running:
-```julia
-using Pkg
-Pkg.add("StationaryRandomFields")
-```
+## Two useful ways to build a signal
+
+| What you want to describe | Start with | Then apply |
+|---|---|---|
+| Correlated fluctuations with a chosen distribution of power over scales | Independent Gaussian coefficients | Multiply by the square root of the power spectrum, then a Hartley transform |
+| A signal described economically by wavelet coefficients | Independent Laplace coefficients | Optional coefficient weights, then wavelet synthesis |
+
+A **latent field** is simply the array of random numbers before these operations. A
+**signal field** is the result you would plot, pass to a telescope model, or compare with
+data. In the Gaussian route, the latent array indexes frequency modes. In the wavelet
+route, it stores coefficients at different locations and scales. Neither array should
+be mistaken for an observed image before synthesis.
+
+A power spectrum describes how much variation to expect at each frequency: low
+frequencies make broad, slowly varying structures, while high frequencies make fine
+texture or rapid changes. A negative power-law index favors large scales. Wavelets
+instead describe localized features at several scales. A Laplace prior favors many
+small coefficients while allowing occasional larger ones; a random draw is not exactly
+zero at most entries, and is not a thresholded sparse reconstruction.
+
+## Why this is useful in astronomy
+
+- **Time-domain simulations:** generate correlated variability or noise realizations to
+  test a light-curve analysis. The spectral-synthesis motivation goes back to
+  [Timmer & König (1995)](https://scixplorer.org/abs/1995A%26A...300..707T/abstract).
+- **Radio imaging priors:** describe extended emission or fluctuations around a reference
+  image, and infer the correlation parameters along with the image. Related Bayesian
+  imaging work includes [Arras et al. (2021)](https://doi.org/10.1051/0004-6361/202039258)
+  and [Tiede et al. (2026)](https://arxiv.org/abs/2511.17706). The latter uses Markov-field
+  image priors; it illustrates the imaging motivation rather than an identical spectral model.
+- **Scattering and atmospheric phase screens:** use a chosen spectrum to draw a screen
+  of phase fluctuations, for example as an ingredient in Sgr A* scattering simulations
+  ([Johnson 2016](https://arxiv.org/abs/1610.05326)) or empirical interferometric
+  atmospheric/ionospheric models ([Chege et al. 2021](https://doi.org/10.1017/pasa.2021.22)).
+  Propagation, wavelength scaling, calibration, and the visibility response belong in
+  the surrounding physical model.
+- **Sparse Bayesian imaging:** place a Laplace prior on wavelet coefficients to favor
+  images with a compact multiscale description. The corresponding negative log prior
+  is an L1 penalty in coefficient space. This supplies a prior, rather than a complete
+  reconstruction algorithm.
+
+The default Gaussian signal is signed. To model positive sky brightness, choose an
+additional physical mapping, such as exponentiation, in your observation model.
+The plotting examples use arbitrary units; select spacings, cutoffs, amplitudes, and
+units appropriate to the science before interpreting a field as a physical screen.
+
+For sampling and Bayesian use, see [latent fields and inference](math-latent.md).
+The [tutorials](tutorial.md) demonstrate both constructions.

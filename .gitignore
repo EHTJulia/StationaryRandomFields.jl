@@ -1,1 +1,8 @@
 *.DS_Store
+
+# Generated documentation, temporary CI checkouts, and backend environments.
+docs/build/
+.ci/
+test/reactant/Manifest.toml
+test/gpu/Manifest.toml
+benchmark/Manifest.toml

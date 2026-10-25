@@ -1,0 +1,27 @@
+name: Explicit GPU validation
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  gpu:
+    # This workflow must be started explicitly on an available CUDA runner.
+    runs-on: [self-hosted, linux, x64, gpu]
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v6
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.10.12'
+      - run: julia tools/setup.jl test/gpu
+      - run: julia --project=test/gpu test/gpu/runtests.jl
+      - run: julia --project=test/gpu benchmark/gpu.jl
+      - run: julia tools/setup.jl test/reactant
+      - name: Reactant GPU and gradients
+        env:
+          SRF_REACTANT_BACKEND: gpu
+        run: julia --project=test/reactant test/reactant/runtests.jl
+      - name: Reactant GPU benchmarks
+        env:
+          SRF_REACTANT_BACKEND: gpu
+        run: julia --project=test/reactant benchmark/reactant.jl

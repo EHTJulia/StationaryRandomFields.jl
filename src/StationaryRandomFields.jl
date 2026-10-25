@@ -1,25 +1,62 @@
 module StationaryRandomFields
 
-# Import Modules
-using Base
-using DocStringExtensions
-using FFTW
+using Distributions
+using FastHartleyTransform
+using LinearAlgebra
 using Random
 using Statistics
+using Wavelets
 
-# Noise Signal Models
-include("./noisesignals/abstractnoisesignal.jl")
-include("./noisesignals/noisesignal.jl")
-include("./noisesignals/abstractcns.jl")
-include("./noisesignals/continuousnoisesignal.jl")
+import Distributions: _rand!, _logpdf, insupport, logpdf
 
-# Power Spectrum Models
-include("./powerspectra/abstractpowerspectrum.jl")
-include("./powerspectra/modifiers.jl")
-include("./powerspectra/singlepowerlaw.jl")
-include("./powerspectra/saturatedpowerlaw.jl")
+export AbstractStationaryRandomField,
+    UnivariateRandomField,
+    UnivariateGaussianRandomField,
+    UnivariateLaplaceRandomField,
+    TransformedRandomField,
+    AbstractFieldTransform,
+    IdentityTransform,
+    HartleyTransform,
+    SpectralScaling,
+    WaveletTransform,
+    ScaleTransform,
+    TransformChain,
+    FieldGrid,
+    prepare,
+    apply,
+    apply!,
+    input_size,
+    output_size,
+    AbstractPowerSpectrumModel,
+    SinglePowerLaw,
+    MaternPS,
+    MarkovPS,
+    SaturatedPowerLaw,
+    ConstantPowerSpectrum,
+    power_point,
+    amplitude_point,
+    power_map,
+    amplitude_map,
+    power_map!,
+    amplitude_map!,
+    stretched_ps,
+    rotated_ps,
+    renormed_ps,
+    modify_ps,
+    PowerSpectrumStretch,
+    PowerSpectrumRotate,
+    PowerSpectrumRenormalize,
+    PeriodicCovariance,
+    covariance_value,
+    spectral_kernel
 
-# Noise Generators
-include("./noisegenerators/psnoisegenerator.jl")
-include("./noisegenerators/psnoisegen.jl")
+include("fields.jl")
+include("spectra.jl")
+include("transforms.jl")
+include("wavelets.jl")
+include("transformed.jl")
+include("covariance.jl")
+include("display.jl")
+include("descriptors.jl")
+
 end
