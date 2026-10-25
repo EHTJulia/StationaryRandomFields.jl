@@ -61,6 +61,18 @@ function Distributions._rand!(
     rand!(rng, f.dist, x)
     return x
 end
+function _rand_normal_field!(rng, f, x)
+    Random.randn!(rng, x)
+    x .= mean(f.dist) .+ std(f.dist) .* x
+    return x
+end
+function _rand_laplace_field!(rng, f, x)
+    Random.rand!(rng, x)
+    # Map the midpoint of each representable uniform bin into (0, 1).
+    x .= clamp.(x, eps(eltype(x)), one(eltype(x)) - eps(eltype(x))) .- 0.5
+    x .= f.dist.μ .- f.dist.θ .* sign.(x) .* log1p.(-2 .* abs.(x))
+    return x
+end
 
 # The scalar formulas remain visible to device compilers and differentiation.
 function latent_logpdf(d::Normal, x)
