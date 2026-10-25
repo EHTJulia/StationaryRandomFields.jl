@@ -22,6 +22,17 @@
     @test amplitude_map!(out, p, coords) ≈ amplitude_map(p, g)
     @test @inferred(power_point(p, 0.3f0, 0.2f0)) isa Float32
     @test power_point(SinglePowerLaw{2}(-2), 0.0, 0.0) == 0
+
+    @testset "SinglePowerLaw frequency precision" begin
+        for T in (Float32, Float64)
+            model = SinglePowerLaw{2}(T(-2))
+            @test power_point(model, 1, 2) isa T
+            @test power_point(model, 0, 0) isa T
+            @test amplitude_point(model, 1, 2) isa T
+            @test power_point(model, 1f0, 2f0) isa promote_type(T, Float32)
+            @test power_point(model, 1.0, 2.0) isa promote_type(T, Float64)
+        end
+    end
     @test_throws ArgumentError ConstantPowerSpectrum{2}(-1)
     @test_throws ArgumentError -2p
     @test_throws ArgumentError p / 0
