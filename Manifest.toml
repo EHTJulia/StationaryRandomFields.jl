@@ -2,7 +2,7 @@
 
 julia_version = "1.10.12"
 manifest_format = "2.0"
-project_hash = "e3b8d7e19b1df4706daaf4444932b923930db84a"
+project_hash = "5b1132ca1aa8ee9e96f4001c080735fcde88aff7"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -20,9 +20,9 @@ version = "1.5.0"
 
 [[deps.AbstractFastHartleyTransforms]]
 deps = ["AbstractFFTs", "LinearAlgebra"]
-git-tree-sha1 = "51883ccd9d5e1b1b91b923aefc1c4b2a1e9d4330"
+git-tree-sha1 = "a663f39cc708eb6f4693fd280a3c89ae06d039bb"
 uuid = "19a999c2-4b91-4a95-a5ef-9640c9e909f0"
-version = "0.1.7"
+version = "0.1.8"
 
     [deps.AbstractFastHartleyTransforms.extensions]
     AbstractFastHartleyTransformsEnzymeCoreExt = "EnzymeCore"

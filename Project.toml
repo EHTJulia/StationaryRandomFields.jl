@@ -14,13 +14,11 @@ Wavelets = "29a6e085-ba6d-5f35-a997-948ac2efa89a"
 
 [weakdeps]
 CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
-EnzymeCore = "f151be2c-9106-41f4-ab19-57ee4f262869"
 KernelFunctions = "ec8451be-7e33-11e9-00cf-bbf324bd1392"
 Reactant = "3c362404-f566-11ee-1572-e11a4b42c853"
 
 [extensions]
 StationaryRandomFieldsCUDAExt = "CUDA"
-StationaryRandomFieldsEnzymeCoreExt = "EnzymeCore"
 StationaryRandomFieldsKernelFunctionsExt = "KernelFunctions"
 StationaryRandomFieldsReactantExt = "Reactant"
 
@@ -29,7 +27,6 @@ AbstractFastHartleyTransforms = "0.1.3"
 CUDA = "5"
 Distributions = "0.25.117"
 Enzyme = "0.13.216"
-EnzymeCore = "0.8.26"
 FastHartleyTransform = "0.1.2"
 KernelFunctions = "0.11"
 LinearAlgebra = "1.10"
