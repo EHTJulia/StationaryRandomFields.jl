@@ -31,6 +31,18 @@ function parameter_gradient(a, x, h, s)
     )
     return da
 end
+function spacing_loss(a, x)
+    spacing = sum(a)
+    scaling = prepare(
+        DynamicSpectralScaling(size(x), SinglePowerLaw{1}(-1.2; dc = 0.4)), x
+    )
+    return sum(abs2, apply(scaling, x, (spacing,)) .- eltype(x)(0.3))
+end
+function spacing_gradient(a, x)
+    da = zero(a)
+    Enzyme.autodiff(Reverse, spacing_loss, Active, Duplicated(a, da), Const(x))
+    return da
+end
 function draw!(rng, f, x)
     return rand!(rng, f, x)
 end
@@ -104,6 +116,29 @@ end
         @test all(isfinite, Array(x))
         @test first != Array(x)
     end
+end
+
+@testset "Reactant dynamic spacing spectral gradient" begin
+    x = Reactant.to_rarray(Float32[0.2, 0.4, 0.7, 1.1])
+    a = Reactant.to_rarray(Float32[0.8])
+    compiled = Reactant.@compile spacing_gradient(a, x)
+    actual = only(Array(compiled(a, x)))
+    step = cbrt(eps(Float32))
+    expected = (
+        spacing_loss(Float32[0.8 + step], Array(x)) -
+            spacing_loss(Float32[0.8 - step], Array(x))
+    ) / (2 * step)
+    @test isfinite(actual)
+    @test actual != 0.0f0
+    @test actual ≈ expected rtol = 0.01
+end
+
+@testset "Dynamic spacing rank validation" begin
+    x = Float32[0.2, 0.4, 0.7, 1.1]
+    scaling = prepare(
+        DynamicSpectralScaling(size(x), SinglePowerLaw{1}(-1.2; dc = 0.4)), x
+    )
+    @test_throws DimensionMismatch apply(scaling, x, (1.0f0, 2.0f0))
 end
 
 function index_loss(a, x, h, s)

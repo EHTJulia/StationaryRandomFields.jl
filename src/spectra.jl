@@ -313,6 +313,31 @@ function frequency_axes(g::FieldGrid{N}, (::Type{T}) = Float64) where {N, T}
     end
 end
 
+function frequency_index_templates(dims::NTuple{N, Int}, prototype) where {N}
+    return ntuple(N) do d
+        n = dims[d]
+        forward = reshape(
+            [k <= (n - 1) ÷ 2 ? k : k - n for k in 0:(n - 1)],
+            ntuple(i -> i == d ? n : 1, N),
+        )
+        reflected = reshape(forward[[1; collect(n:-1:2)]], size(forward))
+        forward_device = similar(prototype, eltype(prototype), size(forward))
+        reflected_device = similar(prototype, eltype(prototype), size(reflected))
+        copyto!(forward_device, forward)
+        copyto!(reflected_device, reflected)
+        (forward_device, reflected_device)
+    end
+end
+
+function dynamic_frequency_coordinates(
+        indices::Tuple, dims::NTuple{N, Int}, x, spacing; reflected = false
+    ) where {N}
+    return ntuple(N) do d
+        index = indices[d][reflected ? 2 : 1]
+        index ./ (sample_eltype(x)(dims[d]) .* spacing[d])
+    end
+end
+
 # Copy metadata to the destination backend once, before a compiled transform.
 function frequency_coordinates(g::FieldGrid{N}, prototype; reflected = false) where {N}
     axes = frequency_axes(g, eltype(prototype))

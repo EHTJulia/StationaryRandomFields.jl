@@ -93,6 +93,31 @@ struct PreparedSpectralScaling{N, P, C, R} <: AbstractPreparedTransform
     coordinates::C
     reflected::R
 end
+
+"""
+    DynamicSpectralScaling(dims, model)
+
+Prepare static dimensions and backend frequency templates for spectral scaling
+whose spacing is supplied explicitly to `apply`. Spacing-dependent coordinates
+are computed during application, so spacing may be a differentiable runtime
+argument. This is distinct from fixed-spacing `SpectralScaling` and
+`PreparedSpectralScaling`.
+"""
+struct DynamicSpectralScaling{N, P, I} <: AbstractPreparedTransform
+    dims::NTuple{N, Int}
+    model::P
+    indices::I
+end
+function DynamicSpectralScaling(dims::NTuple{N, Integer}, model::AbstractPowerSpectrumModel) where {N}
+    ndims(model) == N || throw(DimensionMismatch("Spectrum rank mismatch."))
+    return DynamicSpectralScaling(size(FieldGrid(dims)), model, nothing)
+end
+function prepare(t::DynamicSpectralScaling{N}, x) where {N}
+    check_input(t, x)
+    return DynamicSpectralScaling(t.dims, t.model, frequency_index_templates(t.dims, x))
+end
+input_size(t::DynamicSpectralScaling) = t.dims
+output_size(t::DynamicSpectralScaling) = t.dims
 input_size(t::PreparedSpectralScaling) = t.dims
 output_size(t::PreparedSpectralScaling) = t.dims
 function prepare(t::SpectralScaling, x)
@@ -118,6 +143,16 @@ function apply(t::PreparedSpectralScaling, x, model::AbstractPowerSpectrumModel)
     check_input(t, x)
     ndims(model) == length(t.dims) || throw(DimensionMismatch("Spectrum rank mismatch."))
     return sample_eltype(x).(x .* spectral_amplitude(t, model))
+end
+function apply(t::DynamicSpectralScaling, x, spacing, model::AbstractPowerSpectrumModel = t.model)
+    check_input(t, x)
+    ndims(model) == length(t.dims) || throw(DimensionMismatch("Spectrum rank mismatch."))
+    length(spacing) == length(t.dims) ||
+        throw(DimensionMismatch("Spacing rank does not match the transform."))
+    coordinates = dynamic_frequency_coordinates(t.indices, t.dims, x, spacing)
+    reflected = dynamic_frequency_coordinates(t.indices, t.dims, x, spacing; reflected = true)
+    amplitude = paired_amplitude.(Ref(model), coordinates..., reflected...)
+    return sample_eltype(x).(x .* amplitude)
 end
 function apply!(y, t::PreparedSpectralScaling, x, model::AbstractPowerSpectrumModel = t.model)
     check_buffers(y, t, x)
