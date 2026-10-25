@@ -163,10 +163,10 @@ end
 end
 
 function geometry_loss(a, x, h, s)
-    model = modify(
+    model = modify_ps(
         SinglePowerLaw{2}(-1.2),
-        Stretch(exp(sum(a[1:1])), exp(sum(a[2:2])); check_args = false),
-        Rotate(sum(a[3:3])),
+        PowerSpectrumStretch(exp(sum(a[1:1])), exp(sum(a[2:2])); check_args = false),
+        PowerSpectrumRotate(sum(a[3:3])),
     )
     return sum(abs2, apply(h, apply(s, x, model)) .- 0.3)
 end
@@ -248,11 +248,11 @@ end
 end
 
 function covariance_model(a)
-    return modify(
+    return modify_ps(
         SinglePowerLaw{2}(sum(a[2:2]); dc = 0.3, check_args = false),
-        Renormalize(exp(sum(a[1:1])); check_args = false),
-        Stretch(exp(sum(a[3:3])), 0.8; check_args = false),
-        Rotate(sum(a[4:4])),
+        PowerSpectrumRenormalize(exp(sum(a[1:1])); check_args = false),
+        PowerSpectrumStretch(exp(sum(a[3:3])), 0.8; check_args = false),
+        PowerSpectrumRotate(sum(a[4:4])),
     )
 end
 function covariance_loss(a, c, p, x, ::Val{mode}) where {mode}

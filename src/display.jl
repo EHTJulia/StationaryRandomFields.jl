@@ -14,7 +14,7 @@ function Base.show(io::IO, p::SumPowerSpectrum)
     return print(io, ")")
 end
 function Base.show(io::IO, p::ModifiedPowerSpectrumModel)
-    print(io, "modify(")
+    print(io, "modify_ps(")
     show(io, p.model)
     for modifier in p.modifiers
         print(io, ", ")
@@ -22,7 +22,7 @@ function Base.show(io::IO, p::ModifiedPowerSpectrumModel)
     end
     return print(io, ")")
 end
-function Base.show(io::IO, m::ModelModifier)
+function Base.show(io::IO, m::PowerSpectrumModifier)
     print(io, nameof(typeof(m)), "(")
     for (i, key) in enumerate(fieldnames(typeof(m)))
         i > 1 && print(io, ", ")

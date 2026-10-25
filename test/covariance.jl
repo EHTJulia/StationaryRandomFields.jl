@@ -60,7 +60,7 @@ end
         @test_throws DimensionMismatch k(zeros(length(dims) + 1), zeros(length(dims)))
     end
     grid = FieldGrid((4, 5); spacing = (0.8, 1.1))
-    model = rotated(stretched(SinglePowerLaw{2}(-1.2; dc = 0.4), 1.8, 0.7), 0.4)
+    model = rotated_ps(stretched_ps(SinglePowerLaw{2}(-1.2; dc = 0.4), 1.8, 0.7), 0.4)
     c = PeriodicCovariance(grid, model)
     points = [(0.1sin(i), 0.7cos(2i)) for i in 1:9]
     matrix = kernelmatrix(spectral_kernel(c), points)
@@ -98,11 +98,11 @@ end
 end
 
 function covariance_model(a)
-    return modify(
+    return modify_ps(
         SinglePowerLaw{2}(sum(a[2:2]); dc = 0.3, check_args = false),
-        Renormalize(exp(sum(a[1:1])); check_args = false),
-        Stretch(exp(sum(a[3:3])), 0.8; check_args = false),
-        Rotate(sum(a[4:4])),
+        PowerSpectrumRenormalize(exp(sum(a[1:1])); check_args = false),
+        PowerSpectrumStretch(exp(sum(a[3:3])), 0.8; check_args = false),
+        PowerSpectrumRotate(sum(a[4:4])),
     )
 end
 function kernel_parameter_loss(a, grid)

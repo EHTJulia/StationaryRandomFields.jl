@@ -36,7 +36,7 @@ end
     dims = (4, 5)
     z = zeros(dims)
     grid = FieldGrid(dims)
-    p = rotated(stretched(SaturatedPowerLaw{2}(-1.3, 0.1, 1.0), 2.0, 1.0), 0.4)
+    p = rotated_ps(stretched_ps(SaturatedPowerLaw{2}(-1.3, 0.1, 1.0), 2.0, 1.0), 0.4)
     s = prepare(SpectralScaling(grid, p), z)
     h = prepare(HartleyTransform(dims), z)
     a = SRF.spectral_amplitude(s, p)

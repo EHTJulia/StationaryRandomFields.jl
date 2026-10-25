@@ -6,14 +6,14 @@
     @test power_point(p + q, 0.4f0, 0.2f0) ≈ power_point(p, 0.4f0, 0.2f0) + 0.3f0
     @test amplitude_point(4p, 0.4f0, 0.2f0) ≈ 2amplitude_point(p, 0.4f0, 0.2f0)
     @test power_point(p / 2, 0.4f0, 0.2f0) ≈ power_point(p, 0.4f0, 0.2f0) / 2
-    @test power_point(stretched(p, 2, 1), 0.8, 0.2) ≈ power_point(p, 0.4, 0.2)
+    @test power_point(stretched_ps(p, 2, 1), 0.8, 0.2) ≈ power_point(p, 0.4, 0.2)
     θ = 0.37
     r = [cos(θ) -sin(θ); sin(θ) cos(θ)]
-    anisotropic = stretched(p, 3, 1)
+    anisotropic = stretched_ps(p, 3, 1)
     v = [0.3, 0.7]
-    @test power_point(rotated(anisotropic, r), v...) ≈ power_point(anisotropic, (r * v)...)
-    @test power_point(rotated(anisotropic, θ), v...) ≈
-        power_point(rotated(anisotropic, r), v...)
+    @test power_point(rotated_ps(anisotropic, r), v...) ≈ power_point(anisotropic, (r * v)...)
+    @test power_point(rotated_ps(anisotropic, θ), v...) ≈
+        power_point(rotated_ps(anisotropic, r), v...)
     g = FieldGrid((5, 4); spacing = (0.2, 0.3))
     out = zeros(Float32, size(g))
     coords = SRF.frequency_coordinates(g, out)
@@ -29,7 +29,7 @@
             @test power_point(model, 1, 2) isa T
             @test power_point(model, 0, 0) isa T
             @test amplitude_point(model, 1, 2) isa T
-            @test power_point(model, 1f0, 2f0) isa promote_type(T, Float32)
+            @test power_point(model, 1.0f0, 2.0f0) isa promote_type(T, Float32)
             @test power_point(model, 1.0, 2.0) isa promote_type(T, Float64)
         end
     end
@@ -38,8 +38,8 @@
     @test_throws ArgumentError p / 0
     @test_throws ArgumentError SaturatedPowerLaw{2}(-2, 1, 0.1)
     @test_throws ArgumentError FieldGrid((2,); spacing = (-1.0,))
-    @test_throws ArgumentError Rotate([1.0 1.0; 0.0 1.0])
-    @test_throws DimensionMismatch rotated(p, Matrix{Float64}(I, 3, 3))
+    @test_throws ArgumentError PowerSpectrumRotate([1.0 1.0; 0.0 1.0])
+    @test_throws DimensionMismatch rotated_ps(p, Matrix{Float64}(I, 3, 3))
     @test_throws DimensionMismatch power_point(p, 1.0)
 end
 
@@ -61,7 +61,7 @@ end
             x = ones(T, size(g))
             prepared = prepare(SpectralScaling(g, model), x)
             @test apply(prepared, x) ≈ amplitude_map(model, g)
-            @test power_point(stretched(model, ntuple(_ -> 2, N)...), (2 .* f)...) ≈ power_point(model, f...)
+            @test power_point(stretched_ps(model, ntuple(_ -> 2, N)...), (2 .* f)...) ≈ power_point(model, f...)
         end
     end
     @test power_point(MaternPS{1}(2, 0.5), 0.2) ≈ power_point(MarkovPS{1}((1,)), 0.2)

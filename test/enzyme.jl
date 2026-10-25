@@ -110,10 +110,10 @@ end
 end
 
 function geometry_loss(a, x, h, s)
-    model = modify(
+    model = modify_ps(
         SinglePowerLaw{2}(-1.2),
-        Stretch(exp(sum(a[1:1])), exp(sum(a[2:2])); check_args = false),
-        Rotate(sum(a[3:3])),
+        PowerSpectrumStretch(exp(sum(a[1:1])), exp(sum(a[2:2])); check_args = false),
+        PowerSpectrumRotate(sum(a[3:3])),
     )
     return sum(abs2, apply(h, apply(s, x, model)) .- 0.3)
 end

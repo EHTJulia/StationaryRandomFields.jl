@@ -46,9 +46,9 @@ spectral transform.
 Scaling a signal by ``a`` scales its power by ``|a|^2``. Summing signals made from the same
 latent sample introduces cross terms and does not implement `p + q`.
 
-`stretched(p, s...)` evaluates ``p(\nu_1/s_1,\ldots,\nu_N/s_N)``. It changes frequency-coordinate widths and
-does not normalize integrated power. `rotated(p, R)` evaluates ``p(R\nu)`` for a proper
-orthogonal matrix. `rotated(p, angle)` uses the corresponding two-dimensional matrix.
+`stretched_ps(p, s...)` evaluates ``p(\nu_1/s_1,\ldots,\nu_N/s_N)``. It changes frequency-coordinate widths and
+does not normalize integrated power. `rotated_ps(p, R)` evaluates ``p(R\nu)`` for a proper
+orthogonal matrix. `rotated_ps(p, angle)` uses the corresponding two-dimensional matrix.
 Modifiers compose in application order; the last coordinate modifier is evaluated first
 when pulling a frequency back to the base model.
 
@@ -97,7 +97,7 @@ Let ``r=\lVert f\rVert`` be radial frequency in cycles per coordinate unit,
   Scales are nonnegative, with at least one positive entry. The tuple length sets
   the polynomial order.
 
-Matérn and Markov have unit DC power, not unit marginal variance. Use `renormed`
+Matérn and Markov have unit DC power, not unit marginal variance. Use `renormed_ps`
 to change the power scale. These are finite-grid spectral models; the Markov
 shape does not by itself imply a sparse lattice precision matrix.
 
