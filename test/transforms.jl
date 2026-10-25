@@ -2,11 +2,11 @@ function direct_hartley(dims, ::Type{T}) where {T}
     inds = collect(CartesianIndices(dims))
     return (a -> reshape(a, prod(dims), prod(dims)))(
         [
-        T(
-            cospi(2sum((i[d] - 1) * (j[d] - 1) / dims[d] for d in eachindex(dims))) +
-                sinpi(2sum((i[d] - 1) * (j[d] - 1) / dims[d] for d in eachindex(dims))),
-        ) for i in inds, j in inds
-    ]
+            T(
+                cospi(2sum((i[d] - 1) * (j[d] - 1) / dims[d] for d in eachindex(dims))) +
+                    sinpi(2sum((i[d] - 1) * (j[d] - 1) / dims[d] for d in eachindex(dims))),
+            ) for i in inds, j in inds
+        ]
     )
 end
 
@@ -50,11 +50,11 @@ end
     indices = vec(collect(CartesianIndices(dims)))
     fourier = [
         cispi(-2sum((k[d] - 1) * (n[d] - 1) / dims[d] for d in eachindex(dims))) for
-        k in indices, n in indices
+            k in indices, n in indices
     ]
     fourier_covariance = real.(fourier' * Diagonal(vec(a) .^ 2) * fourier) / length(z)
     @test expected ≈ fourier_covariance
-    expected_periodogram = vec(sum(abs2, fourier * generated; dims=2)) / length(z)
+    expected_periodogram = vec(sum(abs2, fourier * generated; dims = 2)) / length(z)
     @test expected_periodogram ≈ vec(a) .^ 2
 
     @test_throws DimensionMismatch TransformChain(
@@ -83,17 +83,17 @@ end
     end
 
     x = reshape(sin.(1:256), 4, 4, 4, 4)
-    t = prepare(WaveletTransform(size(x); levels=2), x)
+    t = prepare(WaveletTransform(size(x); levels = 2), x)
     @test SRF.wavelet_analysis(t, apply(t, x)) ≈ x
-    @test_throws ArgumentError WaveletTransform((7, 8); levels=1)
-    @test_throws ArgumentError WaveletTransform((8,); levels=-1)
+    @test_throws ArgumentError WaveletTransform((7, 8); levels = 1)
+    @test_throws ArgumentError WaveletTransform((8,); levels = -1)
 end
 
 @testset "Maximum-depth periodic DWT" begin
     for T in (Float32, Float64), (dims, depth) in (
-            ((16,), 4), ((8, 16), 3), ((8, 8, 8), 3),
-            ((24, 40), 3), ((7, 8), 0), ((1,), 0),
-        )
+                ((16,), 4), ((8, 16), 3), ((8, 8, 8), 3),
+                ((24, 40), 3), ((7, 8), 0), ((1,), 0),
+            )
 
         x = reshape(T.(sin.(1:prod(dims))), dims)
         wt = wavelet(WT.db4)
@@ -105,14 +105,14 @@ end
         @test SRF.wavelet_synthesis(x, p.filters, depth) ≈ y
         @test SRF.wavelet_analysis(p, y) ≈ x
         @test sum(abs2, y) ≈ sum(abs2, x)
-        @test WaveletTransform(dims, wt; levels=0).levels == 0
+        @test WaveletTransform(dims, wt; levels = 0).levels == 0
     end
     @test WaveletTransform((16,)).levels == 4
-    @test WaveletTransform((16,); levels=1).levels == 1
-    @test_throws ArgumentError WaveletTransform((8,); levels=4)
+    @test WaveletTransform((16,); levels = 1).levels == 1
+    @test_throws ArgumentError WaveletTransform((8,); levels = 4)
 end
 
-struct ReshapeTransform{I,O} <: AbstractFieldTransform
+struct ReshapeTransform{I, O} <: AbstractFieldTransform
     input::I
     output::O
 end

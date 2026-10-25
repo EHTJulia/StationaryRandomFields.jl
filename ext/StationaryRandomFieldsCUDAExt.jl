@@ -7,15 +7,15 @@ using StationaryRandomFields
 import Distributions: _rand!
 
 function _rand!(
-    rng::AbstractRNG, f::UnivariateRandomField{N,D}, x::CuArray{T,N}
-) where {N,D<:Normal,T<:AbstractFloat}
+        rng::AbstractRNG, f::UnivariateRandomField{N, D}, x::CuArray{T, N}
+    ) where {N, D <: Normal, T <: AbstractFloat}
     Random.randn!(rng, x)
     x .= T(mean(f.dist)) .+ T(std(f.dist)) .* x
     return x
 end
 function _rand!(
-    rng::AbstractRNG, f::UnivariateRandomField{N,D}, x::CuArray{T,N}
-) where {N,D<:Laplace,T<:AbstractFloat}
+        rng::AbstractRNG, f::UnivariateRandomField{N, D}, x::CuArray{T, N}
+    ) where {N, D <: Laplace, T <: AbstractFloat}
     Random.rand!(rng, x)
     # Map the midpoint of each representable uniform bin into (0, 1).
     x .= clamp.(x, eps(T), one(T) - eps(T)) .- T(0.5)

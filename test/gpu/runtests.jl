@@ -10,9 +10,9 @@ CUDA.versioninfo()
         x = reshape(T.(sin.(1:prod(dims))), dims)
         dx = CuArray(x)
         for t in (
-            HartleyTransform(dims),
-            SpectralScaling(FieldGrid(dims), ConstantPowerSpectrum{length(dims)}(T(2))),
-        )
+                HartleyTransform(dims),
+                SpectralScaling(FieldGrid(dims), ConstantPowerSpectrum{length(dims)}(T(2))),
+            )
             p = prepare(t, dx)
             @test Array(apply(p, dx)) ≈ apply(prepare(t, x), x)
             y = similar(dx)
@@ -51,8 +51,8 @@ end
     for T in (Float32, Float64), dims in ((7,), (3, 4), (2, 3, 4))
         x = reshape(T.(sin.(1:prod(dims))), dims)
         grid = FieldGrid(dims)
-        model = SinglePowerLaw{length(dims)}(T(-0.8); dc=T(0.3))
-        covariance = PeriodicCovariance(grid, model; variance=T(1.4))
+        model = SinglePowerLaw{length(dims)}(T(-0.8); dc = T(0.3))
+        covariance = PeriodicCovariance(grid, model; variance = T(1.4))
         dx = CuArray(x)
         @test Array(apply(prepare(covariance, dx), dx)) ≈ apply(prepare(covariance, x), x)
     end
