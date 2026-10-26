@@ -37,7 +37,7 @@ function prepare(t::HartleyTransform, x)
 end
 function check_hartley_input(t::PreparedHartley, x)
     check_input(t, x)
-    sample_eltype(x) == typeof(t.scale) ||
+    sample_eltype(x) == eltype(typeof(t.plan)) ||
         throw(ArgumentError("Prepare a new Hartley plan for a different element type."))
     return nothing
 end

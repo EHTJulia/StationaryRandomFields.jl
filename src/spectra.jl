@@ -340,14 +340,10 @@ end
 
 # Copy metadata to the destination backend once, before a compiled transform.
 function frequency_coordinates(g::FieldGrid{N}, prototype; reflected = false) where {N}
-    axes = frequency_axes(g, eltype(prototype))
+    indices = frequency_index_templates(g.dims, prototype)
     return ntuple(N) do d
-        host = reshape(
-            (reflected ? axes[d][[1; collect(length(axes[d]):-1:2)]] : axes[d]),
-            ntuple(i -> i == d ? g.dims[d] : 1, N),
-        )
-        device = similar(prototype, eltype(prototype), size(host))
-        copyto!(device, host)
+        index = indices[d][reflected ? 2 : 1]
+        index ./ (g.dims[d] * g.spacing[d])
     end
 end
 function power_map!(out, p::AbstractPowerSpectrumModel, coordinates::Tuple)
