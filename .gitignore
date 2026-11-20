@@ -2,6 +2,7 @@
 
 # Generated documentation, temporary CI checkouts, and backend environments.
 docs/build/
+!docs/src/assets/eht-m87-sym6.png
 .ci/
 test/reactant/Manifest.toml
 test/gpu/Manifest.toml

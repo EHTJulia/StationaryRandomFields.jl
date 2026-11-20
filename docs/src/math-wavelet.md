@@ -7,9 +7,11 @@ continuous random variables: this preference does not create exact zeros by itse
 Scale-dependent coefficient weights can favor broad structure over fine texture.
 
 The transform uses a separable periodic orthogonal filter bank, applying
-one-dimensional wavelet transforms along each array axis. The same
-dimension-independent implementation is used on CPU, CUDA, and Reactant
-backends, with coefficient packing compatible with Wavelets.jl.
+one-dimensional wavelet transforms along each array axis. CPU and Reactant
+use the shared dimension-independent implementation. CUDA uses Wavelets.jl's
+native GPU filter-bank path for ranks up to three and the shared implementation
+as a fallback for higher ranks; CUDA type inference can be limited for arrays
+with four or more dimensions, without implying numerical incorrectness.
 
 The approximation occupies the low-index corner; each subsequent
 level transforms that corner. By default, the decomposition uses the

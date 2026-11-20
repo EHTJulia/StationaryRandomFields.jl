@@ -102,6 +102,11 @@ whose spacing is supplied explicitly to `apply`. Spacing-dependent coordinates
 are computed during application, so spacing may be a differentiable runtime
 argument. This is distinct from fixed-spacing `SpectralScaling` and
 `PreparedSpectralScaling`.
+
+Call `prepare(DynamicSpectralScaling(dims, model), prototype)` before calling
+`apply(prepared, input, spacing)` or `apply(prepared, input, spacing, model)`.
+`dims` and `spacing` have one entry per axis; spacing is measured in the same
+signal-coordinate units as `FieldGrid`. The caller supplies positive spacing.
 """
 struct DynamicSpectralScaling{N, P, I} <: AbstractPreparedTransform
     dims::NTuple{N, Int}
@@ -128,6 +133,7 @@ function prepare(t::SpectralScaling, x)
 end
 function paired_power(model, ν::Vararg{Any, K}) where {K}
     n = ndims(model)
+    K == 2n || throw(DimensionMismatch("Expected two frequency coordinates per dimension."))
     p = power_point(model, ν[1:n]...)
     q = power_point(model, ν[(n + 1):(2n)]...)
     return (p + q) / 2

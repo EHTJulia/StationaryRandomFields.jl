@@ -1,7 +1,8 @@
 @testset "Independent latent distributions" begin
+    @test UnivariateRandomField === IndependentRandomField
     for T in (Float32, Float64), dims in ((7,), (3, 4), (2, 3, 4), (2, 2, 2, 2))
         for d in (Normal(T(0.2), T(1.3)), Laplace(T(-0.1), T(0.7)))
-            f = UnivariateRandomField(dims, d)
+            f = IndependentRandomField(dims, d)
             @test size(f) == dims
             @test length(f) == prod(dims)
             @test ndims(f) == length(dims)

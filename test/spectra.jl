@@ -1,4 +1,10 @@
 @testset "Power spectra" begin
+    for T in (Float32, Float64), n in (4, 5)
+        axis = only(SRF.frequency_axes(FieldGrid((n,); spacing = (0.25,)), T))
+        expected = n == 4 ? (0, 1, -2, -1) : (0, 1, 2, -2, -1)
+        @test eltype(axis) == T
+        @test axis ≈ T.(collect(expected)) .* (T(4) / n)
+    end
     p = SaturatedPowerLaw{2}(-2.0f0, 0.1f0, 2.0f0)
     q = ConstantPowerSpectrum{2}(0.3f0)
     @test power_point(p, 0.0f0, 0.0f0) ≈ 100.0f0
@@ -38,9 +44,21 @@
     @test_throws ArgumentError p / 0
     @test_throws ArgumentError SaturatedPowerLaw{2}(-2, 1, 0.1)
     @test_throws ArgumentError FieldGrid((2,); spacing = (-1.0,))
-    @test_throws ArgumentError PowerSpectrumRotate([1.0 1.0; 0.0 1.0])
+    @test PowerSpectrumRotate([1.0 1.0; 0.0 1.0]).matrix == [1.0 1.0; 0.0 1.0]
+    p3 = stretched_ps(SinglePowerLaw{3}(-2.0), 1.0, 2.0, 3.0)
+    r3 = [0.0 -1.0 0.0; 1.0 0.0 0.0; 0.0 0.0 1.0]
+    v3 = [0.2, 0.3, 0.4]
+    @test @inferred(power_point(rotated_ps(p3, r3), v3...)) ≈ power_point(p3, (r3 * v3)...)
+    @test_throws DimensionMismatch PowerSpectrumRotate(zeros(2, 3))
+    @test_throws DimensionMismatch PowerSpectrumRotate(zeros(0, 0))
     @test_throws DimensionMismatch rotated_ps(p, Matrix{Float64}(I, 3, 3))
-    @test_throws DimensionMismatch power_point(p, 1.0)
+    modifiers = (PowerSpectrumRenormalize(2.0), PowerSpectrumStretch(3.0, 1.0), PowerSpectrumRotate(θ))
+    mixed = @inferred modify_ps(p, modifiers...)
+    @test power_point(mixed, v...) ≈ power_point(rotated_ps(stretched_ps(renormed_ps(p, 2.0), 3.0, 1.0), θ), v...)
+    @test @inferred(modify_ps(p)) isa SRF.ModifiedPowerSpectrumModel
+    @test_throws DimensionMismatch modify_ps(p, modifiers[1], PowerSpectrumStretch(1.0, 1.0, 1.0))
+    @test_throws DimensionMismatch modify_ps(p, modifiers[1], PowerSpectrumRotate(Matrix{Float64}(I, 3, 3)))
+    @test_throws MethodError power_point(p, 1.0)
 end
 
 @testset "Matérn and Markov spectral shapes" begin
@@ -72,5 +90,25 @@ end
     @test_throws ArgumentError MarkovPS{2}((0, 0))
     @test_throws ArgumentError MarkovPS{2}((-1,))
     @test_throws ArgumentError MarkovPS{2}((Inf,))
-    @test_throws DimensionMismatch power_point(MaternPS{2}(1, 1), 0.1)
+    @test_throws MethodError power_point(MaternPS{2}(1, 1), 0.1)
+end
+
+@testset "Spectrum frequency dimensions" begin
+    models = (
+        ConstantPowerSpectrum{2}(1.0),
+        SinglePowerLaw{2}(-2.0),
+        SaturatedPowerLaw{2}(-2.0, 0.1, 2.0),
+        MaternPS{2}(1.0, 1.0),
+        MarkovPS{2}((1.0,)),
+    )
+    for model in (models..., models[1] + models[2], stretched_ps(models[1], 1.0, 2.0))
+        @test power_point(model, 0.2, 0.3) isa Real
+        @test amplitude_point(model, 0.2, 0.3) isa Real
+        for coordinates in ((), (0.2,), (0.2, 0.3, 0.4))
+            @test_throws MethodError power_point(model, coordinates...)
+            @test_throws MethodError amplitude_point(model, coordinates...)
+        end
+        @test_throws DimensionMismatch SRF.paired_power(model, 0.2, 0.3)
+        @test_throws DimensionMismatch SRF.paired_power(model, 0.2, 0.3, -0.2, -0.3, 0.4)
+    end
 end

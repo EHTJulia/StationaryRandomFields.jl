@@ -1,15 +1,18 @@
 module StationaryRandomFields
 
+using AbstractFFTs: fftfreq
 using Distributions
 using FastHartleyTransform
 using LinearAlgebra
 using Random
 using Statistics
+using StaticArrays: SMatrix, SVector
 using Wavelets
 
 import Distributions: _rand!, _logpdf, insupport, logpdf
 
 export AbstractStationaryRandomField,
+    IndependentRandomField,
     UnivariateRandomField,
     UnivariateGaussianRandomField,
     UnivariateLaplaceRandomField,

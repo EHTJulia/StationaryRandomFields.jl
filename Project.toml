@@ -4,12 +4,14 @@ authors = ["Kazunori Akiyama", "Anna Tartaglia", "Paul Tiede"]
 version = "2.0.0"
 
 [deps]
+AbstractFFTs = "621f4979-c628-5d54-868e-fcf4e3e8185c"
 AbstractFastHartleyTransforms = "19a999c2-4b91-4a95-a5ef-9640c9e909f0"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 FastHartleyTransform = "e0605d58-1a4b-427b-8ab9-d16fed775e83"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 Wavelets = "29a6e085-ba6d-5f35-a997-948ac2efa89a"
 
 [weakdeps]
@@ -23,6 +25,7 @@ StationaryRandomFieldsKernelFunctionsExt = "KernelFunctions"
 StationaryRandomFieldsReactantExt = "Reactant"
 
 [compat]
+AbstractFFTs = "1"
 AbstractFastHartleyTransforms = "0.1.3"
 CUDA = "5"
 Distributions = "0.25.117"
@@ -33,6 +36,7 @@ LinearAlgebra = "1.10"
 Random = "1.10"
 Reactant = "0.2.292"
 Statistics = "1.10"
+StaticArrays = "1"
 Wavelets = "0.10"
 julia = "1.10"
 

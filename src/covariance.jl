@@ -25,7 +25,7 @@ function PeriodicCovariance(
     )
 end
 function PeriodicCovariance(
-        grid::FieldGrid, model::AbstractPowerSpectrumModel, latent::UnivariateRandomField{N, D}
+        grid::FieldGrid, model::AbstractPowerSpectrumModel, latent::IndependentRandomField{N, D}
     ) where {N, D <: Normal}
     size(grid) == size(latent) || throw(DimensionMismatch("Latent shape mismatch."))
     return PeriodicCovariance(grid, model; variance = var(latent.dist))

@@ -9,7 +9,6 @@ function direct_hartley(dims, ::Type{T}) where {T}
         ]
     )
 end
-
 @testset "Hartley synthesis and signal sampling" begin
     for T in (Float32, Float64), dims in ((7,), (3, 4), (2, 3, 2), (2, 2, 2, 2))
         z = reshape(T.(sin.(1:prod(dims))), dims)
@@ -150,4 +149,17 @@ end
     @test eltype(apply(ScaleTransform(size(x), 1.5), x)) == Float32
     t = prepare(SpectralScaling(FieldGrid(size(x)), ConstantPowerSpectrum{2}(2.0)), x)
     @test eltype(apply(t, x)) == Float32
+end
+@testset "Dynamic and fixed spectral spacing" begin
+    for dims in ((4,), (5,), (4, 5), (4, 6)), T in (Float32, Float64)
+        x = reshape(T.(1:prod(dims)), dims)
+        spacing = ntuple(i -> T(0.3 + 0.2i), length(dims))
+        base = SinglePowerLaw{length(dims)}(T(-1.3); dc = T(0.4))
+        model = length(dims) == 2 ? rotated_ps(stretched_ps(base, T(2), T(1)), T(0.4)) : base
+        fixed = prepare(SpectralScaling(FieldGrid(dims; spacing), model), x)
+        dynamic = prepare(DynamicSpectralScaling(dims, model), x)
+        @test apply(dynamic, x, spacing) ≈ apply(fixed, x)
+        @test apply(dynamic, x, spacing, model) ≈ apply(fixed, x, model)
+        @test_throws DimensionMismatch apply(dynamic, x, (spacing..., one(T)))
+    end
 end

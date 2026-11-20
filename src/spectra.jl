@@ -1,4 +1,10 @@
-"""A periodic Cartesian grid; spacing is measured in signal-coordinate units."""
+"""
+    FieldGrid(dims; spacing = ntuple(_ -> 1.0, length(dims)))
+
+A periodic Cartesian grid with `N` dimensions. `dims` gives the number of samples
+along each axis and `spacing` gives their separation in signal-coordinate units.
+The grid period along axis `i` is `dims[i] * spacing[i]`. `T` is the spacing type.
+"""
 struct FieldGrid{N, T <: AbstractFloat}
     dims::NTuple{N, Int}
     spacing::NTuple{N, T}
@@ -101,14 +107,12 @@ struct MarkovPS{N, M, T} <: AbstractPowerSpectrumModel{N}
     end
 end
 
-function power_point(p::MaternPS{N}, f::Vararg{Any, K}) where {N, K}
-    check_frequency(p, f)
+function power_point(p::MaternPS{N}, f::Vararg{Any, N}) where {N}
     r2 = sum(abs2, f)
     angular = oftype(p.rho, 2pi)
     return (one(r2) + (angular * p.rho)^2 * r2 / (8 * p.nu))^(-p.nu - oftype(p.nu, N) / 2)
 end
-function power_point(p::MarkovPS, f::Vararg{Any, K}) where {K}
-    check_frequency(p, f)
+function power_point(p::MarkovPS{N}, f::Vararg{Any, N}) where {N}
     r2 = sum(abs2, f)
     k2 = oftype(first(p.scales), 2pi)^2 * r2
     terms = ntuple(j -> (p.scales[j]^2 * k2)^j, length(p.scales))
@@ -124,17 +128,10 @@ function convert_parameters(::Type{T}, p::MarkovPS{N}) where {T, N}
     return MarkovPS{N}(map(T, p.scales); check_args = false)
 end
 
-function check_frequency(p, ν)
-    length(ν) == ndims(p) || throw(DimensionMismatch("Wrong frequency rank."))
-    return nothing
-end
-# Specialize frequency tuple lengths in pointwise and broadcast evaluations.
-function power_point(p::ConstantPowerSpectrum, ν::Vararg{Any, K}) where {K}
-    check_frequency(p, ν)
+function power_point(p::ConstantPowerSpectrum{N}, ν::Vararg{Any, N}) where {N}
     return p.power
 end
-function power_point(p::SinglePowerLaw, ν::Vararg{Any, K}) where {K}
-    check_frequency(p, ν)
+function power_point(p::SinglePowerLaw{N}, ν::Vararg{Any, N}) where {N}
     r2, index, dc = promote(sum(abs2, ν), p.index, p.dc)
 
     # Arithmetic masks keep the DC expression finite during device differentiation.
@@ -143,8 +140,7 @@ function power_point(p::SinglePowerLaw, ν::Vararg{Any, K}) where {K}
     value = r^index
     return dc_mode * oftype(value, dc) + (one(dc_mode) - dc_mode) * value
 end
-function power_point(p::SaturatedPowerLaw, ν::Vararg{Any, K}) where {K}
-    check_frequency(p, ν)
+function power_point(p::SaturatedPowerLaw{N}, ν::Vararg{Any, N}) where {N}
     r2 = sum(abs2, ν)
     r = sqrt(max(r2, p.inscale^2))
     return ifelse(r2 >= p.outscale^2, zero(r), r^p.index)
@@ -154,7 +150,7 @@ function power_amplitude(power)
     zero_mode = ifelse(iszero(power), one(power), zero(power))
     return (one(power) - zero_mode) * sqrt(power + zero_mode)
 end
-function amplitude_point(p::AbstractPowerSpectrumModel, ν::Vararg{Any, K}) where {K}
+function amplitude_point(p::AbstractPowerSpectrumModel{N}, ν::Vararg{Any, N}) where {N}
     return power_amplitude(power_point(p, ν...))
 end
 
@@ -167,7 +163,7 @@ function Base.:+(
     models = promote_models((a, b))
     return SumPowerSpectrum{N, typeof(models)}(models)
 end
-power_point(p::SumPowerSpectrum, ν::Vararg{Any, K}) where {K} = summed_power(p.models, ν)
+power_point(p::SumPowerSpectrum{N}, ν::Vararg{Any, N}) where {N} = summed_power(p.models, ν)
 summed_power(models::Tuple{Any}, ν) = power_point(only(models), ν...)
 function summed_power(models::Tuple, ν)
     return power_point(first(models), ν...) + summed_power(Base.tail(models), ν)
@@ -191,42 +187,45 @@ function PowerSpectrumStretch(s::Number...; check_args::Bool = true)
         throw(ArgumentError("PowerSpectrumStretch factors must be positive."))
     return PowerSpectrumStretch(f)
 end
-struct PowerSpectrumRotate{N, T} <: PowerSpectrumModifier
-    rows::NTuple{N, NTuple{N, T}}
+struct PowerSpectrumRotate{N, T, L} <: PowerSpectrumModifier
+    matrix::SMatrix{N, N, T, L}
+    function PowerSpectrumRotate(q::SMatrix{N, N, T, L}) where {N, T, L}
+        N > 0 || throw(DimensionMismatch("Rotation must be square."))
+        return new{N, T, L}(q)
+    end
 end
 function PowerSpectrumRotate(angle::Number)
     angle isa Complex && throw(ArgumentError("Rotation angles must be real."))
     s, c = sincos(angle)
-    return PowerSpectrumRotate(((c, -s), (s, c)))
+    return PowerSpectrumRotate(SMatrix{2, 2}(c, s, -s, c))
 end
 function PowerSpectrumRotate(q::AbstractMatrix{<:Real})
     n, m = size(q)
     n == m && n > 0 || throw(DimensionMismatch("Rotation must be square."))
-    isapprox(q' * q, I; atol = 100eps(float(eltype(q))), rtol = 100eps(float(eltype(q)))) &&
-        isapprox(det(q), one(eltype(q)); atol = 100eps(float(eltype(q)))) ||
-        throw(ArgumentError("Rotation must be a proper orthogonal matrix."))
-    return PowerSpectrumRotate(ntuple(i -> ntuple(j -> q[i, j], n), n))
+    return PowerSpectrumRotate(SMatrix{n, n}(q))
 end
 struct ModifiedPowerSpectrumModel{N, P <: AbstractPowerSpectrumModel{N}, M <: Tuple} <:
     AbstractPowerSpectrumModel{N}
     model::P
     modifiers::M
 end
+check_modifier_dimensions(::PowerSpectrumModifier, ::Int) = nothing
+function check_modifier_dimensions(m::PowerSpectrumStretch, n::Int)
+    length(m.factors) == n || throw(DimensionMismatch("PowerSpectrumStretch has the wrong rank."))
+    return nothing
+end
+function check_modifier_dimensions(m::PowerSpectrumRotate, n::Int)
+    size(m.matrix, 1) == n || throw(DimensionMismatch("Rotation has the wrong rank."))
+    return nothing
+end
+
 function modify_ps(p::AbstractPowerSpectrumModel{N}, ms::Vararg{PowerSpectrumModifier, K}) where {N, K}
-    for m in ms
-        m isa PowerSpectrumStretch &&
-            length(m.factors) != N &&
-            throw(DimensionMismatch("PowerSpectrumStretch has the wrong rank."))
-        m isa PowerSpectrumRotate &&
-            length(m.rows) != N &&
-            throw(DimensionMismatch("Rotation has the wrong rank."))
-    end
+    foreach(m -> check_modifier_dimensions(m, N), ms)
     return promoted_modified(
         p, ms, common_parameter_type((parameter_type(p), map(parameter_type, ms)...))
     )
 end
-function power_point(p::ModifiedPowerSpectrumModel, ν::Vararg{Any, K}) where {K}
-    check_frequency(p, ν)
+function power_point(p::ModifiedPowerSpectrumModel{N}, ν::Vararg{Any, N}) where {N}
     return modified_power(p.model, p.modifiers, ν)
 end
 modified_power(p, ::Tuple{}, ν) = power_point(p, ν...)
@@ -236,7 +235,7 @@ end
 modified_power(p, ms, m::PowerSpectrumRenormalize, ν) = m.scale * modified_power(p, ms, ν)
 modified_power(p, ms, m::PowerSpectrumStretch, ν) = modified_power(p, ms, ν ./ m.factors)
 function modified_power(p, ms, m::PowerSpectrumRotate, ν)
-    return modified_power(p, ms, map(row -> sum(row .* ν), m.rows))
+    return modified_power(p, ms, Tuple(m.matrix * SVector(ν)))
 end
 renormed_ps(p::AbstractPowerSpectrumModel, s::Real) = modify_ps(p, PowerSpectrumRenormalize(s))
 stretched_ps(p::AbstractPowerSpectrumModel, s::Real...) = modify_ps(p, PowerSpectrumStretch(s...))
@@ -283,7 +282,7 @@ function convert_parameters(::Type{T}, m::PowerSpectrumStretch) where {T}
     return PowerSpectrumStretch(map(v -> convert(T, v), m.factors))
 end
 function convert_parameters(::Type{T}, m::PowerSpectrumRotate) where {T}
-    return PowerSpectrumRotate(map(row -> map(v -> convert(T, v), row), m.rows))
+    return PowerSpectrumRotate(map(v -> convert(T, v), m.matrix))
 end
 function convert_parameters(::Type{T}, p::SumPowerSpectrum{N}) where {T, N}
     models = map(m -> convert_parameters(T, m), p.models)
@@ -309,7 +308,7 @@ end
 function frequency_axes(g::FieldGrid{N}, (::Type{T}) = Float64) where {N, T}
     return ntuple(N) do d
         n = g.dims[d]
-        [T(k <= (n - 1) ÷ 2 ? k : k - n) / T(n * g.spacing[d]) for k in 0:(n - 1)]
+        collect(fftfreq(n, inv(T(g.spacing[d]))))
     end
 end
 
@@ -436,10 +435,17 @@ power is not renormalized.
 @doc """
     rotated_ps(model, angle_or_matrix)
 
-Pull frequencies back through a 2D rotation angle or an N-dimensional proper orthogonal
+Pull frequencies back through a 2D rotation angle or an N-dimensional square
 matrix. Angles are in radians.
 """ rotated_ps
 
 @doc """A nonnegative power multiplier. Disable checks only for validated dynamic parameterizations.""" PowerSpectrumRenormalize
 @doc """Positive per-axis frequency widths. `check_args=false` supports compiled positive parameterizations.""" PowerSpectrumStretch
-@doc """A rotation of frequency coordinates, represented by fixed-size matrix rows.""" PowerSpectrumRotate
+@doc """
+    PowerSpectrumRotate(angle)
+    PowerSpectrumRotate(matrix)
+
+Transform frequency coordinates by a two-dimensional angle in radians or an
+N-dimensional square matrix. A matrix is stored as an `SMatrix`; use an
+orthogonal matrix for a rotation or reflection.
+""" PowerSpectrumRotate

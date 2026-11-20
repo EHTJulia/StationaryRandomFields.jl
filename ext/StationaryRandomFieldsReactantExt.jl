@@ -15,13 +15,13 @@ const ReactantArray{T, N} = Union{
 # Traced scalar element types do not subtype Real, so Distributions' host
 # array fallbacks do not dispatch on traced arrays.
 function Distributions.logpdf(
-        f::UnivariateRandomField{N}, x::ReactantArray{T, N}
+        f::IndependentRandomField{N}, x::ReactantArray{T, N}
     ) where {T, N}
     size(x) == size(f) || throw(DimensionMismatch("Wrong latent shape."))
     return latent_logpdf(f.dist, x)
 end
 function Distributions.logpdf(
-        f::UnivariateRandomField{N, D},
+        f::IndependentRandomField{N, D},
         x::ReactantArray{T, N};
         location = mean(f.dist),
         scale = StationaryRandomFields.prior_scale(f.dist),
@@ -38,17 +38,15 @@ function check_input(t, x::ReactantArray{T}) where {T}
 end
 
 function _rand!(
-        rng::AbstractRNG, f::UnivariateRandomField{N, D}, x::ReactantArray{T, N}
+        rng::AbstractRNG, f::IndependentRandomField{N, D}, x::ReactantArray{T, N}
     ) where {N, D <: Normal, T <: AbstractFloat}
     return _rand_normal_field!(rng, f, x)
 end
-
 function _rand!(
-        rng::AbstractRNG, f::UnivariateRandomField{N, D}, x::ReactantArray{T, N}
+        rng::AbstractRNG, f::IndependentRandomField{N, D}, x::ReactantArray{T, N}
     ) where {N, D <: Laplace, T <: AbstractFloat}
     return _rand_laplace_field!(rng, f, x)
 end
-
 function _rand!(
         rng::AbstractRNG, f::TransformedRandomField{N}, x::ReactantArray{T, N}
     ) where {T, N}

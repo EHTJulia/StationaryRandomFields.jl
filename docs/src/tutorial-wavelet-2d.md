@@ -62,3 +62,40 @@ nothing # hide
 
 Coarse-scale weights favor broad structure. During inference, evaluate the prior
 on the unweighted latent coefficients; see [Latent fields](math-latent.md).
+
+## Comparing Daubechies bases
+
+The following comparison reuses the same 128×128 Laplace coefficients `z`,
+seed 45, and scale weights from above. Each transform uses seven levels and
+periodic boundaries. Db1, Db2, Db4, Db6, Db8, and Db10 are orthogonal, so the
+same weighted coefficients have the same total energy in every synthesized
+field. No per-image variance normalization is applied; all panels share one
+color scale. For this draw, the sample means and standard deviations also agree
+to floating-point precision, while the spatial patterns differ.
+
+```@example wavelet_2d
+using LinearAlgebra
+
+basis_names = (:db1, :db2, :db4, :db6, :db8, :db10)
+basis_fields = map(basis_names) do name
+    descriptor = WaveletTransform(wavelet(getproperty(WT, name)); levels = levels)
+    prepared = prepare(TransformChain(ScaleTransform(weights), descriptor), latent)
+    apply(prepared, z)
+end
+weighted_energy = norm(weights .* z)
+@assert all(field -> isapprox(norm(field), weighted_energy; rtol = 1.0e-12), basis_fields)
+@assert isapprox(basis_fields[3], signal; rtol = 1.0e-12)
+
+limit = maximum(field -> maximum(abs, field), basis_fields)
+comparison = Figure(; size = (1200, 760))
+for (index, (name, field)) in enumerate(zip(basis_names, basis_fields))
+    local row, col = fld(index - 1, 3) + 1, mod1(index, 3)
+    local axis = Axis(comparison[row, col]; title = uppercasefirst(string(name)), aspect = DataAspect())
+    heatmap!(axis, field; colormap = :balance, colorrange = (-limit, limit))
+end
+Colorbar(comparison[:, 4]; colormap = :balance, limits = (-limit, limit), label = "Signal")
+save("laplace-wavelet-bases.png", comparison)
+nothing # hide
+```
+
+![Six wavelet fields synthesized from the same Laplace coefficients](laplace-wavelet-bases.png)

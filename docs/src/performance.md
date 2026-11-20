@@ -6,8 +6,12 @@ Standard deviation describes variation across repeated executions, not uncertain
 GPU speedups in parentheses are ``t_{\mathrm{CPU}}/t_{\mathrm{GPU}}`` using medians for the corresponding implementation: native CPU for CUDA, Reactant CPU for Reactant GPU.
 
 Measured with an AMD EPYC 7543 CPU, NVIDIA A40 GPU, and Julia 1.10.12.
-Julia/FFTW use four threads; BLAS uses one. Medians follow warmup and GPU
-synchronization, excluding planning, transfers, and compilation. Reactant 0.2.299 uses default compiler and backend threading settings.
+Julia/FFTW use four threads; BLAS uses one. Measurements use dedicated,
+exclusive nodes where available; medians follow warmup and GPU synchronization,
+excluding planning, transfers, and compilation. Detailed benchmark records report
+mean, median, standard deviation, Q1, Q3, IQR, sample count, and units, with
+compilation and steady-state execution reported separately. Reactant 0.2.299
+uses default compiler and backend threading settings.
 
 ## Orthonormal Hartley synthesis
 

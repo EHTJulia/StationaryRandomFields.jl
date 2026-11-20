@@ -33,6 +33,7 @@ makedocs(;
             "Gaussian image textures" => "tutorial-gaussian-2d.md",
             "Daubechies wavelet signals" => "tutorial-wavelet-1d.md",
             "Daubechies wavelet images" => "tutorial-wavelet-2d.md",
+            "Closure imaging with Comrade" => "tutorial-comrade-wavelet.md",
             "Custom fields" => "tutorial-custom-field.md",
             "Custom transforms" => "tutorial-custom-transform.md",
         ],
