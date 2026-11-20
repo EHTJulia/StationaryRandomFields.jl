@@ -2,7 +2,7 @@
 
 julia_version = "1.10.12"
 manifest_format = "2.0"
-project_hash = "5b1132ca1aa8ee9e96f4001c080735fcde88aff7"
+project_hash = "f2ab21834e60bee6d7ea54bd7d8267b78cfad3e1"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -199,18 +199,13 @@ deps = ["LinearAlgebra"]
 git-tree-sha1 = "417289ac840d201005d9ed16789a46defccbe36d"
 uuid = "1a297f60-69ca-5386-bcde-b61e274b549b"
 version = "1.18.1"
+weakdeps = ["PDMats", "SparseArrays", "StaticArrays", "Statistics"]
 
     [deps.FillArrays.extensions]
     FillArraysPDMatsExt = "PDMats"
     FillArraysSparseArraysExt = "SparseArrays"
     FillArraysStaticArraysExt = "StaticArrays"
     FillArraysStatisticsExt = "Statistics"
-
-    [deps.FillArrays.weakdeps]
-    PDMats = "90014a1f-27ba-587c-ab20-58faa44d9150"
-    SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
-    StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
-    Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [[deps.Future]]
 deps = ["Random"]
@@ -529,6 +524,20 @@ version = "2.9.1"
 
     [deps.SpecialFunctions.weakdeps]
     ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+
+[[deps.StaticArrays]]
+deps = ["LinearAlgebra", "PrecompileTools", "Random", "StaticArraysCore"]
+git-tree-sha1 = "c8bf24c3f713c724e7bceaf9d0bb6729dbd3c8cc"
+uuid = "90137ffa-7385-5640-81b9-e52037218182"
+version = "1.9.25"
+
+    [deps.StaticArrays.extensions]
+    StaticArraysChainRulesCoreExt = "ChainRulesCore"
+    StaticArraysStatisticsExt = "Statistics"
+
+    [deps.StaticArrays.weakdeps]
+    ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+    Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [[deps.StaticArraysCore]]
 git-tree-sha1 = "6ab403037779dae8c514bad259f32a447262455a"
