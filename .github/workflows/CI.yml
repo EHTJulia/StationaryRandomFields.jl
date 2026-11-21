@@ -34,7 +34,7 @@ jobs:
         arch: [x64]
         include:
           - version: '1.10.12'
-            os: macos-14
+            os: macos-15
             arch: aarch64
           - version: '1.10.12'
             os: ubuntu-24.04-arm
