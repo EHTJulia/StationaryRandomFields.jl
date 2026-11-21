@@ -1,6 +1,18 @@
-using StationaryRandomFields
 using Test
+using Random
+using LinearAlgebra
+using Statistics
+using Distributions
+using Wavelets
+using StationaryRandomFields
 
-@testset "StationaryRandomFields.jl" begin
-    # Write your tests here.
-end
+const SRF = StationaryRandomFields
+
+include("fields.jl")
+include("spectra.jl")
+include("transforms.jl")
+include("enzyme.jl")
+
+include("covariance.jl")
+
+include("descriptors.jl")

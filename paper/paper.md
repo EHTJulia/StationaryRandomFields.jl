@@ -72,8 +72,8 @@ ps = SinglePowerLaw{2}(-2.) # basic power spectrum with index β = -2
 
 # The power spectrum may be modified via renormalization, rotation, and stretching
 renormed_ps = 1000 * ps 
-rotated_ps = rotated(renormed_ps, π/6) # π/6 is the rotation factor
-stretched_ps = stretched(rotated_ps, 100, 100) # 100 is the stretch factor of both axes
+rotated_ps = rotated_ps(renormed_ps, π/6) # π/6 is the rotation factor
+stretched_ps = stretched_ps(rotated_ps, 100, 100) # 100 is the stretch factor of both axes
 
 # Now create a noise-generator corresponding to the signal and power law
 # Note that the power spectrum and noise signal must be of the same dimension

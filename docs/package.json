@@ -2,7 +2,7 @@
   "scripts": {
     "docs:dev": "vitepress dev build/.documenter",
     "docs:build": "vitepress build build/.documenter",
-    "docs:preview": "vitepress preview build/.documenter"
+    "docs:preview": "vite preview --outDir build/final_site --base /StationaryRandomFields.jl/ --host 127.0.0.1"
   },
   "dependencies": {
     "@shikijs/transformers": "^1.1.7",
@@ -10,6 +10,7 @@
     "markdown-it-footnote": "^4.0.0",
     "markdown-it-mathjax3": "^4.3.2",
     "vitepress": "^1.1.4",
-    "vitepress-plugin-tabs": "^0.5.0"
+    "vitepress-plugin-tabs": "^0.5.0",
+    "vite": "^5.4.21"
   }
 }

@@ -1,0 +1,23 @@
+[deps]
+CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
+Comrade = "99d987ce-9a1e-4df8-bc0b-1ea019aa547b"
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+Enzyme = "7da242da-08ed-463a-9acd-ee780be4f1d9"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+LogDensityProblems = "6fdf6af0-433a-55f7-b3ed-c6c6e0b8df7c"
+Optim = "429524aa-4258-5aef-a3af-852621145aeb"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+StationaryRandomFields = "6ab34832-f7e5-40a4-9cd7-47ea82b5c144"
+VLBIFiles = "c1ebf4c8-f9d4-409a-8daf-7009448f4e6e"
+VLBIImagePriors = "b1ba175b-8447-452c-b961-7db2d6f7a029"
+Wavelets = "29a6e085-ba6d-5f35-a997-948ac2efa89a"
+
+[compat]
+CairoMakie = "0.15"
+Comrade = "0.11.33"
+Distributions = "0.25"
+Enzyme = "0.13"
+Optim = "1"
+VLBIImagePriors = "0.10.16"
+Wavelets = "0.10"
+julia = "1.10"
